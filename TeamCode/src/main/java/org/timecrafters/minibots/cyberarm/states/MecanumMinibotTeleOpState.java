@@ -2,7 +2,7 @@ package org.timecrafters.minibots.cyberarm.states;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.cyberarm.engine.V2.CyberarmEngine;
+
 import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.minibots.cyberarm.MecanumMinibot;
 
@@ -31,18 +31,20 @@ public class MecanumMinibotTeleOpState extends CyberarmState {
             robot.driveStrafe(MecanumMinibot.STRAFE_RIGHT, speed);
 
         } else if (engine.gamepad1.left_bumper) {
-            robot.driveTurn(MecanumMinibot.TURN_LEFT, speed*.5);
+            robot.driveTurn(MecanumMinibot.TURN_LEFT, speed);
 
         } else if (engine.gamepad1.right_bumper) {
-            robot.driveTurn(MecanumMinibot.TURN_RIGHT, speed*.5);
+            robot.driveTurn(MecanumMinibot.TURN_RIGHT, speed);
         } else {
             robot.driveStop();
         }
         /* ............................................................................ elevator */
-        if(engine.gamepad1.dpad_up){
+        if(engine.gamepad1.dpad_up ||
+                engine.gamepad2.y){
             robot.pServoElevate.setPower(1.0);
         }
-        else if(engine.gamepad1.dpad_down){
+        else if(engine.gamepad1.dpad_down ||
+                engine.gamepad2.a){
             robot.pServoElevate.setPower(-1.0);
         }
         else{
@@ -50,29 +52,35 @@ public class MecanumMinibotTeleOpState extends CyberarmState {
         }
 
         /* ............................................................................ arch */
-        if(Math.abs(engine.gamepad1.left_stick_y)>0.1){
-            robot.pServoArch.setPower(engine.gamepad1.left_stick_y);
+        if(Math.abs(engine.gamepad1.left_stick_y)>0.1 ||
+                Math.abs(engine.gamepad2.left_stick_y)>0.1){
+            robot.pServoArch.setPower(engine.gamepad1.left_stick_y + engine.gamepad2.left_stick_y);
         }
         else{
             robot.pServoArch.setPower((0.0));
         }
 
         /* ............................................................................ rotate */
-        if(engine.gamepad1.dpad_right){ // up position
+        if(engine.gamepad1.dpad_right ||
+                engine.gamepad2.dpad_right){ // up position
             robot.pServoRotate.setPosition(0.0);
         }
-        if(engine.gamepad1.dpad_left){ // down position
+        if(engine.gamepad1.dpad_left ||
+                engine.gamepad2.dpad_left){ // down position
             robot.pServoRotate.setPosition(0.70);
         }
 
         /* ............................................................................ grab */
-        if(engine.gamepad1.left_stick_x>0.5|| engine.gamepad1.right_stick_x<-0.5){ // in
+        if(engine.gamepad1.left_stick_x>0.5 || engine.gamepad1.right_stick_x<-0.5 ||
+                engine.gamepad2.x){ // in
             robot.pServoGrab.setPosition(0.9);
         }
-        if(engine.gamepad1.left_stick_x<-0.5){ // small out
+        if(engine.gamepad1.back ||
+                engine.gamepad2.back){ // small out
             robot.pServoGrab.setPosition(0.50);
         }
-        if(engine.gamepad1.right_stick_x>0.5){ // big out
+        if(engine.gamepad1.right_stick_x>0.5 || engine.gamepad1.right_stick_x>0.5 ||
+                engine.gamepad2.b){ // big out
             robot.pServoGrab.setPosition(0.0);
         }
         /* ............................................................................ carousel */

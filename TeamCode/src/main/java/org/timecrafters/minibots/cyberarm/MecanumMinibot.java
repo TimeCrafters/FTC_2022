@@ -94,7 +94,7 @@ public class MecanumMinibot {
 
     public void driveStrafe(int direction, double power) {
         double dStrafeRatioBack=1.0;
-        double dStrafeRatioFront=0.5;
+        double dStrafeRatioFront=1.0;
 
         if (direction == STRAFE_LEFT) {
             frontLeftDrive.setPower(power*dStrafeRatioFront);

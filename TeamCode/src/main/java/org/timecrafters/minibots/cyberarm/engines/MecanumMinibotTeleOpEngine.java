@@ -15,5 +15,5 @@ public class MecanumMinibotTeleOpEngine extends CyberarmEngine {
         robot = new MecanumMinibot(this);
 
         addState(new MecanumMinibotTeleOpState(robot));
-    }//
+    }
 }
