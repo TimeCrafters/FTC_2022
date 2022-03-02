@@ -41,8 +41,8 @@ public class MecanumMinibot {
     private void setupServos(){
         pServoArch                              = engine.hardwareMap.crservo.get("arch");     //0
         pServoElevate                           = engine.hardwareMap.crservo.get("elevate");  //2
-        pServoRotate                            = engine.hardwareMap.servo.get("rotate");   //3
-        pServoGrab                              = engine.hardwareMap.servo.get("grab");     //4
+        pServoRotate                            = engine.hardwareMap.servo.get("rotate");     //3
+        pServoGrab                              = engine.hardwareMap.servo.get("grab");       //4
         pServoCarousel                          = engine.hardwareMap.crservo.get("carousel"); //5
 
         pServoRotate.scaleRange(0.0, 1.0);
