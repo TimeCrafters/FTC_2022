@@ -106,11 +106,6 @@ public class MecanumMinibotTeleOpState extends CyberarmState {
     }
 
     @Override
-    public void exac() {
-
-    }
-
-    @Override
     public void telemetry() {
         engine.telemetry.addData("speed", speed);
     }

@@ -232,6 +232,4 @@ public abstract class CyberarmState implements Runnable {
   public String progressBar(int width, double percentCompleted) {
     return progressBar(width, percentCompleted, "=", "  ");
   }
-
-    public abstract void exac();
 }
