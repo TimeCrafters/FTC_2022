@@ -85,5 +85,10 @@ public class DemoPingPongState extends CyberarmState {
 
         }
     }
+
+    @Override
+    public void exac() {
+
+    }
 }
 

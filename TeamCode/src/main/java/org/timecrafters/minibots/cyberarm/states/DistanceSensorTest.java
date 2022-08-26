@@ -136,4 +136,9 @@ public class DistanceSensorTest extends CyberarmState {
         engine.telemetry.addData("Amount", ballAmount);
 
     }
+
+    @Override
+    public void exac() {
+
+    }
 }
