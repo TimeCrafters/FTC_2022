@@ -75,11 +75,5 @@ public class pickle_teleop_state extends CyberarmState {
             robot.pServoGrab.setPosition(0);
         }
     }
-
-    @Override
-    public void exac() {
-
-    }
-
 }
 
