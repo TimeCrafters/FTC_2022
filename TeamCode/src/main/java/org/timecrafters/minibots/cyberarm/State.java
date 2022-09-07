@@ -26,7 +26,7 @@ public class State extends CyberarmState {
         }
         else if (engine.gamepad1.dpad_up) {
 
-            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_LIGHT_CHASE);
+            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_FOREST_PALETTE);
 
         }
         if (engine.gamepad1.x) {
@@ -36,7 +36,7 @@ public class State extends CyberarmState {
         }
         else if (engine.gamepad1.dpad_up) {
 
-            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_LIGHT_CHASE);
+            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_OCEAN_PALETTE);
 
         }
         if (engine.gamepad1.y) {
@@ -46,7 +46,7 @@ public class State extends CyberarmState {
         }
         else if (engine.gamepad1.dpad_up) {
 
-        robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_LIGHT_CHASE);
+        robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
 
     }
         if (engine.gamepad1.b) {
@@ -56,7 +56,7 @@ public class State extends CyberarmState {
         }
         else if (engine.gamepad1.dpad_up) {
 
-            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.CP1_LIGHT_CHASE);
+            robot.leds.setPattern(RevBlinkinLedDriver.BlinkinPattern.COLOR_WAVES_LAVA_PALETTE);
 
         }
     }
