@@ -31,19 +31,19 @@ public class AssignmentOmniKinetic extends CyberarmState {
 
                 if (engine.gamepad1.left_bumper) {
 
-                    robot.frontLeftDrive.setPower(engine.gamepad1.left_stick_y * 1);
-                    robot.frontRightDrive.setPower(engine.gamepad1.left_stick_y * -1);
-                    robot.backLeftDrive.setPower(engine.gamepad1.left_stick_y * -1);
-                    robot.backRightDrive.setPower(engine.gamepad1.left_stick_y * 1);
+                    robot.frontLeftDrive.setPower(1);
+                    robot.frontRightDrive.setPower(-1);
+                    robot.backLeftDrive.setPower(-1);
+                    robot.backRightDrive.setPower(1);
 
                 }
 
                 if (engine.gamepad1.right_bumper) {
 
-                    robot.frontLeftDrive.setPower(engine.gamepad1.right_stick_y * -1);
-                    robot.frontRightDrive.setPower(engine.gamepad1.right_stick_y * 1);
-                    robot.backLeftDrive.setPower(engine.gamepad1.right_stick_y * 1);
-                    robot.backRightDrive.setPower(engine.gamepad1.right_stick_y * -1);
+                    robot.frontLeftDrive.setPower(-1);
+                    robot.frontRightDrive.setPower(1);
+                    robot.backLeftDrive.setPower(1);
+                    robot.backRightDrive.setPower(-1);
 
 
                     }
