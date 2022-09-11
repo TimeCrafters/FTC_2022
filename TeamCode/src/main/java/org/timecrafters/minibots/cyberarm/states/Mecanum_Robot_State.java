@@ -4,6 +4,8 @@ import org.cyberarm.engine.V2.CyberarmState;
 
 public class Mecanum_Robot_State extends CyberarmState {
 
+    // adb connect 192.168.43.1
+
     private final MecanumRobot robot;
     private float maxSpeed = 1;
     private double halfSpeed = 0.5;
@@ -111,9 +113,5 @@ public class Mecanum_Robot_State extends CyberarmState {
         }
 
     }
-
-    @Override
-    public void exac() {
-
     }
-}
+

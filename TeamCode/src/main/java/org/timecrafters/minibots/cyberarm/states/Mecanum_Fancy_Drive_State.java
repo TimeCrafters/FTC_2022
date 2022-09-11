@@ -9,7 +9,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 public class Mecanum_Fancy_Drive_State extends CyberarmState {
 
     private final MecanumRobot robot;
-    public String ballAmount;
     public boolean A;
     public boolean X;
     public boolean Y;
@@ -64,66 +63,28 @@ public class Mecanum_Fancy_Drive_State extends CyberarmState {
         // directions on drive motors or put a negative in behind the joystick power to reverse it.
         // I put negatives in to reverse it because it was the easiest at the moment.
 
-        robot.frontLeftDrive.setPower(-frontLeftPower * drivePower);
-        robot.backLeftDrive.setPower(-backLeftPower * drivePower);
-        robot.frontRightDrive.setPower(-frontRightPower * drivePower);
-        robot.backRightDrive.setPower(-backRightPower * drivePower);
+        robot.frontLeftDrive.setPower(frontLeftPower * drivePower);
+        robot.backLeftDrive.setPower(backLeftPower * drivePower);
+        robot.frontRightDrive.setPower(frontRightPower * drivePower);
+        robot.backRightDrive.setPower(backRightPower * drivePower);
 
-        //-----------------------------------------------------------------
-        // Shooter program
 
-        if (A) {
-            robot.shooterWheel.setPower(1);
-            robot.collectorRight.setPower(0);
-        } if (Y) {
-            robot.shooterWheel.setPower(0);
-            robot.collectorRight.setPower(1);
-        } if (X) {
-            robot.shooterWheel.setPower(0);
-            robot.collectorRight.setPower(0);
-        }
-
-        // Ball blocker Servo Program
-        // This says if the trigger is pressed down 50% or more the servo brings the blocker down
-        if (engine.gamepad1.left_trigger >= 0.5) {
-            robot.ballBlocker.setPosition(0.45);
-        }
-        // this else statement says if nothing is pressed then it stays in the up position
-        else {
-            robot.ballBlocker.setPosition(0.52);
-        }
-
-        //--------------------------------------------------------------------------------
-        // ball Amount Sensor Program
-
-        if (robot.ballPositionSensor.getDistance(DistanceUnit.CM) < 9) {
-            ballAmount = "3 balls";
-        } else if (robot.ballPositionSensor.getDistance(DistanceUnit.CM) < 13){
-            ballAmount = "2 balls";
-        } else if (robot.ballPositionSensor.getDistance(DistanceUnit.CM) < 17){
-            ballAmount = "1 balls";
-        } else {
-            ballAmount = "no  balls";
-        }
 
 
 
         //-------------------------------------------------------------------------------------------------------------------
         // LIGHT CONTROLS
 
-        if (robot.ballBlocker.getPosition() == 0.45 && robot.shooterWheel.getPower() == 1) {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_RED);
-        } else if (robot.shooterWheel.getPower() == 1) {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        } else if (ballAmount.equals("3 balls")) {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.RED);
-        } else if (ballAmount.equals("2 balls")) {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.ORANGE);
-        } else if (ballAmount.equals("1 balls")) {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
-        } else {
-            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+
+        if (drivePower == 1) {
+            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.LIGHT_CHASE_BLUE);
         }
+
+        else if (drivePower == 0.5){
+            robot.ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+
+        }
+
     }
 
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -132,17 +93,11 @@ public class Mecanum_Fancy_Drive_State extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("Distance", robot.ballPositionSensor.getDistance(DistanceUnit.CM));
-        engine.telemetry.addData("Amount", ballAmount);
         engine.telemetry.addData("Speed", drivePower);
         engine.telemetry.addData("FrontLeftEncoder", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("FrontRightEncoder", robot.frontRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftEncoder", robot.backLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightEncoder", robot.backRightDrive.getCurrentPosition());
-
-    }
-    @Override
-    public void exac() {
 
     }
 }
