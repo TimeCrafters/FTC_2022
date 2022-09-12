@@ -47,5 +47,4 @@ public class PrototypeBot1 {
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
-
     }

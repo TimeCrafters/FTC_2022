@@ -84,5 +84,6 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.collectorRight.setPower(1);
 
         }
+
     }
 }
