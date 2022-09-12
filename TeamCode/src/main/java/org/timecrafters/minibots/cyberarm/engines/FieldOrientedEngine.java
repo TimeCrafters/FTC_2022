@@ -1,20 +1,24 @@
 package org.timecrafters.minibots.cyberarm.engines;
+
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.cyberarm.engine.V2.CyberarmEngine;
-import org.timecrafters.minibots.cyberarm.states.DemoPingPongState;
+import org.cyberarm.engine.V2.CyberarmState;
+import org.timecrafters.minibots.cyberarm.states.FieldOrientedDrive;
 import org.timecrafters.minibots.cyberarm.states.MecanumRobot;
 
-@TeleOp(name = "DemoTeleOp")
+@TeleOp(name = "Field Oriented Drive")
 
-public class DemoPingPongEngine extends CyberarmEngine {
+public class FieldOrientedEngine extends CyberarmEngine {
 
+    MecanumRobot robot;
     @Override
     public void setup() {
 
-        MecanumRobot robot;
-
         robot = new MecanumRobot(this);
 
-        addState(new DemoPingPongState(robot));
+        addState(new FieldOrientedDrive(robot));
+
     }
 }
+
