@@ -1,5 +1,7 @@
 package org.timecrafters.testing.states;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.cyberarm.engine.V2.CyberarmState;
 
 public class PrototypeTeleOPState extends CyberarmState {
@@ -10,9 +12,25 @@ public class PrototypeTeleOPState extends CyberarmState {
     public boolean Y;
     private boolean bprev;
     private double drivePower = 1;
+    private boolean UpDPad;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
+    }
+
+    @Override
+    public void telemetry() {
+        engine.telemetry.addData("Arm Position", robot.armMotor.getCurrentPosition());
+    }
+
+    @Override
+    public void init() {
+        robot.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.armMotor.setTargetPosition(600);
+        robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
     }
 
     @Override
@@ -23,6 +41,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         A = engine.gamepad1.a;
         X = engine.gamepad1.x;
         Y = engine.gamepad1.y;
+        UpDPad = engine.gamepad1.dpad_up;
 
 
         //drive speed toggle
@@ -71,7 +90,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 
-        if (engine.gamepad1.a) {
+        if (engine.gamepad1.b) {
 
             robot.collectorLeft.setPower(1);
             robot.collectorRight.setPower(-1);
@@ -85,5 +104,13 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 
+        if (engine.gamepad1.dpad_up) {
+
+            robot.armMotor.setPower(1);
+        } else {
+            robot.armMotor.setPower(0);
+
+
+        }
     }
 }
