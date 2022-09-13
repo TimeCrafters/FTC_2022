@@ -46,5 +46,8 @@ public class PrototypeBot1 {
             backRightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+            armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         }
     }
