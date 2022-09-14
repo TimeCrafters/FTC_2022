@@ -3,6 +3,7 @@ package org.timecrafters.testing.states;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 
@@ -13,6 +14,8 @@ public class PrototypeBot1 {
         public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, armMotor;
 
         public CRServo collectorLeft, collectorRight;
+
+        public Servo collectorWrist;
 
         public PrototypeBot1(CyberarmEngine engine) {
             this.engine = engine;
@@ -32,6 +35,7 @@ public class PrototypeBot1 {
             // servo configuration
             collectorLeft = engine.hardwareMap.crservo.get("collector left");
             collectorRight = engine.hardwareMap.crservo.get("collector right");
+            collectorWrist = engine.hardwareMap.servo.get("collector wrist");
 
             //motors direction and encoders
             frontLeftDrive.setDirection(DcMotorSimple.Direction.FORWARD);
