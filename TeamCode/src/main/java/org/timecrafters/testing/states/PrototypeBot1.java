@@ -9,7 +9,8 @@ import org.cyberarm.engine.V2.CyberarmEngine;
 
 public class PrototypeBot1 {
 
-        private CyberarmEngine engine;
+    public Servo RackRiserLeft, RackRiserRight;
+    private final CyberarmEngine engine;
 
         public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, armMotor;
 
@@ -36,6 +37,8 @@ public class PrototypeBot1 {
             collectorLeft = engine.hardwareMap.crservo.get("collector left");
             collectorRight = engine.hardwareMap.crservo.get("collector right");
             collectorWrist = engine.hardwareMap.servo.get("collector wrist");
+            RackRiserLeft = engine.hardwareMap.servo.get("RackRiserLeft");
+            RackRiserRight = engine.hardwareMap.servo.get("RackRiserRight");
 
             //motors direction and encoders
             frontLeftDrive.setDirection(DcMotorSimple.Direction.FORWARD);

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.cyberarm.engine.V2.CyberarmState;
 
 import java.lang.annotation.Target;
+import java.util.Objects;
 
 public class PrototypeTeleOPState extends CyberarmState {
 
@@ -16,6 +17,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double drivePower = 1;
     private boolean UpDPad;
     private int armTargetPosition = 0, armCollectPosition = 125, armDeliverPosition = 400;
+    private double collectorRiserPosition;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -26,6 +28,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("Arm Power", robot.armMotor.getPower());
         engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
         engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
+        engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
     }
 
     @Override
@@ -115,7 +118,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad2.dpad_left) {
 
-            robot.collectorWrist.setPosition(0.2);
+            robot.collectorWrist.setPosition(0.4);
 
         }
 
@@ -163,6 +166,20 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         robot.armMotor.setTargetPosition(armTargetPosition);
+
+        if (engine.gamepad1.a) {
+
+            robot.RackRiserLeft.setPosition(0);
+            robot.RackRiserRight.setPosition(1);
+
+        }
+
+        if (engine.gamepad1.x) {
+
+            robot.RackRiserLeft.setPosition(0.5);
+            robot.RackRiserRight.setPosition(1-.5);
+// .5's are originally .13's.
+        }
 
     }
 }
