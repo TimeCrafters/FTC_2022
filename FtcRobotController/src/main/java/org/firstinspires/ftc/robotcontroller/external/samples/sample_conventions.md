@@ -55,7 +55,7 @@ becomes obsolete.
 ### Device Configuration Names
 
 The following device names are used in the external samples
-
+ 
 ** Motors:
 left_drive
 right_drive
@@ -82,7 +82,7 @@ digout
 ** Localization:
 compass
 gyro
-imu
+imu 
 navx
 
 ### Device Object Names
