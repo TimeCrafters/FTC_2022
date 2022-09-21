@@ -90,8 +90,6 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.frontRightDrive.setPower(-frontRightPower);
         robot.backRightDrive.setPower(backRightPower);
 
-
-
         robot.armMotor.setPower(engine.gamepad2.left_stick_y * 0.5);
 
 
@@ -179,6 +177,20 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.RackRiserLeft.setPosition(0.5);
             robot.RackRiserRight.setPosition(1-.5);
 // .5's are originally .13's.
+        }
+
+        if (engine.gamepad2.right_stick_y > 0.1) {
+
+            robot.RackRiserRight.setPosition(+ 1);
+            robot.RackRiserLeft.setPosition(+ 1);
+
+        }
+
+        if (engine.gamepad2.right_stick_y < -0.1) {
+
+            robot.RackRiserLeft.setPosition(- 1);
+            robot.RackRiserRight.setPosition(- 1);
+
         }
 
     }
