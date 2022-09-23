@@ -38,6 +38,8 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.armMotor.setTargetPosition(armTargetPosition);
         robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.collectorWrist.setPosition(1);
+        robot.RackRiserLeft.setPosition(0.5);
+        robot.RackRiserRight.setPosition(0.5);
 
     }
 
@@ -174,24 +176,46 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.x) {
 
-            robot.RackRiserLeft.setPosition(0.5);
-            robot.RackRiserRight.setPosition(1-.5);
-// .5's are originally .13's.
+            robot.RackRiserLeft.setPosition(1);
+            robot.RackRiserRight.setPosition(0);
+
         }
 
         if (engine.gamepad2.right_stick_y > 0.1) {
 
-            robot.RackRiserRight.setPosition(+ 1);
-            robot.RackRiserLeft.setPosition(+ 1);
+            robot.RackRiserRight.setPosition(1);
+            robot.RackRiserLeft.setPosition(-1);
 
         }
 
         if (engine.gamepad2.right_stick_y < -0.1) {
 
-            robot.RackRiserLeft.setPosition(- 1);
-            robot.RackRiserRight.setPosition(- 1);
+            robot.RackRiserRight.setPosition(-1);
+            robot.RackRiserLeft.setPosition(1);
 
         }
+
+        if (engine.gamepad2.left_stick_y > 0.1) {
+
+            robot.FrontRiserLeft.setPosition(-1);
+            robot.FrontRiserRight.setPosition(1);
+
+        }
+
+        if (engine.gamepad2.left_stick_y < -0.1) {
+
+            robot.FrontRiserLeft.setPosition(1);
+            robot.FrontRiserRight.setPosition(-1);
+
+        }
+
+        if (engine.gamepad2.right_bumper) {
+
+            robot.RackRiserRight.setPosition(0.5);
+            robot.RackRiserLeft.setPosition(0.5);
+
+        }
+
 
     }
 }
