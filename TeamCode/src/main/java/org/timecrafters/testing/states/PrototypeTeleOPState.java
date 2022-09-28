@@ -40,6 +40,8 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.collectorWrist.setPosition(1);
         robot.RackRiserLeft.setPosition(0.5);
         robot.RackRiserRight.setPosition(0.5);
+        robot.FrontRiserLeft.setPosition(0.5);
+        robot.FrontRiserRight.setPosition(0.5);
 
     }
 
@@ -222,6 +224,5 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.FrontRiserLeft.setPosition(0.5);
 
         }
-
     }
 }
