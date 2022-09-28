@@ -153,7 +153,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 
-        if (engine.gamepad2.left_bumper) {
+        if (engine.gamepad1.left_bumper) {
 
             armTargetPosition = armDeliverPosition;
 
@@ -216,6 +216,11 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 
+        if (engine.gamepad2.left_bumper) {
 
+            robot.FrontRiserRight.setPosition(0.5);
+            robot.FrontRiserLeft.setPosition(0.5);
+
+        }
     }
 }
