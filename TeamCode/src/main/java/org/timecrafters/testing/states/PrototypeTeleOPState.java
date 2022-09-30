@@ -40,8 +40,9 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.collectorWrist.setPosition(1);
         robot.RackRiserLeft.setPosition(0.5);
         robot.RackRiserRight.setPosition(0.5);
-        robot.FrontRiserLeft.setPosition(0.5);
-        robot.FrontRiserRight.setPosition(0.5);
+        robot.FrontRiserLeft.setPosition(1);
+        robot.FrontRiserRight.setPosition(0);
+//        ~RightRiser's always are setPosition'ed(1), ~LeftRisers always are setPosition'ed(0) or vice versa if wrong.
 
     }
 
@@ -170,59 +171,46 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.armMotor.setTargetPosition(armTargetPosition);
 
         if (engine.gamepad1.a) {
-
             robot.RackRiserLeft.setPosition(0);
             robot.RackRiserRight.setPosition(1);
-
         }
 
         if (engine.gamepad1.x) {
-
             robot.RackRiserLeft.setPosition(1);
             robot.RackRiserRight.setPosition(0);
-
         }
 
         if (engine.gamepad2.right_stick_y > 0.1) {
-
             robot.RackRiserRight.setPosition(1);
             robot.RackRiserLeft.setPosition(-1);
-
         }
 
         if (engine.gamepad2.right_stick_y < -0.1) {
-
             robot.RackRiserRight.setPosition(-1);
             robot.RackRiserLeft.setPosition(1);
-
         }
 
         if (engine.gamepad2.left_stick_y > 0.1) {
-
             robot.FrontRiserLeft.setPosition(-1);
             robot.FrontRiserRight.setPosition(1);
-
         }
 
         if (engine.gamepad2.left_stick_y < -0.1) {
-
             robot.FrontRiserLeft.setPosition(1);
             robot.FrontRiserRight.setPosition(-1);
-
         }
 
         if (engine.gamepad2.right_bumper) {
-
-            robot.RackRiserRight.setPosition(0.5);
-            robot.RackRiserLeft.setPosition(0.5);
-
+            robot.RackRiserRight.setPosition(1);
+            robot.RackRiserLeft.setPosition(0);
         }
 
         if (engine.gamepad2.left_bumper) {
-
-            robot.FrontRiserRight.setPosition(0.5);
-            robot.FrontRiserLeft.setPosition(0.5);
-
+            robot.FrontRiserRight.setPosition(0);
+            robot.FrontRiserLeft.setPosition(1);
         }
+
+
+
     }
 }
