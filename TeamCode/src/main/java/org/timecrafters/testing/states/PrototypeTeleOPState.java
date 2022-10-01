@@ -29,6 +29,8 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
         engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
         engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
+
+        engine.telemetry.addData("TACNET Setting", (double)robot.configuration.variable("settings", "common", "rack_riser_left_max").value());
     }
 
     @Override
@@ -38,10 +40,10 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.armMotor.setTargetPosition(armTargetPosition);
         robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.collectorWrist.setPosition(1);
-        robot.RackRiserLeft.setPosition(0);
-        robot.RackRiserRight.setPosition(1);
-        robot.FrontRiserLeft.setPosition(1);
-        robot.FrontRiserRight.setPosition(0);
+        robot.RackRiserLeft.setPosition(0.5);
+        robot.RackRiserRight.setPosition(0.5);
+        robot.FrontRiserLeft.setPosition(0.5);
+        robot.FrontRiserRight.setPosition(0.5);
 //        ~RightRiser's always are setPosition'ed(1), ~LeftRisers always are setPosition'ed(0) or vice versa if wrong.
 
     }
@@ -201,13 +203,13 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.right_bumper) {
-            robot.RackRiserRight.setPosition(1);
-            robot.RackRiserLeft.setPosition(0);
+            robot.RackRiserRight.setPosition(0.5);
+            robot.RackRiserLeft.setPosition(0.5);
         }
 
         if (engine.gamepad2.left_bumper) {
-            robot.FrontRiserRight.setPosition(0);
-            robot.FrontRiserLeft.setPosition(1);
+            robot.FrontRiserRight.setPosition(0.5);
+            robot.FrontRiserLeft.setPosition(0.5);
         }
 
 

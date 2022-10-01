@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
+import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 
 public class PrototypeBot1 {
 
@@ -18,6 +19,8 @@ public class PrototypeBot1 {
 
         public Servo collectorWrist;
 
+        public TimeCraftersConfiguration configuration;
+
         public PrototypeBot1(CyberarmEngine engine) {
             this.engine = engine;
 
@@ -25,6 +28,8 @@ public class PrototypeBot1 {
         }
 
         private void setupRobot () {
+            // TACNET configuration
+            configuration = new TimeCraftersConfiguration("POWERPLAY");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("front left");
