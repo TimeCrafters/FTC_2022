@@ -12,11 +12,9 @@ public class PrototypeBot1 {
     public Servo RackRiserLeft, RackRiserRight, FrontRiserLeft, FrontRiserRight;
     private final CyberarmEngine engine;
 
-        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, armMotor;
+        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
 
         public CRServo collectorLeft, collectorRight;
-
-        public Servo collectorWrist;
 
         public PrototypeBot1(CyberarmEngine engine) {
             this.engine = engine;
@@ -27,16 +25,16 @@ public class PrototypeBot1 {
         private void setupRobot () {
 
             //motors configuration
-            frontLeftDrive = engine.hardwareMap.dcMotor.get("front left");
-            frontRightDrive = engine.hardwareMap.dcMotor.get("front right");
-            backRightDrive = engine.hardwareMap.dcMotor.get("back left");
-            backLeftDrive = engine.hardwareMap.dcMotor.get("back right");
-            armMotor = engine.hardwareMap.dcMotor.get("arm motor");
+            frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
+            frontRightDrive = engine.hardwareMap.dcMotor.get("Front Right");
+            backRightDrive = engine.hardwareMap.dcMotor.get("Back Left");
+            backLeftDrive = engine.hardwareMap.dcMotor.get("Back Right");
+//            armMotor = engine.hardwareMap.dcMotor.get("Arm Motor");
 
             // servo configuration
-            collectorLeft = engine.hardwareMap.crservo.get("collector left");
-            collectorRight = engine.hardwareMap.crservo.get("collector right");
-            collectorWrist = engine.hardwareMap.servo.get("collector wrist");
+            collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
+            collectorRight = engine.hardwareMap.crservo.get("Collector Right");
+//            collectorWrist = engine.hardwareMap.servo.get("Collector Wrist");
             RackRiserLeft = engine.hardwareMap.servo.get("RackRiserLeft");
             RackRiserRight = engine.hardwareMap.servo.get("RackRiserRight");
             FrontRiserLeft = engine.hardwareMap.servo.get("FrontRiserLeft");
@@ -55,8 +53,8 @@ public class PrototypeBot1 {
             backRightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-            armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//            armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+//            armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
     }

@@ -18,6 +18,8 @@ public class PrototypeTeleOPState extends CyberarmState {
     private boolean UpDPad;
     private int armTargetPosition = 0, armCollectPosition = 125, armDeliverPosition = 400;
     private double collectorRiserPosition;
+    private boolean raiseFrontRiser = true;
+    private long lastStepTime = 0;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -25,24 +27,28 @@ public class PrototypeTeleOPState extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("Arm Power", robot.armMotor.getPower());
-        engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
-        engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
-        engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
+//        engine.telemetry.addData("Arm Power", robot.armMotor.getPower());
+//        engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
+//        engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
+//        engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
+        engine.telemetry.addData("Front Riser Right Position", robot.FrontRiserRight.getPosition());
+        engine.telemetry.addData("Front Riser Left Position", robot.FrontRiserLeft.getPosition());
+//        engine.telemetry.addData("Rack Riser Right Position", robot.RackRiserRight.getPosition());
+//        engine.telemetry.addData("Rack Riser Left Position", robot.RackRiserLeft.getPosition());
+
     }
 
     @Override
     public void init() {
-        robot.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        robot.armMotor.setTargetPosition(armTargetPosition);
-        robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.collectorWrist.setPosition(1);
-        robot.RackRiserLeft.setPosition(0);
-        robot.RackRiserRight.setPosition(1);
+//        robot.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        robot.armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        robot.armMotor.setTargetPosition(armTargetPosition);
+//        robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        robot.collectorWrist.setPosition(1);
+//        robot.RackRiserLeft.setPosition(0);
+//        robot.RackRiserRight.setPosition(1);
         robot.FrontRiserLeft.setPosition(1);
         robot.FrontRiserRight.setPosition(0);
-//        ~RightRiser's always are setPosition'ed(1), ~LeftRisers always are setPosition'ed(0) or vice versa if wrong.
 
     }
 
@@ -95,7 +101,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.frontRightDrive.setPower(-frontRightPower);
         robot.backRightDrive.setPower(backRightPower);
 
-        robot.armMotor.setPower(engine.gamepad2.left_stick_y * 0.5);
+//        robot.armMotor.setPower(engine.gamepad2.left_stick_y * 0.5);
 
 
         if (engine.gamepad2.y) {
@@ -118,26 +124,26 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.collectorRight.setPower(1);
 
         }
+//
+//        if (engine.gamepad2.dpad_left) {
+//
+//            robot.collectorWrist.setPosition(0.4);
 
-        if (engine.gamepad2.dpad_left) {
+//        }
+//
+//        if (engine.gamepad2.dpad_right) {
+//
+//            robot.collectorWrist.setPosition(1);
+//
+//        }
 
-            robot.collectorWrist.setPosition(0.4);
+//        if (engine.gamepad2.dpad_up) {
 
-        }
+//            robot.armMotor.setPower(1);
+//        } else if (engine.gamepad2.dpad_down) {
+//            robot.armMotor.setPower(0);
 
-        if (engine.gamepad2.dpad_right) {
-
-            robot.collectorWrist.setPosition(1);
-
-        }
-
-        if (engine.gamepad2.dpad_up) {
-
-            robot.armMotor.setPower(1);
-        } else if (engine.gamepad2.dpad_down) {
-            robot.armMotor.setPower(0);
-
-        }
+//        }
 //        int armTargetPosition = robot.armMotor.getCurrentPosition();
 
         if (engine.gamepad2.left_trigger > 0.1) {
@@ -156,59 +162,82 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 
-        if (engine.gamepad1.left_bumper) {
+//        if (engine.gamepad1.left_bumper) {
+//
+//            armTargetPosition = armDeliverPosition;
+//
+//        }
+//
+//        if (engine.gamepad2.right_bumper) {
+//
+//            armTargetPosition = armCollectPosition;
+//
+//        }
+//
+//        robot.armMotor.setTargetPosition(armTargetPosition);
+//
+//        if (engine.gamepad1.a) {
+//            robot.RackRiserLeft.setPosition(0);
+//            robot.RackRiserRight.setPosition(1);
+//        }
 
-            armTargetPosition = armDeliverPosition;
+//        if (engine.gamepad1.x) {
+//            robot.RackRiserLeft.setPosition(1);
+//            robot.RackRiserRight.setPosition(0);
+//        }
+//
+//        if (engine.gamepad2.right_stick_y < -0.1) {
+//            robot.RackRiserRight.setPosition(1);
+//            robot.RackRiserLeft.setPosition(-1);
+//        }
+//
+//        if (engine.gamepad2.right_stick_y > 0.1) {
+//            robot.RackRiserRight.setPosition(-1);
+//            robot.RackRiserLeft.setPosition(1);
+//        }
 
-        }
+        if (engine.gamepad2.start) {
+            if (System.currentTimeMillis() - lastStepTime >= 1_000) {
+                lastStepTime = System.currentTimeMillis();
 
-        if (engine.gamepad2.right_bumper) {
+                if (raiseFrontRiser) {
+                    robot.FrontRiserLeft.setPosition(robot.FrontRiserLeft.getPosition() + 0.05);
+                    robot.FrontRiserRight.setPosition(robot.FrontRiserRight.getPosition() - 0.05);
 
-            armTargetPosition = armCollectPosition;
+                    if (robot.FrontRiserLeft.getPosition() >= 1.0) {
+                        raiseFrontRiser = false;
+                    }
+                } else {
+                    robot.FrontRiserLeft.setPosition(robot.FrontRiserLeft.getPosition() - 0.05);
+                    robot.FrontRiserRight.setPosition(robot.FrontRiserRight.getPosition() + 0.05);
 
-        }
-
-        robot.armMotor.setTargetPosition(armTargetPosition);
-
-        if (engine.gamepad1.a) {
-            robot.RackRiserLeft.setPosition(0);
-            robot.RackRiserRight.setPosition(1);
-        }
-
-        if (engine.gamepad1.x) {
-            robot.RackRiserLeft.setPosition(1);
-            robot.RackRiserRight.setPosition(0);
-        }
-
-        if (engine.gamepad2.right_stick_y > 0.1) {
-            robot.RackRiserRight.setPosition(1);
-            robot.RackRiserLeft.setPosition(-1);
-        }
-
-        if (engine.gamepad2.right_stick_y < -0.1) {
-            robot.RackRiserRight.setPosition(-1);
-            robot.RackRiserLeft.setPosition(1);
+                    if (robot.FrontRiserLeft.getPosition() <= 0.5) {
+                        raiseFrontRiser = true;
+                    }
+                }
+            }
         }
 
         if (engine.gamepad2.left_stick_y > 0.1) {
+            robot.FrontRiserLeft.setPosition(0.5);
+            robot.FrontRiserRight.setPosition(-0.5);
+        }
+
+        if (engine.gamepad2.left_stick_y < -0.1) {
             robot.FrontRiserLeft.setPosition(-1);
             robot.FrontRiserRight.setPosition(1);
         }
 
-        if (engine.gamepad2.left_stick_y < -0.1) {
-            robot.FrontRiserLeft.setPosition(1);
-            robot.FrontRiserRight.setPosition(-1);
-        }
-
-        if (engine.gamepad2.right_bumper) {
-            robot.RackRiserRight.setPosition(1);
-            robot.RackRiserLeft.setPosition(0);
-        }
+//        if (engine.gamepad2.right_bumper) {
+//            robot.RackRiserRight.setPosition(1);
+//            robot.RackRiserLeft.setPosition(0);
+//        }
 
         if (engine.gamepad2.left_bumper) {
             robot.FrontRiserRight.setPosition(0);
             robot.FrontRiserLeft.setPosition(1);
         }
+//        For raising, front risers ALWAYS raise first, for lowering, rack risers ALWAYS lower first.
 
 
 
