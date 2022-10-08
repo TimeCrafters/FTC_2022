@@ -1,6 +1,7 @@
 package org.timecrafters.testing.states;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
 
@@ -18,8 +19,9 @@ public class PrototypeTeleOPState extends CyberarmState {
     private boolean UpDPad;
     private int armTargetPosition = 0, armCollectPosition = 125, armDeliverPosition = 400;
     private double collectorRiserPosition;
-    private boolean raiseFrontRiser = true;
+    private boolean raiseHighRiser = true;
     private long lastStepTime = 0;
+    private boolean raiseLowRiser = true;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -31,10 +33,10 @@ public class PrototypeTeleOPState extends CyberarmState {
 //        engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
 //        engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
 //        engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
-        engine.telemetry.addData("Front Riser Right Position", robot.FrontRiserRight.getPosition());
-        engine.telemetry.addData("Front Riser Left Position", robot.FrontRiserLeft.getPosition());
-//        engine.telemetry.addData("Rack Riser Right Position", robot.RackRiserRight.getPosition());
-//        engine.telemetry.addData("Rack Riser Left Position", robot.RackRiserLeft.getPosition());
+        engine.telemetry.addData("High Riser Right Position", robot.HighRiserRight.getPosition());
+        engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
+        engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
+        engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
 
     }
 
@@ -45,10 +47,14 @@ public class PrototypeTeleOPState extends CyberarmState {
 //        robot.armMotor.setTargetPosition(armTargetPosition);
 //        robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        robot.collectorWrist.setPosition(1);
-//        robot.RackRiserLeft.setPosition(0);
-//        robot.RackRiserRight.setPosition(1);
-        robot.FrontRiserLeft.setPosition(1);
-        robot.FrontRiserRight.setPosition(0);
+        robot.HighRiserLeft.setDirection(Servo.Direction.REVERSE);
+        robot.HighRiserRight.setDirection(Servo.Direction.FORWARD);
+        robot.LowRiserLeft.setDirection(Servo.Direction.FORWARD);
+        robot.LowRiserRight.setDirection(Servo.Direction.REVERSE);
+        robot.LowRiserLeft.setPosition(0.45);
+        robot.LowRiserRight.setPosition(0.45);
+        robot.HighRiserLeft.setPosition(0.45);
+        robot.HighRiserRight.setPosition(0.45);
 
     }
 
@@ -77,9 +83,9 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         //Drivetrain Variables
-        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed! because of the negative
-        double x = engine.gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = engine.gamepad1.left_stick_x;
+        double y = -engine.gamepad1.left_stick_y * 0.5; // Remember, this is reversed! because of the negative
+        double x = engine.gamepad1.right_stick_x * 1.1 * 0.5; // Counteract imperfect strafing
+        double rx = engine.gamepad1.left_stick_x * 0.5;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
@@ -177,67 +183,69 @@ public class PrototypeTeleOPState extends CyberarmState {
 //        robot.armMotor.setTargetPosition(armTargetPosition);
 //
 //        if (engine.gamepad1.a) {
-//            robot.RackRiserLeft.setPosition(0);
-//            robot.RackRiserRight.setPosition(1);
+//            robot.LowRiserLeft.setPosition(0);
+//            robot.LowRiserRight.setPosition(1);
 //        }
 
 //        if (engine.gamepad1.x) {
-//            robot.RackRiserLeft.setPosition(1);
-//            robot.RackRiserRight.setPosition(0);
+//            robot.LowRiserLeft.setPosition(1);
+//            robot.LowRiserRight.setPosition(0);
 //        }
 //
-//        if (engine.gamepad2.right_stick_y < -0.1) {
-//            robot.RackRiserRight.setPosition(1);
-//            robot.RackRiserLeft.setPosition(-1);
-//        }
-//
-//        if (engine.gamepad2.right_stick_y > 0.1) {
-//            robot.RackRiserRight.setPosition(-1);
-//            robot.RackRiserLeft.setPosition(1);
-//        }
+        if (engine.gamepad2.right_stick_y < -0.1) {
+            robot.LowRiserRight.setPosition(0.6);
+            robot.LowRiserLeft.setPosition(0.6);
+        }
+
+        if (engine.gamepad2.right_stick_y > 0.1) {
+            robot.LowRiserRight.setPosition(0.45);
+            robot.LowRiserLeft.setPosition(0.45);
+        }
 
         if (engine.gamepad2.start) {
-            if (System.currentTimeMillis() - lastStepTime >= 1_000) {
+            if (System.currentTimeMillis() - lastStepTime >= 150) {
                 lastStepTime = System.currentTimeMillis();
 
-                if (raiseFrontRiser) {
-                    robot.FrontRiserLeft.setPosition(robot.FrontRiserLeft.getPosition() + 0.05);
-                    robot.FrontRiserRight.setPosition(robot.FrontRiserRight.getPosition() - 0.05);
-
-                    if (robot.FrontRiserLeft.getPosition() >= 1.0) {
-                        raiseFrontRiser = false;
+                if (raiseHighRiser) {
+                    if (robot.HighRiserLeft.getPosition() >= 1) {
+                        if (raiseLowRiser) {
+                            raiseHighRiser = false;
+                        }
+                    } else {
+                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
                     }
                 } else {
-                    robot.FrontRiserLeft.setPosition(robot.FrontRiserLeft.getPosition() - 0.05);
-                    robot.FrontRiserRight.setPosition(robot.FrontRiserRight.getPosition() + 0.05);
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.035);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.035);
 
-                    if (robot.FrontRiserLeft.getPosition() <= 0.5) {
-                        raiseFrontRiser = true;
+                    if (robot.HighRiserLeft.getPosition() <= 0.45) {
+                        raiseHighRiser = true;
                     }
                 }
             }
         }
 
-        if (engine.gamepad2.left_stick_y > 0.1) {
-            robot.FrontRiserLeft.setPosition(0.5);
-            robot.FrontRiserRight.setPosition(-0.5);
-        }
-
-        if (engine.gamepad2.left_stick_y < -0.1) {
-            robot.FrontRiserLeft.setPosition(-1);
-            robot.FrontRiserRight.setPosition(1);
-        }
+//        if (engine.gamepad2.left_stick_y > 0.1) {
+//            robot.HighRiserLeft.setPosition(0.5);
+//            robot.HighRiserRight.setPosition(-0.5);
+//        }
+//
+//        if (engine.gamepad2.left_stick_y < -0.1) {
+//            robot.HighRiserLeft.setPosition(-1);
+//            robot.HighRiserRight.setPosition(1);
+//        }
 
 //        if (engine.gamepad2.right_bumper) {
-//            robot.RackRiserRight.setPosition(1);
-//            robot.RackRiserLeft.setPosition(0);
+//            robot.LowRiserRight.setPosition(1);
+//            robot.LowRiserLeft.setPosition(0);
 //        }
 
         if (engine.gamepad2.left_bumper) {
-            robot.FrontRiserRight.setPosition(0);
-            robot.FrontRiserLeft.setPosition(1);
+            robot.HighRiserRight.setPosition(0);
+            robot.HighRiserLeft.setPosition(1);
         }
-//        For raising, front risers ALWAYS raise first, for lowering, rack risers ALWAYS lower first.
+//        For raising, high risers ALWAYS raise first, for lowering, low risers ALWAYS lower first.
 
 
 
