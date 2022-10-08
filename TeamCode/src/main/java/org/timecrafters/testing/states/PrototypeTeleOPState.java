@@ -22,10 +22,13 @@ public class PrototypeTeleOPState extends CyberarmState {
     private boolean raiseHighRiser = true;
     private long lastStepTime = 0;
     private boolean raiseLowRiser = true;
+    private double speed = 0.5;
+    private double slowSpeed = 0.25;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
     }
+
 
     @Override
     public void telemetry() {
@@ -75,10 +78,10 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (b && !bprev) {
 
-            if (drivePower == 1) {
-                drivePower = 0.5;
+            if (drivePower == speed) {
+                drivePower = slowSpeed;
             } else {
-                drivePower = 1;
+                drivePower = speed;
             }
         }
 
@@ -98,14 +101,14 @@ public class PrototypeTeleOPState extends CyberarmState {
         double backRightPower = (y + x - rx) / denominator;
 
         // As I programmed this and ran it, I realized everything was backwards
-        // in direction so to fix that i either went in the robot object state and reversed
+        // in direction so to fix that I either went in the robot object state and reversed
         // directions on drive motors or put a negative in behind the joystick power to reverse it.
         // I put negatives in to reverse it because it was the easiest at the moment.
 
-        robot.frontLeftDrive.setPower(-frontLeftPower);
-        robot.backLeftDrive.setPower(backLeftPower);
-        robot.frontRightDrive.setPower(-frontRightPower);
-        robot.backRightDrive.setPower(backRightPower);
+        robot.frontLeftDrive.setPower(-frontLeftPower * speed);
+        robot.backLeftDrive.setPower(backLeftPower * speed);
+        robot.frontRightDrive.setPower(-frontRightPower * speed);
+        robot.backRightDrive.setPower(backRightPower * speed);
 
 //        robot.armMotor.setPower(engine.gamepad2.left_stick_y * 0.5);
 
