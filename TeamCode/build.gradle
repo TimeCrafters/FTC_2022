@@ -17,9 +17,14 @@ apply from: '../build.dependencies.gradle'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
+    buildFeatures {
+        mlModelBinding true
+    }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
+    implementation 'org.tensorflow:tensorflow-lite-metadata:0.1.0'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
 }
