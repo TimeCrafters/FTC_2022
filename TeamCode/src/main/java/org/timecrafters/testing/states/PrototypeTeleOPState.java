@@ -14,7 +14,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     public boolean A;
     public boolean X;
     public boolean Y;
-    private boolean bprev;
+    private boolean bprev; // sticky key variable for the gamepad
     private double drivePower = 1;
     private boolean UpDPad;
     private int armTargetPosition = 0, armCollectPosition = 125, armDeliverPosition = 400;
@@ -22,8 +22,9 @@ public class PrototypeTeleOPState extends CyberarmState {
     private boolean raiseHighRiser = true;
     private long lastStepTime = 0;
     private boolean raiseLowRiser = true;
-    private double speed = 0.5;
-    private double slowSpeed = 0.25;
+    private double speed = 0.5; // used for the normal speed while driving
+    private double slowSpeed = 0.25; // used for slow mode speed while driving
+    private int CyclingArmUpAndDown = 0;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -77,12 +78,15 @@ public class PrototypeTeleOPState extends CyberarmState {
         boolean b = engine.gamepad1.b;
 
         if (b && !bprev) {
-
+            bprev = true;
             if (drivePower == speed) {
                 drivePower = slowSpeed;
             } else {
                 drivePower = speed;
             }
+        }
+        if (!b){
+            bprev = false;
         }
 
         //Drivetrain Variables
@@ -100,17 +104,11 @@ public class PrototypeTeleOPState extends CyberarmState {
         double frontRightPower = (y - x - rx) / denominator;
         double backRightPower = (y + x - rx) / denominator;
 
-        // As I programmed this and ran it, I realized everything was backwards
-        // in direction so to fix that I either went in the robot object state and reversed
-        // directions on drive motors or put a negative in behind the joystick power to reverse it.
-        // I put negatives in to reverse it because it was the easiest at the moment.
-
         robot.frontLeftDrive.setPower(-frontLeftPower * speed);
         robot.backLeftDrive.setPower(backLeftPower * speed);
         robot.frontRightDrive.setPower(-frontRightPower * speed);
         robot.backRightDrive.setPower(backRightPower * speed);
 
-//        robot.armMotor.setPower(engine.gamepad2.left_stick_y * 0.5);
 
 
         if (engine.gamepad2.y) {
@@ -205,29 +203,83 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.LowRiserLeft.setPosition(0.45);
         }
 
-        if (engine.gamepad2.start) {
-            if (System.currentTimeMillis() - lastStepTime >= 150) {
-                lastStepTime = System.currentTimeMillis();
+//        if (engine.gamepad2.start) {
+//            if (System.currentTimeMillis() - lastStepTime >= 150) {
+//                lastStepTime = System.currentTimeMillis();
+//
+//                if (raiseHighRiser) {
+//                    if (robot.HighRiserLeft.getPosition() >= 1) {
+//                        if (raiseLowRiser) {
+//                            raiseHighRiser = false;
+//                        }
+//                    } else {
+//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+//                    }
+//                } else {
+//                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.035);
+//                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.035);
+//
+//                    if (robot.HighRiserLeft.getPosition() <= 0.45) {
+//                        raiseHighRiser = true;
+//                    }
+//                }
+//            }
+//        }
+        // SPENCER____________________________________________________________________
+     if (engine.gamepad2.start){
 
-                if (raiseHighRiser) {
-                    if (robot.HighRiserLeft.getPosition() >= 1) {
-                        if (raiseLowRiser) {
-                            raiseHighRiser = false;
-                        }
-                    } else {
-                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                    }
-                } else {
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.035);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.035);
+         if (System.currentTimeMillis() - lastStepTime >= 150) {
+             lastStepTime = System.currentTimeMillis();
 
-                    if (robot.HighRiserLeft.getPosition() <= 0.45) {
-                        raiseHighRiser = true;
-                    }
-                }
-            }
-        }
+         switch (CyclingArmUpAndDown) {
+
+                 // upper arm up
+                 case 0:
+                     if (robot.HighRiserLeft.getPosition() <= 1) {
+                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+                     }
+                     break;
+
+                 // lower arm up
+                 case 1:
+                     if (robot.LowRiserLeft.getPosition() <= 1) {
+                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+                     }
+                     break;
+
+                 // lower arm down
+                 case 2:
+                     if (robot.LowRiserLeft.getPosition() >= 0.45) {
+                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+                     }
+                     break;
+
+                 // upper arm down
+                 case 3:
+                     if (robot.HighRiserLeft.getPosition() >= 0.45) {
+                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+                     } else {
+                         CyclingArmUpAndDown = 0;
+                     }
+                     break;
+
+                 default:
+                     break;
+
+             } // end of switch
+         } // end of time if statement
+     } // end of start button press
 
 //        if (engine.gamepad2.left_stick_y > 0.1) {
 //            robot.HighRiserLeft.setPosition(0.5);

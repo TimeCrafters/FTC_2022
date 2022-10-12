@@ -9,7 +9,7 @@ import java.util.List;
 
 public class CameraTestCommon {
 
-    private static final String TENSORFLOW_MODEL_ASSET = "";
+    private static final String TENSORFLOW_MODEL_ASSET = "model_20221009_154335.tflite";
     private static final String[] TENSORFLOW_MODEL_LABELS = {
             "1 dalek",
             "2 steve",

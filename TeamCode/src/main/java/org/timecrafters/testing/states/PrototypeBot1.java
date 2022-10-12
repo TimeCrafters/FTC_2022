@@ -31,18 +31,21 @@ public class PrototypeBot1 {
             frontRightDrive = engine.hardwareMap.dcMotor.get("Front Right");
             backRightDrive = engine.hardwareMap.dcMotor.get("Back Left");
             backLeftDrive = engine.hardwareMap.dcMotor.get("Back Right");
-//            armMotor = engine.hardwareMap.dcMotor.get("Arm Motor");
 
             // servo configuration
+
+            // Collector
             collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
             collectorRight = engine.hardwareMap.crservo.get("Collector Right");
-//            collectorWrist = engine.hardwareMap.servo.get("Collector Wrist");
+
+            // Arm
             LowRiserLeft = engine.hardwareMap.servo.get("LowRiserLeft");
             LowRiserRight = engine.hardwareMap.servo.get("LowRiserRight");
             HighRiserLeft = engine.hardwareMap.servo.get("HighRiserLeft");
             HighRiserRight = engine.hardwareMap.servo.get("HighRiserRight");
 
             //motors direction and encoders
+
             frontLeftDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -54,9 +57,6 @@ public class PrototypeBot1 {
 
             backRightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-//            armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-//            armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
     }
