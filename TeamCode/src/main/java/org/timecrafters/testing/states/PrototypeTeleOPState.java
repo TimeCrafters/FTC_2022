@@ -27,6 +27,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double speed = 1; // used for the normal speed while driving
     private double slowSpeed = 0.5; // used for slow mode speed while driving
     private int CyclingArmUpAndDown = 0;
+    private int DriveFowardAndBack;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -231,6 +232,40 @@ public class PrototypeTeleOPState extends CyberarmState {
 //            }
 //        }
         // SPENCER____________________________________________________________________
+//        if (engine.gamepad1.start){
+//
+//                switch (DriveFowardAndBack) {
+//
+//                    // Drive Foward
+//                    case 0:
+//                        if (robot.backLeftDrive.getCurrentPosition() == 0) {
+//                            robot.backLeftDrive.setTargetPosition(4000);
+//                            robot.backRightDrive.setTargetPosition(4000);
+//                            robot.frontLeftDrive.setTargetPosition(4000);
+//                            robot.backRightDrive.setTargetPosition(4000);
+//                            robot.backLeftDrive.setPower(1);
+//                            robot.backRightDrive.setPower(1);
+//                            robot.frontLeftDrive.setPower(1);
+//                            robot.backRightDrive.setPower(1);
+//
+//                        }
+//                        } else {
+//
+//            }
+//                        }
+//                        break;
+//
+//                    // lower arm up
+//                    case 1:
+//                        if (robot.LowRiserLeft.getPosition() < 1) {
+//                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+//                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+//                        } else {
+//                            CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+//                        }
+//                        break;
+
+
      if (engine.gamepad2.start){
 
          if (System.currentTimeMillis() - lastStepTime >= 150) {
