@@ -1,5 +1,7 @@
 package org.timecrafters.testing.states;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -22,8 +24,8 @@ public class PrototypeTeleOPState extends CyberarmState {
     private boolean raiseHighRiser = true;
     private long lastStepTime = 0;
     private boolean raiseLowRiser = true;
-    private double speed = 0.5; // used for the normal speed while driving
-    private double slowSpeed = 0.25; // used for slow mode speed while driving
+    private double speed = 1; // used for the normal speed while driving
+    private double slowSpeed = 0.5; // used for slow mode speed while driving
     private int CyclingArmUpAndDown = 0;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
@@ -41,6 +43,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
+//        engine.telemetry.addData("Cycling Arm up / Down Case", CyclingArmUpAndDown);
 
     }
 
@@ -62,6 +65,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
     }
 
+    @SuppressLint("SuspiciousIndentation")
     @Override
     public void exec() {
 
@@ -74,25 +78,25 @@ public class PrototypeTeleOPState extends CyberarmState {
 
 
         //drive speed toggle
-
-        boolean b = engine.gamepad1.b;
-
-        if (b && !bprev) {
-            bprev = true;
-            if (drivePower == speed) {
-                drivePower = slowSpeed;
-            } else {
-                drivePower = speed;
-            }
-        }
-        if (!b){
-            bprev = false;
-        }
+//
+//        boolean b = engine.gamepad1.b;
+//
+//        if (b && !bprev) {
+//            bprev = true;
+//            if (drivePower == speed) {
+//                drivePower = slowSpeed;
+//            } else {
+//                drivePower = speed;
+//            }
+//        }
+//        if (!b){
+//            bprev = false;
+//        }
 
         //Drivetrain Variables
-        double y = -engine.gamepad1.left_stick_y * 0.5; // Remember, this is reversed! because of the negative
-        double x = engine.gamepad1.right_stick_x * 1.1 * 0.5; // Counteract imperfect strafing
-        double rx = engine.gamepad1.left_stick_x * 0.5;
+        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed! because of the negative
+        double x = engine.gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = engine.gamepad1.left_stick_x;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
@@ -193,15 +197,15 @@ public class PrototypeTeleOPState extends CyberarmState {
 //            robot.LowRiserRight.setPosition(0);
 //        }
 //
-        if (engine.gamepad2.right_stick_y < -0.1) {
-            robot.LowRiserRight.setPosition(0.6);
-            robot.LowRiserLeft.setPosition(0.6);
-        }
-
-        if (engine.gamepad2.right_stick_y > 0.1) {
-            robot.LowRiserRight.setPosition(0.45);
-            robot.LowRiserLeft.setPosition(0.45);
-        }
+//        if (engine.gamepad2.right_stick_y < -0.1) {
+//            robot.LowRiserRight.setPosition(0.6);
+//            robot.LowRiserLeft.setPosition(0.6);
+//        }
+//
+//        if (engine.gamepad2.right_stick_y > 0.1) {
+//            robot.LowRiserRight.setPosition(0.45);
+//            robot.LowRiserLeft.setPosition(0.45);
+//        }
 
 //        if (engine.gamepad2.start) {
 //            if (System.currentTimeMillis() - lastStepTime >= 150) {
@@ -236,7 +240,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
                  // upper arm up
                  case 0:
-                     if (robot.HighRiserLeft.getPosition() <= 1) {
+                     if (robot.HighRiserLeft.getPosition() < 1) {
                          robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
                          robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
                      } else {
@@ -246,7 +250,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
                  // lower arm up
                  case 1:
-                     if (robot.LowRiserLeft.getPosition() <= 1) {
+                     if (robot.LowRiserLeft.getPosition() < 1) {
                          robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                          robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
                      } else {
@@ -256,7 +260,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
                  // lower arm down
                  case 2:
-                     if (robot.LowRiserLeft.getPosition() >= 0.45) {
+                     if (robot.LowRiserLeft.getPosition() >= 0.44) {
                          robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                          robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                      } else {
