@@ -2,13 +2,9 @@ package org.timecrafters.testing.states;
 
 import android.annotation.SuppressLint;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
-
-import java.lang.annotation.Target;
-import java.util.Objects;
 
 public class PrototypeTeleOPState extends CyberarmState {
 
@@ -27,7 +23,8 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double speed = 1; // used for the normal speed while driving
     private double slowSpeed = 0.5; // used for slow mode speed while driving
     private int CyclingArmUpAndDown = 0;
-    private int DriveFowardAndBack;
+    private int DriveForwardAndBack;
+    private int RobotPosition, RobotStartingPosition;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -94,26 +91,25 @@ public class PrototypeTeleOPState extends CyberarmState {
 //            bprev = false;
 //        }
 
-        //Drivetrain Variables
-        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed! because of the negative
-        double x = engine.gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
-        double rx = engine.gamepad1.left_stick_x;
-
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio, but only when
-        // at least one is out of the range [-1, 1]
-
-        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = (y + x + rx) / denominator;
-        double backLeftPower = (y - x + rx) / denominator;
-        double frontRightPower = (y - x - rx) / denominator;
-        double backRightPower = (y + x - rx) / denominator;
-
-        robot.frontLeftDrive.setPower(-frontLeftPower * speed);
-        robot.backLeftDrive.setPower(backLeftPower * speed);
-        robot.frontRightDrive.setPower(-frontRightPower * speed);
-        robot.backRightDrive.setPower(backRightPower * speed);
-
+//        //Drivetrain Variables
+//        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed! because of the negative
+//        double x = engine.gamepad1.right_stick_x * 1.1; // Counteract imperfect strafing
+//        double rx = engine.gamepad1.left_stick_x;
+//
+//        // Denominator is the largest motor power (absolute value) or 1
+//        // This ensures all the powers maintain the same ratio, but only when
+//        // at least one is out of the range [-1, 1]
+//
+//        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+//        double frontLeftPower = (y + x + rx) / denominator;
+//        double backLeftPower = (y - x + rx) / denominator;
+//        double frontRightPower = (y - x - rx) / denominator;
+//        double backRightPower = (y + x - rx) / denominator;
+//
+//        robot.frontLeftDrive.setPower(-frontLeftPower * speed);
+//        robot.backLeftDrive.setPower(backLeftPower * speed);
+//        robot.frontRightDrive.setPower(-frontRightPower * speed);
+//        robot.backRightDrive.setPower(backRightPower * speed);
 
 
         if (engine.gamepad2.y) {
@@ -232,39 +228,61 @@ public class PrototypeTeleOPState extends CyberarmState {
 //            }
 //        }
         // SPENCER____________________________________________________________________
-//        if (engine.gamepad1.start){
-//
-//                switch (DriveFowardAndBack) {
-//
-//                    // Drive Foward
-//                    case 0:
-//                        if (robot.backLeftDrive.getCurrentPosition() == 0) {
-//                            robot.backLeftDrive.setTargetPosition(4000);
-//                            robot.backRightDrive.setTargetPosition(4000);
-//                            robot.frontLeftDrive.setTargetPosition(4000);
-//                            robot.backRightDrive.setTargetPosition(4000);
-//                            robot.backLeftDrive.setPower(1);
-//                            robot.backRightDrive.setPower(1);
-//                            robot.frontLeftDrive.setPower(1);
-//                            robot.backRightDrive.setPower(1);
-//
-//                        }
-//                        } else {
-//
-//            }
-//                        }
-//                        break;
-//
-//                    // lower arm up
-//                    case 1:
-//                        if (robot.LowRiserLeft.getPosition() < 1) {
-//                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-//                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-//                        } else {
-//                            CyclingArmUpAndDown = CyclingArmUpAndDown +1;
-//                        }
-//                        break;
+        if (engine.gamepad1.start) {
+            RobotPosition = robot.backRightDrive.getCurrentPosition();
 
+            switch (DriveForwardAndBack) {
+
+                case 0:
+                    RobotStartingPosition = RobotPosition;
+                  drivePower = 1;
+
+                  DriveForwardAndBack += 1;
+                    break;
+
+                case 1:
+                    if (RobotPosition - RobotStartingPosition < 6250){
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        DriveForwardAndBack += 1;
+                        drivePower = -1;
+                    }
+                    break;
+                case 2:
+                    if (RobotPosition - RobotStartingPosition >= 0) {
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        DriveForwardAndBack += 1;
+                    }
+                    break;
+                case 3:
+                    robot.backLeftDrive.setPower(0);
+                    robot.backRightDrive.setPower(0);
+                    robot.frontLeftDrive.setPower(0);
+                    robot.frontRightDrive.setPower(0);
+                    DriveForwardAndBack = 1;
+                    drivePower = 1;
+                    break;
+
+
+            } // switch ending
+            } // if gamepad 1 start ending
+        else {
+
+            robot.backLeftDrive.setPower(0);
+            robot.backRightDrive.setPower(0);
+            robot.frontLeftDrive.setPower(0);
+            robot.frontRightDrive.setPower(0);
+
+        }
 
      if (engine.gamepad2.start){
 

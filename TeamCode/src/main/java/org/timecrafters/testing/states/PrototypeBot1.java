@@ -1,11 +1,14 @@
 package org.timecrafters.testing.states;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 
 public class PrototypeBot1 {
 
@@ -16,6 +19,8 @@ public class PrototypeBot1 {
 
         public CRServo collectorLeft, collectorRight;
 
+         public BNO055IMU imu;
+
 //        public Servo collectorWrist;
 
         public PrototypeBot1(CyberarmEngine engine) {
@@ -25,12 +30,25 @@ public class PrototypeBot1 {
         }
 
         private void setupRobot () {
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+            parameters.mode = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled = false;
+
+            this.imu = engine.hardwareMap.get(BNO055IMU.class,"imu");
+            imu.initialize(parameters);
+
+            imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
+
+
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
             frontRightDrive = engine.hardwareMap.dcMotor.get("Front Right");
-            backRightDrive = engine.hardwareMap.dcMotor.get("Back Left");
-            backLeftDrive = engine.hardwareMap.dcMotor.get("Back Right");
+            backRightDrive = engine.hardwareMap.dcMotor.get("Back Right");
+            backLeftDrive = engine.hardwareMap.dcMotor.get("Back Left");
 
             // servo configuration
 
@@ -46,16 +64,16 @@ public class PrototypeBot1 {
 
             //motors direction and encoders
 
-            frontLeftDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+            frontLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            frontRightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+            frontRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            backLeftDrive.setDirection(DcMotorSimple.Direction.FORWARD);
+            backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            backRightDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+            backRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
