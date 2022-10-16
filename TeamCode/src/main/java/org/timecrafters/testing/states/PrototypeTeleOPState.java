@@ -33,10 +33,6 @@ public class PrototypeTeleOPState extends CyberarmState {
 
     @Override
     public void telemetry() {
-//        engine.telemetry.addData("Arm Power", robot.armMotor.getPower());
-//        engine.telemetry.addData("Arm Target Position", robot.armMotor.getTargetPosition());
-//        engine.telemetry.addData("Arm Current Position", robot.armMotor.getCurrentPosition());
-//        engine.telemetry.addData("Wrist Current Position", robot.collectorWrist.getPosition());
         engine.telemetry.addData("High Riser Right Position", robot.HighRiserRight.getPosition());
         engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
@@ -47,11 +43,6 @@ public class PrototypeTeleOPState extends CyberarmState {
 
     @Override
     public void init() {
-//        robot.armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        robot.armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        robot.armMotor.setTargetPosition(armTargetPosition);
-//        robot.armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        robot.collectorWrist.setPosition(1);
         robot.HighRiserLeft.setDirection(Servo.Direction.REVERSE);
         robot.HighRiserRight.setDirection(Servo.Direction.FORWARD);
         robot.LowRiserLeft.setDirection(Servo.Direction.FORWARD);
@@ -133,62 +124,10 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         }
 //
-//        if (engine.gamepad2.dpad_left) {
-//
-//            robot.collectorWrist.setPosition(0.4);
-
-//        }
-//
-//        if (engine.gamepad2.dpad_right) {
-//
-//            robot.collectorWrist.setPosition(1);
-//
-//        }
-
-//        if (engine.gamepad2.dpad_up) {
-
-//            robot.armMotor.setPower(1);
-//        } else if (engine.gamepad2.dpad_down) {
-//            robot.armMotor.setPower(0);
-
-//        }
-//        int armTargetPosition = robot.armMotor.getCurrentPosition();
-
-        if (engine.gamepad2.left_trigger > 0.1) {
-            armTargetPosition += 1;
-            if (armTargetPosition > 600) {
-                armTargetPosition = 600;
-            }
-        }
-
-        if (engine.gamepad2.right_trigger > 0.1) {
-            armTargetPosition -= 1;
-            if (armTargetPosition <= 0) {
-                armTargetPosition = 0;
-
-            }
-
-        }
-
-//        if (engine.gamepad1.left_bumper) {
-//
-//            armTargetPosition = armDeliverPosition;
-//
-//        }
-//
-//        if (engine.gamepad2.right_bumper) {
-//
-//            armTargetPosition = armCollectPosition;
-//
-//        }
-//
-//        robot.armMotor.setTargetPosition(armTargetPosition);
-//
 //        if (engine.gamepad1.a) {
 //            robot.LowRiserLeft.setPosition(0);
 //            robot.LowRiserRight.setPosition(1);
 //        }
-
 //        if (engine.gamepad1.x) {
 //            robot.LowRiserLeft.setPosition(1);
 //            robot.LowRiserRight.setPosition(0);
@@ -264,12 +203,24 @@ public class PrototypeTeleOPState extends CyberarmState {
                     }
                     break;
                 case 3:
+                    if (robot.imu.getAngularOrientation().firstAngle > -90) {
+//                        *+90 degrees is counterclockwise, -90 is clockwise*
+                        drivePower = 0.4;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(-drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(-drivePower);
+
+                    } else
+                    {
+                        DriveForwardAndBack += 1;
+                    }
+                    break;
+                case 4:
                     robot.backLeftDrive.setPower(0);
                     robot.backRightDrive.setPower(0);
                     robot.frontLeftDrive.setPower(0);
                     robot.frontRightDrive.setPower(0);
-                    DriveForwardAndBack = 1;
-                    drivePower = 1;
                     break;
 
 
