@@ -23,8 +23,9 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double speed = 1; // used for the normal speed while driving
     private double slowSpeed = 0.5; // used for slow mode speed while driving
     private int CyclingArmUpAndDown = 0;
-    private int DriveForwardAndBack;
+    private int DriveForwardAndBack, AutoChain;
     private int RobotPosition, RobotStartingPosition;
+    private double RobotRotation;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -37,6 +38,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
+        engine.telemetry.addData("AutoChain", AutoChain);
 //        engine.telemetry.addData("Cycling Arm up / Down Case", CyclingArmUpAndDown);
 
     }
@@ -228,10 +230,10 @@ public class PrototypeTeleOPState extends CyberarmState {
             } // if gamepad 1 start ending
         else {
 
-            robot.backLeftDrive.setPower(0);
-            robot.backRightDrive.setPower(0);
-            robot.frontLeftDrive.setPower(0);
-            robot.frontRightDrive.setPower(0);
+//            robot.backLeftDrive.setPower(0);
+//            robot.backRightDrive.setPower(0);
+//            robot.frontLeftDrive.setPower(0);
+//            robot.frontRightDrive.setPower(0);
 
         }
 
@@ -310,7 +312,100 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 //        For raising, high risers ALWAYS raise first, for lowering, low risers ALWAYS lower first.
 
+        if (engine.gamepad2.back) {
+            RobotPosition = robot.backRightDrive.getCurrentPosition();
 
+            switch (AutoChain) {
+
+                case 0://Initialize
+                    RobotStartingPosition = RobotPosition;
+                    AutoChain += 1;
+                    break;
+
+                case 1://Drive 1 square forward
+                    if (RobotPosition - RobotStartingPosition < 2500){
+                        drivePower = 1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain += 1;
+                    }
+                    break;
+
+                case 2://Rotate Counterclockwise for 45 degrees
+                        RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+                    if (RobotRotation <= 45) {
+                        drivePower = 0.4;
+                        robot.backLeftDrive.setPower(-drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(-drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain += 1;
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    }
+                    break;
+
+                case 3://Raise upper arm fully
+                    if (robot.HighRiserLeft.getPosition() < 1) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                        }
+                    } else {
+                        AutoChain +=1;
+                    }
+                    break;
+
+                case 4://Raise lower arm fully
+                    if (robot.LowRiserLeft.getPosition() < 1) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                        }
+                    } else {
+                        AutoChain += 1;
+                        RobotStartingPosition = robot.backRightDrive.getCurrentPosition();
+                    }
+                    break;
+
+                case 5://Drive forward 1/4 square
+                    if (RobotPosition - RobotStartingPosition < 1200){
+                        drivePower = 1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain =999;
+                    }
+                    break;
+
+                case  999:
+                    drivePower = 0;
+                    robot.backLeftDrive.setPower(drivePower);
+                    robot.backRightDrive.setPower(drivePower);
+                    robot.frontLeftDrive.setPower(drivePower);
+                    robot.frontRightDrive.setPower(drivePower);
+                            break;
+
+
+
+            }
+
+
+        }
 
     }
 }
