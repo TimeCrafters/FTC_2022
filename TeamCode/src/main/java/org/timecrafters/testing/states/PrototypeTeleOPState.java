@@ -18,13 +18,14 @@ public class PrototypeTeleOPState extends CyberarmState {
     private int armTargetPosition = 0, armCollectPosition = 125, armDeliverPosition = 400;
     private double collectorRiserPosition;
     private boolean raiseHighRiser = true;
-    private long lastStepTime = 0;
+    private long lastStepTime = 0, BeginningofActionTime;
     private boolean raiseLowRiser = true;
     private double speed = 1; // used for the normal speed while driving
     private double slowSpeed = 0.5; // used for slow mode speed while driving
     private int CyclingArmUpAndDown = 0;
-    private int DriveForwardAndBack;
+    private int DriveForwardAndBack, AutoChain;
     private int RobotPosition, RobotStartingPosition;
+    private double RobotRotation;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -37,6 +38,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
+        engine.telemetry.addData("AutoChain", AutoChain);
 //        engine.telemetry.addData("Cycling Arm up / Down Case", CyclingArmUpAndDown);
 
     }
@@ -103,191 +105,191 @@ public class PrototypeTeleOPState extends CyberarmState {
 //        robot.backRightDrive.setPower(backRightPower * speed);
 
 
-        if (engine.gamepad2.y) {
-
-            robot.collectorLeft.setPower(0);
-            robot.collectorRight.setPower(0);
-
-        }
-
-        if (engine.gamepad2.b) {
-
-            robot.collectorLeft.setPower(1);
-            robot.collectorRight.setPower(-1);
-
-        }
-
-        if (engine.gamepad2.x) {
-
-            robot.collectorLeft.setPower(-1);
-            robot.collectorRight.setPower(1);
-
-        }
+//        if (engine.gamepad2.y) {
 //
-//        if (engine.gamepad1.a) {
-//            robot.LowRiserLeft.setPosition(0);
-//            robot.LowRiserRight.setPosition(1);
-//        }
-//        if (engine.gamepad1.x) {
-//            robot.LowRiserLeft.setPosition(1);
-//            robot.LowRiserRight.setPosition(0);
+//            robot.collectorLeft.setPower(0);
+//            robot.collectorRight.setPower(0);
+//
 //        }
 //
-//        if (engine.gamepad2.right_stick_y < -0.1) {
-//            robot.LowRiserRight.setPosition(0.6);
-//            robot.LowRiserLeft.setPosition(0.6);
+//        if (engine.gamepad2.b) {
+//
+//            robot.collectorLeft.setPower(1);
+//            robot.collectorRight.setPower(-1);
+//
 //        }
 //
-//        if (engine.gamepad2.right_stick_y > 0.1) {
-//            robot.LowRiserRight.setPosition(0.45);
-//            robot.LowRiserLeft.setPosition(0.45);
-//        }
-
-//        if (engine.gamepad2.start) {
-//            if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                lastStepTime = System.currentTimeMillis();
+//        if (engine.gamepad2.x) {
 //
-//                if (raiseHighRiser) {
-//                    if (robot.HighRiserLeft.getPosition() >= 1) {
-//                        if (raiseLowRiser) {
-//                            raiseHighRiser = false;
-//                        }
-//                    } else {
-//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+//            robot.collectorLeft.setPower(-1);
+//            robot.collectorRight.setPower(1);
+//
+//        }
+////
+////        if (engine.gamepad1.a) {
+////            robot.LowRiserLeft.setPosition(0);
+////            robot.LowRiserRight.setPosition(1);
+////        }
+////        if (engine.gamepad1.x) {
+////            robot.LowRiserLeft.setPosition(1);
+////            robot.LowRiserRight.setPosition(0);
+////        }
+////
+////        if (engine.gamepad2.right_stick_y < -0.1) {
+////            robot.LowRiserRight.setPosition(0.6);
+////            robot.LowRiserLeft.setPosition(0.6);
+////        }
+////
+////        if (engine.gamepad2.right_stick_y > 0.1) {
+////            robot.LowRiserRight.setPosition(0.45);
+////            robot.LowRiserLeft.setPosition(0.45);
+////        }
+//
+////        if (engine.gamepad2.start) {
+////            if (System.currentTimeMillis() - lastStepTime >= 150) {
+////                lastStepTime = System.currentTimeMillis();
+////
+////                if (raiseHighRiser) {
+////                    if (robot.HighRiserLeft.getPosition() >= 1) {
+////                        if (raiseLowRiser) {
+////                            raiseHighRiser = false;
+////                        }
+////                    } else {
+////                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+////                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+////                    }
+////                } else {
+////                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.035);
+////                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.035);
+////
+////                    if (robot.HighRiserLeft.getPosition() <= 0.45) {
+////                        raiseHighRiser = true;
+////                    }
+////                }
+////            }
+////        }
+//        // SPENCER____________________________________________________________________
+//        if (engine.gamepad1.start) {
+//            RobotPosition = robot.backRightDrive.getCurrentPosition();
+//
+//            switch (DriveForwardAndBack) {
+//
+//                case 0:
+//                    RobotStartingPosition = RobotPosition;
+//                  drivePower = 1;
+//
+//                  DriveForwardAndBack += 1;
+//                    break;
+//
+//                case 1:
+//                    if (RobotPosition - RobotStartingPosition < 6250){
+//                        robot.backLeftDrive.setPower(drivePower);
+//                        robot.backRightDrive.setPower(drivePower);
+//                        robot.frontLeftDrive.setPower(drivePower);
+//                        robot.frontRightDrive.setPower(drivePower);
+//                    } else
+//                    {
+//                        DriveForwardAndBack += 1;
+//                        drivePower = -1;
 //                    }
-//                } else {
-//                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.035);
-//                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.035);
-//
-//                    if (robot.HighRiserLeft.getPosition() <= 0.45) {
-//                        raiseHighRiser = true;
+//                    break;
+//                case 2:
+//                    if (RobotPosition - RobotStartingPosition >= 0) {
+//                        robot.backLeftDrive.setPower(drivePower);
+//                        robot.backRightDrive.setPower(drivePower);
+//                        robot.frontLeftDrive.setPower(drivePower);
+//                        robot.frontRightDrive.setPower(drivePower);
+//                    } else
+//                    {
+//                        DriveForwardAndBack += 1;
 //                    }
-//                }
-//            }
+//                    break;
+//                case 3:
+//                    if (robot.imu.getAngularOrientation().firstAngle > -90) {
+////                        *+90 degrees is counterclockwise, -90 is clockwise*
+//                        drivePower = 0.4;
+//                        robot.backLeftDrive.setPower(drivePower);
+//                        robot.backRightDrive.setPower(-drivePower);
+//                        robot.frontLeftDrive.setPower(drivePower);
+//                        robot.frontRightDrive.setPower(-drivePower);
+//
+//                    } else
+//                    {
+//                        DriveForwardAndBack += 1;
+//                    }
+//                    break;
+//                case 4:
+//                    robot.backLeftDrive.setPower(0);
+//                    robot.backRightDrive.setPower(0);
+//                    robot.frontLeftDrive.setPower(0);
+//                    robot.frontRightDrive.setPower(0);
+//                    break;
+//
+//
+//            } // switch ending
+//            } // if gamepad 1 start ending
+//        else {
+//
+////            robot.backLeftDrive.setPower(0);
+////            robot.backRightDrive.setPower(0);
+////            robot.frontLeftDrive.setPower(0);
+////            robot.frontRightDrive.setPower(0);
+//
 //        }
-        // SPENCER____________________________________________________________________
-        if (engine.gamepad1.start) {
-            RobotPosition = robot.backRightDrive.getCurrentPosition();
+//
+//     if (engine.gamepad2.start){
+//
+//         if (System.currentTimeMillis() - lastStepTime >= 150) {
+//             lastStepTime = System.currentTimeMillis();
+//
+//         switch (CyclingArmUpAndDown) {
+//
+//                 // upper arm up
+//                 case 0:
+//                     if (robot.HighRiserLeft.getPosition() < 1) {
+//                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+//                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+//                     } else {
+//                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+//                     }
+//                     break;
+//
+//                 // lower arm up
+//                 case 1:
+//                     if (robot.LowRiserLeft.getPosition() < 1) {
+//                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+//                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+//                     } else {
+//                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+//                     }
+//                     break;
+//
+//                 // lower arm down
+//                 case 2:
+//                     if (robot.LowRiserLeft.getPosition() >= 0.44) {
+//                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+//                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+//                     } else {
+//                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
+//                     }
+//                     break;
+//
+//                 // upper arm down
+//                 case 3:
+//                     if (robot.HighRiserLeft.getPosition() >= 0.45) {
+//                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+//                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+//                     } else {
+//                         CyclingArmUpAndDown = 0;
+//                     }
+//                     break;
+//
+//                 default:
+//                     break;
 
-            switch (DriveForwardAndBack) {
-
-                case 0:
-                    RobotStartingPosition = RobotPosition;
-                  drivePower = 1;
-
-                  DriveForwardAndBack += 1;
-                    break;
-
-                case 1:
-                    if (RobotPosition - RobotStartingPosition < 6250){
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
-                    } else
-                    {
-                        DriveForwardAndBack += 1;
-                        drivePower = -1;
-                    }
-                    break;
-                case 2:
-                    if (RobotPosition - RobotStartingPosition >= 0) {
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
-                    } else
-                    {
-                        DriveForwardAndBack += 1;
-                    }
-                    break;
-                case 3:
-                    if (robot.imu.getAngularOrientation().firstAngle > -90) {
-//                        *+90 degrees is counterclockwise, -90 is clockwise*
-                        drivePower = 0.4;
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(-drivePower);
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(-drivePower);
-
-                    } else
-                    {
-                        DriveForwardAndBack += 1;
-                    }
-                    break;
-                case 4:
-                    robot.backLeftDrive.setPower(0);
-                    robot.backRightDrive.setPower(0);
-                    robot.frontLeftDrive.setPower(0);
-                    robot.frontRightDrive.setPower(0);
-                    break;
-
-
-            } // switch ending
-            } // if gamepad 1 start ending
-        else {
-
-            robot.backLeftDrive.setPower(0);
-            robot.backRightDrive.setPower(0);
-            robot.frontLeftDrive.setPower(0);
-            robot.frontRightDrive.setPower(0);
-
-        }
-
-     if (engine.gamepad2.start){
-
-         if (System.currentTimeMillis() - lastStepTime >= 150) {
-             lastStepTime = System.currentTimeMillis();
-
-         switch (CyclingArmUpAndDown) {
-
-                 // upper arm up
-                 case 0:
-                     if (robot.HighRiserLeft.getPosition() < 1) {
-                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
-                     }
-                     break;
-
-                 // lower arm up
-                 case 1:
-                     if (robot.LowRiserLeft.getPosition() < 1) {
-                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
-                     }
-                     break;
-
-                 // lower arm down
-                 case 2:
-                     if (robot.LowRiserLeft.getPosition() >= 0.44) {
-                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
-                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown +1;
-                     }
-                     break;
-
-                 // upper arm down
-                 case 3:
-                     if (robot.HighRiserLeft.getPosition() >= 0.45) {
-                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                     } else {
-                         CyclingArmUpAndDown = 0;
-                     }
-                     break;
-
-                 default:
-                     break;
-
-             } // end of switch
-         } // end of time if statement
-     } // end of start button press
+//             } // end of switch
+//         } // end of time if statement
+//     } // end of start button press
 
 //        if (engine.gamepad2.left_stick_y > 0.1) {
 //            robot.HighRiserLeft.setPosition(0.5);
@@ -304,13 +306,217 @@ public class PrototypeTeleOPState extends CyberarmState {
 //            robot.LowRiserLeft.setPosition(0);
 //        }
 
-        if (engine.gamepad2.left_bumper) {
-            robot.HighRiserRight.setPosition(0);
-            robot.HighRiserLeft.setPosition(1);
-        }
+//        if (engine.gamepad2.left_bumper) {
+//            robot.HighRiserRight.setPosition(0);
+//            robot.HighRiserLeft.setPosition(1);
+//        }
 //        For raising, high risers ALWAYS raise first, for lowering, low risers ALWAYS lower first.
 
+        if (engine.gamepad2.back) {
+            RobotPosition = robot.backRightDrive.getCurrentPosition();
 
+            switch (AutoChain) {
+
+                case 0://Initialize
+                    RobotStartingPosition = RobotPosition;
+                    AutoChain += 1;
+                    break;
+
+                case 1://Drive 1 square forward
+                    if (RobotPosition - RobotStartingPosition < 2500){
+                        drivePower = 1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain += 1;
+                    }
+                    break;
+
+                case 2://Rotate Counterclockwise for 45 degrees
+                        RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+                    if (RobotRotation <= 45) {
+                        drivePower = 0.4;
+                        robot.backLeftDrive.setPower(-drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(-drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain += 1;
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    }
+                    break;
+
+                case 3://Raise upper arm fully
+                    if (robot.HighRiserLeft.getPosition() < 1) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                        }
+                    } else {
+                        AutoChain +=1;
+                    }
+                    break;
+
+                case 4://Raise lower arm fully
+                    if (robot.LowRiserLeft.getPosition() < 1) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                        }
+                    } else {
+                        AutoChain += 1;
+
+                    }
+                    break;
+
+                case 5://initialize for moving forward
+                    RobotStartingPosition = robot.backRightDrive.getCurrentPosition();
+                    AutoChain += 1;
+                    break;
+
+                case 6://Drive forward 1/4 square
+                    if (RobotPosition - RobotStartingPosition < 1200){
+                        drivePower = 1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                        AutoChain += 1;
+                    }
+                    break;
+
+                case 7://Lower low arm fully
+                    if (robot.LowRiserLeft.getPosition() > 0.5) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+
+                        }
+                    }else
+                        {
+                            AutoChain += 1;
+                        }
+                        break;
+
+                case 8:
+                    BeginningofActionTime = System.currentTimeMillis();
+                    AutoChain += 1;
+
+                    break;
+                case 9://Eject
+                    if (System.currentTimeMillis() - BeginningofActionTime < 2000) {
+                            robot.collectorRight.setPower(-1);
+                            robot.collectorLeft.setPower(1);
+
+                    } else {
+                        robot.collectorLeft.setPower(0);
+                        robot.collectorRight.setPower(0);
+                        AutoChain += 1;
+                    }
+                    break;
+
+                case 10://Raise low arm
+                     if (robot.LowRiserLeft.getPosition() < 1) {
+                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                     } else {
+                         AutoChain += 1;
+                     }
+                     break;
+
+                case 11://Initialize backup
+                    RobotStartingPosition = RobotPosition;
+                    AutoChain += 1;
+                    break;
+
+                case 12://Drive backwards 1/4 square
+                    if (RobotPosition - RobotStartingPosition > -1200){
+                        drivePower = -1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                        AutoChain += 1;
+                    }
+                    break;
+
+                case 13://Turn 45 degrees clockwise
+                    RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+                    if (RobotRotation > 0) {
+                        drivePower = 0.4;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(-drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(-drivePower);
+                    } else
+                    {
+                        AutoChain += 1;
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    }
+                    break;
+
+                case 14://Initialize
+                    RobotStartingPosition = RobotPosition;
+                    AutoChain += 1;
+                    break;
+
+                case 15://Drive 1 square forward
+                    if (RobotPosition - RobotStartingPosition < 2500){
+                        drivePower = 1;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    } else
+                    {
+                        AutoChain = 999;
+                        drivePower = 0;
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+                    }
+                    break;
+
+                case  999:
+
+                            break;
+
+
+
+            }
+
+
+        }
 
     }
 }
