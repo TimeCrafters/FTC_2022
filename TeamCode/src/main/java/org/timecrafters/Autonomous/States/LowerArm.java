@@ -6,7 +6,7 @@ import org.timecrafters.testing.states.PrototypeBot1;
 public class LowerArm extends CyberarmState {
 
     PrototypeBot1 robot;
-    double LowerRiserRightPos, LowerRiserLeftPos;
+    double LowerRiserRightPos, LowerRiserLeftPos, AddedDistance;
     long time;
     long lastStepTime = 0;
 
@@ -15,6 +15,8 @@ public class LowerArm extends CyberarmState {
         this.LowerRiserLeftPos = robot.configuration.variable(groupName, actionName, "LowerRiserLeftPos").value();
         this.LowerRiserRightPos = robot.configuration.variable(groupName, actionName, "LowerRiserRightPos").value();
         this.time = robot.configuration.variable(groupName, actionName, "time").value();
+        this.AddedDistance = robot.configuration.variable(groupName, actionName, "AddedDistance").value();
+
     }
 
     @Override
@@ -22,10 +24,8 @@ public class LowerArm extends CyberarmState {
         if (robot.LowRiserLeft.getPosition() > LowerRiserLeftPos) {
             if (System.currentTimeMillis() - lastStepTime >= time) {
                 lastStepTime = System.currentTimeMillis();
-                robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - LowerRiserLeftPos);
-                robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - LowerRiserRightPos);
-
-
+                robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - AddedDistance);
+                robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - AddedDistance);
             }
         }
     }

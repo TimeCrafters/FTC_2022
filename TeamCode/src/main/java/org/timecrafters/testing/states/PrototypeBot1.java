@@ -58,8 +58,6 @@ public class PrototypeBot1 {
             // Collector
             collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
             collectorRight = engine.hardwareMap.crservo.get("Collector Right");
-            collectorLeft.setDirection(CRServo.Direction.REVERSE);
-            collectorRight.setDirection(CRServo.Direction.FORWARD);
 
             // Arm
             LowRiserLeft = engine.hardwareMap.servo.get("LowRiserLeft");
