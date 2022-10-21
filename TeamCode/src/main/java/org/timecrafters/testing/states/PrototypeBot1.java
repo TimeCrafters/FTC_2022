@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
+import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 
 public class PrototypeBot1 {
 
@@ -20,6 +21,8 @@ public class PrototypeBot1 {
         public CRServo collectorLeft, collectorRight;
 
          public BNO055IMU imu;
+
+         public TimeCraftersConfiguration configuration;
 
 //        public Servo collectorWrist;
 
@@ -42,7 +45,7 @@ public class PrototypeBot1 {
 
             imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
-
+            configuration = new TimeCraftersConfiguration("Phoenix");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
