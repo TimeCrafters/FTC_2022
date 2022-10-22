@@ -66,7 +66,7 @@ public class PrototypeBot1 {
 
             imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
-            configuration = new TimeCraftersConfiguration("Phoenix");
+            ///configuration = new TimeCraftersConfiguration("Phoenix");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");

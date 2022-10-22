@@ -39,6 +39,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
         engine.telemetry.addData("AutoChain", AutoChain);
+        engine.telemetry.addData("IMU", robot.imu.getAngularOrientation().firstAngle);
 //        engine.telemetry.addData("Cycling Arm up / Down Case", CyclingArmUpAndDown);
 
     }
@@ -109,6 +110,133 @@ public class PrototypeTeleOPState extends CyberarmState {
 //
 //            robot.collectorLeft.setPower(0);
 //            robot.collectorRight.setPower(0);
+        if (engine.gamepad2.dpad_up) {
+            robot.collectorLeft.setPower(1);
+        }
+
+        if (engine.gamepad1.right_trigger > 0) {
+            drivePower = engine.gamepad1.right_trigger;
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (engine.gamepad1.left_trigger > 0) {
+            drivePower = engine.gamepad1.left_trigger;
+            robot.backLeftDrive.setPower(-drivePower);
+            robot.backRightDrive.setPower(-drivePower);
+            robot.frontLeftDrive.setPower(-drivePower);
+            robot.frontRightDrive.setPower(-drivePower);
+        }
+
+        if (engine.gamepad1.right_trigger < 0.1&&engine.gamepad1.left_trigger < 0.1
+        && !engine.gamepad1.y&& !engine.gamepad1.x&& !engine.gamepad1.a&& !engine.gamepad1.b) {
+            drivePower = 0;
+            robot.backLeftDrive.setPower(-drivePower);
+            robot.backRightDrive.setPower(-drivePower);
+            robot.frontLeftDrive.setPower(-drivePower);
+            robot.frontRightDrive.setPower(-drivePower);
+        }
+
+        if (engine.gamepad1.a) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            if (RobotRotation < 0) {
+                drivePower = 0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if(RobotRotation > 0) {
+                drivePower = -0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation <-177 || RobotRotation >177) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+        }
+
+        if (engine.gamepad1.y) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            if (RobotRotation < -3) {
+                drivePower = -0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if(RobotRotation > 3) {
+                drivePower = 0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation >-3 && RobotRotation <3) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+        }
+        if (engine.gamepad1.x) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            if (RobotRotation > -45&& RobotRotation <132) {//CCW
+                drivePower = -0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if(RobotRotation < -45 || RobotRotation > 138) {//CW
+                drivePower = 0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation <138 && RobotRotation >132) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+        }
+        if (engine.gamepad1.b) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            if (RobotRotation < 45&& RobotRotation > -132) {//CCW
+                drivePower = 0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if(RobotRotation > 45||RobotRotation < -138) {//CW
+                drivePower = -0.4;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation <-132 && RobotRotation >-138) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+        }
+
 //
 //        }
 //
