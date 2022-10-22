@@ -1,6 +1,7 @@
 package org.timecrafters.Autonomous.Engines;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.Autonomous.States.CollectorState;

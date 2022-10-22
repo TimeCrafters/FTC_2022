@@ -11,19 +11,16 @@ public class DriverState extends CyberarmState {
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();
 
     }
-
-    private float RobotRotation;
     private double drivePower;
-    private int RobotPosition,RobotStartingPosition,traveledDistance;
+    private int traveledDistance;
 
     @Override
     public void exec() {
 
-        if (RobotPosition - RobotStartingPosition < traveledDistance){
-            drivePower = 1;
-            robot.backLeftDrive.setPower(drivePower);
+        if (robot.frontRightDrive.getCurrentPosition() < traveledDistance){
+            robot.backLeftDrive.setPower(drivePower * 0.5);
             robot.backRightDrive.setPower(drivePower);
-            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower * 0.5);
             robot.frontRightDrive.setPower(drivePower);
         } else {
             robot.backLeftDrive.setPower(0);

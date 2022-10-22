@@ -21,7 +21,7 @@ public class RotationState extends CyberarmState {
 
 
         RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-        if (RobotRotation - 3 <= targetRotation || RobotRotation + 3 <= targetRotation) {
+        if (RobotRotation <= targetRotation -3 || RobotRotation >= targetRotation + 3) {
             robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(-drivePower);
