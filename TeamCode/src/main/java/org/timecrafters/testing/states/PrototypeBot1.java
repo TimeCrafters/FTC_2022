@@ -48,8 +48,8 @@ public class PrototypeBot1 {
         public PrototypeBot1(CyberarmEngine engine) {
             this.engine = engine;
 
-            initVuforia();
-            initTfod();
+//            initVuforia();
+//            initTfod();
             setupRobot();
         }
 
@@ -66,7 +66,7 @@ public class PrototypeBot1 {
 
             imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
-            ///configuration = new TimeCraftersConfiguration("Phoenix");
+            configuration = new TimeCraftersConfiguration("Phoenix");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
@@ -99,6 +99,17 @@ public class PrototypeBot1 {
 
             backRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            HighRiserLeft.setDirection(Servo.Direction.REVERSE);
+            HighRiserRight.setDirection(Servo.Direction.FORWARD);
+            LowRiserLeft.setDirection(Servo.Direction.FORWARD);
+            LowRiserRight.setDirection(Servo.Direction.REVERSE);
+
+            LowRiserLeft.setPosition(0.45);
+            LowRiserRight.setPosition(0.45);
+            HighRiserLeft.setPosition(0.45);
+            HighRiserRight.setPosition(0.45);
+
         }
 
             private void initVuforia(){

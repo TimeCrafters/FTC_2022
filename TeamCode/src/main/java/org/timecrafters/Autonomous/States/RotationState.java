@@ -8,18 +8,20 @@ public class RotationState extends CyberarmState {
     public RotationState(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "drivePower").value();
-//        this.RobotRotation = robot.configuration.variable(groupName, actionName, "RobotRotation").value();
+        this.targetRotation = robot.configuration.variable(groupName, actionName, "targetRotation").value();
+
     }
 
-    private float RobotRotation;
     private double drivePower;
+    private float targetRotation;
+    float RobotRotation;
 
     @Override
     public void exec() {
 
 
         RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-        if (RobotRotation <= 45) {
+        if (RobotRotation - 3 <= targetRotation || RobotRotation + 3 <= targetRotation) {
             robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(-drivePower);
@@ -30,7 +32,15 @@ public class RotationState extends CyberarmState {
             robot.backRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.frontRightDrive.setPower(0);
+            setHasFinished(true);
         }
+
+    }
+
+    @Override
+    public void telemetry() {
+        engine.telemetry.addData("Robot Rotation", RobotRotation);
+        engine.telemetry.addData("Drive Power", drivePower);
 
     }
 }
