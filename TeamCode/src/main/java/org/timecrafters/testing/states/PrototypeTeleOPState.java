@@ -67,7 +67,6 @@ public class PrototypeTeleOPState extends CyberarmState {
         Y = engine.gamepad1.y;
         UpDPad = engine.gamepad1.dpad_up;
 
-
         //drive speed toggle
 //
 //        boolean b = engine.gamepad1.b;
@@ -104,18 +103,9 @@ public class PrototypeTeleOPState extends CyberarmState {
 //        robot.frontRightDrive.setPower(-frontRightPower * speed);
 //        robot.backRightDrive.setPower(backRightPower * speed);
 
-
-//        if (engine.gamepad2.y) {
-//
-//            robot.collectorLeft.setPower(0);
-//            robot.collectorRight.setPower(0);
-        if (engine.gamepad2.dpad_up) {
-            robot.collectorLeft.setPower(1);
-        }
-
         if (engine.gamepad1.right_trigger > 0) {
             drivePower = engine.gamepad1.right_trigger;
-            robot.backLeftDrive.setPower(drivePower);
+            robot.backLeftDrive.setPower(0.1);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
@@ -123,7 +113,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.left_trigger > 0) {
             drivePower = engine.gamepad1.left_trigger;
-            robot.backLeftDrive.setPower(-drivePower);
+            robot.backLeftDrive.setPower(-0.1);
             robot.backRightDrive.setPower(-drivePower);
             robot.frontLeftDrive.setPower(-drivePower);
             robot.frontRightDrive.setPower(-drivePower);
@@ -262,7 +252,8 @@ public class PrototypeTeleOPState extends CyberarmState {
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
                 }
-            }//end of y
+            }
+        }//end of y
 
             if (engine.gamepad2.a) {
                 if (robot.HighRiserLeft.getPosition() > 0.45 && robot.LowRiserLeft.getPosition() < 0.5) {
@@ -404,59 +395,59 @@ public class PrototypeTeleOPState extends CyberarmState {
 //
 //        }
 //
-////     if (engine.gamepad2.start){
-////
-////         if (System.currentTimeMillis() - lastStepTime >= 150) {
-//             lastStepTime = System.currentTimeMillis();
+     if (engine.gamepad2.start) {
 
-            switch (CyclingArmUpAndDown) {
+         if (System.currentTimeMillis() - lastStepTime >= 150) {
+             lastStepTime = System.currentTimeMillis();
 
-                // upper arm up
-                case 0:
-                    if (robot.HighRiserLeft.getPosition() < 1) {
-                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                    } else {
-                        CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                    }
-                    break;
+             switch (CyclingArmUpAndDown) {
 
-                // lower arm up
-                case 1:
-                    if (robot.LowRiserLeft.getPosition() < 1) {
-                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                    } else {
-                        CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                    }
-                    break;
+                 // upper arm up
+                 case 0:
+                     if (robot.HighRiserLeft.getPosition() < 1) {
+                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
+                     }
+                     break;
 
-                // lower arm down
-                case 2:
-                    if (robot.LowRiserLeft.getPosition() >= 0.44) {
-                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
-                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
-                    } else {
-                        CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                    }
-                    break;
+                 // lower arm up
+                 case 1:
+                     if (robot.LowRiserLeft.getPosition() < 1) {
+                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
+                     }
+                     break;
 
-                // upper arm down
-                case 3:
-                    if (robot.HighRiserLeft.getPosition() >= 0.45) {
-                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                    } else {
-                        CyclingArmUpAndDown = 0;
-                    }
-                    break;
+                 // lower arm down
+                 case 2:
+                     if (robot.LowRiserLeft.getPosition() >= 0.44) {
+                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                     } else {
+                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
+                     }
+                     break;
 
-                default:
-                    break;
+                 // upper arm down
+                 case 3:
+                     if (robot.HighRiserLeft.getPosition() >= 0.45) {
+                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+                     } else {
+                         CyclingArmUpAndDown = 0;
+                     }
+                     break;
 
-            } // end of switch
-            // end of time if statement
-            // end of start button press
+                 default:
+                     break;
+
+             } // end of switch
+         }// end of time if statement
+     }// end of start button press
 
 //        if (engine.gamepad2.left_stick_y > 0.1) {
 //            robot.HighRiserLeft.setPosition(0.5);
@@ -683,4 +674,3 @@ public class PrototypeTeleOPState extends CyberarmState {
 
 
     }
-}
