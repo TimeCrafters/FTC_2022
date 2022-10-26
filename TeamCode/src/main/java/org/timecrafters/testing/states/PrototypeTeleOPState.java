@@ -3,6 +3,7 @@ package org.timecrafters.testing.states;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.hardware.Servo;
+import com.vuforia.Vuforia;
 
 import org.cyberarm.engine.V2.CyberarmState;
 
@@ -227,11 +228,11 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.dpad_left) {
-            robot.collectorLeft.setPower(1);
-            robot.collectorRight.setPower(1);
-        } else if (engine.gamepad1.dpad_right) {
             robot.collectorLeft.setPower(-1);
             robot.collectorRight.setPower(-1);
+        } else if (engine.gamepad1.dpad_right) {
+            robot.collectorLeft.setPower(1);
+            robot.collectorRight.setPower(1);
         } else {
             robot.collectorLeft.setPower(0);
             robot.collectorRight.setPower(0);
@@ -272,6 +273,51 @@ public class PrototypeTeleOPState extends CyberarmState {
                     }
                 }
             }//end of a
+
+        if (engine.gamepad2.back) {
+            robot.backLeftDrive.setPower(1);
+            robot.backRightDrive.setPower(1);
+            robot.frontLeftDrive.setPower(1);
+            robot.frontRightDrive.setPower(1);
+            if (System.currentTimeMillis() - lastStepTime >= 1500) {
+                robot.backLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.frontRightDrive.setPower(0);
+            }
+            if (System.currentTimeMillis() - lastStepTime >= 150) {
+                if (robot.HighRiserLeft.getPosition() < 1) {
+                    if (System.currentTimeMillis() - lastStepTime >= 150) {
+                        lastStepTime = System.currentTimeMillis();
+                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                    }
+                }
+            }
+            if (System.currentTimeMillis() - lastStepTime >= 150) {
+                if (robot.LowRiserLeft.getPosition() < 1 && robot.HighRiserLeft.getPosition() == 1) {
+                    if (System.currentTimeMillis() - lastStepTime >= 150) {
+                        lastStepTime = System.currentTimeMillis();
+                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                    }
+                }
+            }
+            if (System.currentTimeMillis() >= 250) {
+                robot.backLeftDrive.setPower(1);
+                robot.backRightDrive.setPower(1);
+                robot.frontLeftDrive.setPower(1);
+                robot.frontRightDrive.setPower(1);
+                if (System.currentTimeMillis() - lastStepTime >= 250) {
+                    robot.backLeftDrive.setPower(0);
+                    robot.backRightDrive.setPower(0);
+                    robot.frontLeftDrive.setPower(0);
+                    robot.frontRightDrive.setPower(0);
+                }
+            }
+
+        }
+
 
 
 //

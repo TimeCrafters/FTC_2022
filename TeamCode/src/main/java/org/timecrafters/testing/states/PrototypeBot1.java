@@ -43,13 +43,12 @@ public class PrototypeBot1 {
 
          public TimeCraftersConfiguration configuration;
 
-//        public Servo collectorWrist;
 
         public PrototypeBot1(CyberarmEngine engine) {
             this.engine = engine;
 
-//            initVuforia();
-//            initTfod();
+            initVuforia();
+            initTfod();
             setupRobot();
         }
 
