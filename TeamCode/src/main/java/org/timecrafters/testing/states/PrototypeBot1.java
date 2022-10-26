@@ -80,6 +80,9 @@ public class PrototypeBot1 {
             collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
             collectorRight = engine.hardwareMap.crservo.get("Collector Right");
 
+            collectorLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+            collectorRight.setDirection(DcMotorSimple.Direction.FORWARD);
+
             // Arm
             LowRiserLeft = engine.hardwareMap.servo.get("LowRiserLeft");
             LowRiserRight = engine.hardwareMap.servo.get("LowRiserRight");

@@ -39,7 +39,8 @@ public class RotationState extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("Robot Rotation", RobotRotation);
+        engine.telemetry.addData("Robot IMU Rotation", RobotRotation);
+        engine.telemetry.addData("Robot Target Rotation", targetRotation);
         engine.telemetry.addData("Drive Power", drivePower);
 
     }

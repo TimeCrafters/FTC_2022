@@ -105,7 +105,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.right_trigger > 0) {
             drivePower = engine.gamepad1.right_trigger;
-            robot.backLeftDrive.setPower(0.1);
+            robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
@@ -113,7 +113,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.left_trigger > 0) {
             drivePower = engine.gamepad1.left_trigger;
-            robot.backLeftDrive.setPower(-0.1);
+            robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(-drivePower);
             robot.frontLeftDrive.setPower(-drivePower);
             robot.frontRightDrive.setPower(-drivePower);
