@@ -120,8 +120,26 @@ public class PrototypeTeleOPState extends CyberarmState {
             robot.frontRightDrive.setPower(-drivePower);
         }
 
-        if (engine.gamepad1.right_trigger < 0.1 && engine.gamepad1.left_trigger < 0.1
-                && !engine.gamepad1.y && !engine.gamepad1.x && !engine.gamepad1.a && !engine.gamepad1.b) {
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
+            drivePower = engine.gamepad1.left_stick_y;
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
+            drivePower = engine.gamepad1.right_stick_y;
+            robot.backLeftDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+        }
+
+        if (engine.gamepad1.right_trigger < 0.1 &&
+                engine.gamepad1.left_trigger < 0.1 &&
+                !engine.gamepad1.y &&
+                !engine.gamepad1.x &&
+                !engine.gamepad1.a &&
+                !engine.gamepad1.b &&
+                Math.abs (engine.gamepad1.left_stick_y) < 0.1 &&
+                Math.abs(engine.gamepad1.right_stick_y) < 0.1) {
             drivePower = 0;
             robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(-drivePower);
@@ -132,14 +150,14 @@ public class PrototypeTeleOPState extends CyberarmState {
         if (engine.gamepad1.a) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             if (RobotRotation < 0) {
-                drivePower = 0.4;
+                drivePower = 0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 0) {
-                drivePower = -0.4;
+                drivePower = -0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -157,14 +175,14 @@ public class PrototypeTeleOPState extends CyberarmState {
         if (engine.gamepad1.y) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             if (RobotRotation < -3) {
-                drivePower = -0.4;
+                drivePower = -0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 3) {
-                drivePower = 0.4;
+                drivePower = 0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -181,14 +199,14 @@ public class PrototypeTeleOPState extends CyberarmState {
         if (engine.gamepad1.x) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             if (RobotRotation > -45 && RobotRotation < 132) {//CCW
-                drivePower = -0.4;
+                drivePower = -0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation < -45 || RobotRotation > 138) {//CW
-                drivePower = 0.4;
+                drivePower = 0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -205,14 +223,14 @@ public class PrototypeTeleOPState extends CyberarmState {
         if (engine.gamepad1.b) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             if (RobotRotation < 45 && RobotRotation > -132) {//CCW
-                drivePower = 0.4;
+                drivePower = 0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 45 || RobotRotation < -138) {//CW
-                drivePower = -0.4;
+                drivePower = -0.9;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -227,15 +245,35 @@ public class PrototypeTeleOPState extends CyberarmState {
             }
         }
 
-        if (engine.gamepad1.dpad_left) {
+        if (engine.gamepad2.dpad_left) {
             robot.collectorLeft.setPower(-1);
             robot.collectorRight.setPower(-1);
-        } else if (engine.gamepad1.dpad_right) {
+        } else if (engine.gamepad2.dpad_right) {
             robot.collectorLeft.setPower(1);
             robot.collectorRight.setPower(1);
         } else {
             robot.collectorLeft.setPower(0);
             robot.collectorRight.setPower(0);
+        }
+
+        if (engine.gamepad2.dpad_up) {
+            if (robot.HighRiserLeft.getPosition() < 0.9) {
+                if (System.currentTimeMillis() - lastStepTime >= 150) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                }
+            }
+        }
+
+        if (engine.gamepad2.dpad_down) {
+            if (robot.HighRiserLeft.getPosition() > 0.45) {
+                if (System.currentTimeMillis() - lastStepTime >= 150) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+                }
+            }
         }
 
         if (engine.gamepad2.y) {
@@ -247,7 +285,7 @@ public class PrototypeTeleOPState extends CyberarmState {
                 }
             }
 
-            if (robot.LowRiserLeft.getPosition() < 1 && robot.HighRiserLeft.getPosition() == 1) {
+            if (robot.LowRiserLeft.getPosition() < 0.75 && robot.HighRiserLeft.getPosition() == 1) {
                 if (System.currentTimeMillis() - lastStepTime >= 150) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
