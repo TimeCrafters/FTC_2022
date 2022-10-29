@@ -4,11 +4,14 @@ import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.testing.states.PrototypeBot1;
 
 public class RotationState extends CyberarmState {
+    private final boolean stateDisabled;
     PrototypeBot1 robot;
     public RotationState(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "drivePower").value();
         this.targetRotation = robot.configuration.variable(groupName, actionName, "targetRotation").value();
+        this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
+
 
     }
 
@@ -18,7 +21,10 @@ public class RotationState extends CyberarmState {
 
     @Override
     public void exec() {
-
+        if (stateDisabled){
+            setHasFinished(true);
+            return;
+        }
 
         RobotRotation = robot.imu.getAngularOrientation().firstAngle;
         if (RobotRotation <= targetRotation -3 || RobotRotation >= targetRotation + 3) {

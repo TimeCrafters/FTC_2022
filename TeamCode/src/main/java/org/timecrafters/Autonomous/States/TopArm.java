@@ -5,11 +5,13 @@ import org.timecrafters.testing.states.PrototypeBot1;
 
 public class TopArm extends CyberarmState {
 
+    private final boolean stateDisabled;
     PrototypeBot1 robot;
     double UpperRiserRightPos, UpperRiserLeftPos, AddedDistance;
     long time;
     long lastStepTime = 0;
     boolean up;
+    boolean directPosition;
 
     public TopArm(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
@@ -17,6 +19,10 @@ public class TopArm extends CyberarmState {
         this.UpperRiserRightPos = robot.configuration.variable(groupName, actionName, "UpperRiserRightPos").value();
         this.time = robot.configuration.variable(groupName, actionName, "time").value();
         this.AddedDistance = robot.configuration.variable(groupName, actionName, "AddedDistance").value();
+        this.directPosition = robot.configuration.variable(groupName, actionName, "directPosition").value();
+
+        this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
+
     }
 
     @Override
@@ -26,21 +32,35 @@ public class TopArm extends CyberarmState {
 
     @Override
     public void exec() {
-        if (System.currentTimeMillis() - lastStepTime >= time) {
-            lastStepTime = System.currentTimeMillis();
+        if (stateDisabled){
+            setHasFinished(true);
+            return;
+        }
 
-            if (robot.HighRiserLeft.getPosition() < UpperRiserLeftPos && up) {
+        if (directPosition) {
+            robot.HighRiserLeft.setPosition(UpperRiserLeftPos);
+            robot.HighRiserRight.setPosition(UpperRiserRightPos);
 
-                robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
-                robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
-
-            } else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
-
-                robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
-                robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);
-
-            } else {
+            if (runTime() >= time){
                 setHasFinished(true);
+            }
+        } else {
+            if (System.currentTimeMillis() - lastStepTime >= time) {
+                lastStepTime = System.currentTimeMillis();
+
+                if (robot.HighRiserLeft.getPosition() < UpperRiserLeftPos && up) {
+
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
+
+                } else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
+
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);
+
+                } else {
+                    setHasFinished(true);
+                }
             }
         }
     }

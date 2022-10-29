@@ -1,11 +1,13 @@
 package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.testing.states.PrototypeBot1;
 
 public class CollectorState extends CyberarmState {
 
     private final PrototypeBot1 robot;
+    private final boolean stateDisabled;
     private boolean collecting;
     private long duration;
     private long BeginningofActionTime;
@@ -16,6 +18,9 @@ public class CollectorState extends CyberarmState {
 
         this.duration = robot.configuration.variable(groupName, actionName, "Duration").value();
         this.collecting = robot.configuration.variable(groupName, actionName, "Collecting").value();
+
+        this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
+
     }
 
 
@@ -23,6 +28,7 @@ public class CollectorState extends CyberarmState {
     public void telemetry() {
         engine.telemetry.addData("High Riser Right Position", robot.HighRiserRight.getPosition());
         engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
+        engine.telemetry.addData("Collector Distance", robot.collectorDistance.getDistance(DistanceUnit.MM));
     }
 
     @Override
@@ -32,12 +38,16 @@ public class CollectorState extends CyberarmState {
 
     @Override
     public void exec() {
+        if (stateDisabled){
+            setHasFinished(true);
+            return;
+        }
 
         if (System.currentTimeMillis() - BeginningofActionTime < duration) {
             if (collecting) {
                 robot.collectorRight.setPower(1);
                 robot.collectorLeft.setPower(1);
-            } else {
+            } else if (collecting != true){
                 robot.collectorRight.setPower(-1);
                 robot.collectorLeft.setPower(-1);
 

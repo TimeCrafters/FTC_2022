@@ -5,6 +5,7 @@ import org.timecrafters.testing.states.PrototypeBot1;
 
 public class BottomArm extends CyberarmState {
 
+    private final boolean stateDisabled;
     PrototypeBot1 robot;
     double LowerRiserRightPos, LowerRiserLeftPos, AddedDistance;
     long time;
@@ -18,6 +19,8 @@ public class BottomArm extends CyberarmState {
         this.time = robot.configuration.variable(groupName, actionName, "time").value();
         this.AddedDistance = robot.configuration.variable(groupName, actionName, "AddedDistance").value();
 
+        this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
+
     }
 
     @Override
@@ -27,6 +30,10 @@ public class BottomArm extends CyberarmState {
 
     @Override
     public void exec() {
+        if (stateDisabled){
+            setHasFinished(true);
+            return;
+        }
 
         if (System.currentTimeMillis() - lastStepTime >= time) {
             lastStepTime = System.currentTimeMillis();
