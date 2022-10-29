@@ -26,6 +26,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     private int DriveForwardAndBack, AutoChain;
     private int RobotPosition, RobotStartingPosition;
     private double RobotRotation;
+    private double RotationTarget;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -149,15 +150,16 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.a) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            if (RobotRotation < 0) {
-                drivePower = 0.9;
+            RotationTarget = -180;
+            if (RobotRotation < 0 && RobotRotation > -177) {
+                drivePower = 1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 0) {
-                drivePower = -0.9;
+                drivePower = -1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -174,15 +176,16 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.y) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RotationTarget = 0;
             if (RobotRotation < -3) {
-                drivePower = -0.9;
+                drivePower = -1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 3) {
-                drivePower = 0.9;
+                drivePower = 1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -198,15 +201,16 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
         if (engine.gamepad1.x) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RotationTarget = 135;
             if (RobotRotation > -45 && RobotRotation < 132) {//CCW
-                drivePower = -0.9;
+                drivePower = -1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation < -45 || RobotRotation > 138) {//CW
-                drivePower = 0.9;
+                drivePower = 1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -222,15 +226,16 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
         if (engine.gamepad1.b) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RotationTarget = -135;
             if (RobotRotation < 45 && RobotRotation > -132) {//CCW
-                drivePower = 0.9;
+                drivePower = 1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 45 || RobotRotation < -138) {//CW
-                drivePower = -0.9;
+                drivePower = -1 * (Math.abs(RobotRotation - RotationTarget)/180) + 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
