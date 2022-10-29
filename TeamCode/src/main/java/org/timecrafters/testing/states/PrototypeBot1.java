@@ -1,6 +1,7 @@
 package org.timecrafters.testing.states;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -35,6 +36,8 @@ public class PrototypeBot1 {
     public Servo LowRiserLeft, LowRiserRight, HighRiserLeft, HighRiserRight;
     private final CyberarmEngine engine;
 
+    public Rev2mDistanceSensor collectorDistance;
+
         public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
 
         public CRServo collectorLeft, collectorRight;
@@ -53,6 +56,8 @@ public class PrototypeBot1 {
         }
 
         private void setupRobot () {
+            collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
+
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
             parameters.mode = BNO055IMU.SensorMode.IMU;
