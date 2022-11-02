@@ -45,10 +45,10 @@ public class PrototypeTeleOPState extends CyberarmState {
             DeltaRotation = Math.abs(RotationTarget - RobotRotation);
         }
         else if (RotationTarget >= 0 && RobotRotation <= 0) {
-            DeltaRotation = Math.abs(RotationTarget - RobotRotation);
+            DeltaRotation = Math.abs(RotationTarget + RobotRotation);
         }
         else if (RotationTarget <=0 && RobotRotation >= 0) {
-            DeltaRotation = Math.abs(RobotRotation - RotationTarget);
+            DeltaRotation = Math.abs(RobotRotation + RotationTarget);
         }
     }
 
