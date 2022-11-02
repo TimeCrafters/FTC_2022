@@ -8,14 +8,18 @@ import org.timecrafters.testing.states.PrototypeBot1;
 public class DriverState extends CyberarmState {
     private final boolean stateDisabled;
     PrototypeBot1 robot;
+    private int RampUpDistance;
+    private int RampDownDistance;
     public DriverState(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
-        this.drivePower = robot.configuration.variable(groupName, actionName, "drivePower").value();
+        this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();
+        this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
+        this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
 
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
-    private double drivePower;
+    private double drivePower, targetDrivePower;
     private int traveledDistance;
 
     @Override
@@ -38,6 +42,31 @@ public class DriverState extends CyberarmState {
             return;
         }
 
+        double delta = traveledDistance - robot.frontRightDrive.getCurrentPosition();
+
+        if (Math.abs(robot.frontRightDrive.getCurrentPosition()) <= RampUpDistance){
+           drivePower = (((float)robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.25;
+        }
+        else if (Math.abs(robot.frontRightDrive.getCurrentPosition()) >= delta){
+            drivePower = (((delta - RampDownDistance) / RampDownDistance) + 0.25) - 1;
+
+            if (drivePower < 0) {
+
+                drivePower = 0.25;
+
+            }
+        } else {
+            drivePower = targetDrivePower;
+        }
+
+        if (Math.abs(drivePower) > Math.abs(targetDrivePower)){
+            drivePower = targetDrivePower;
+        }
+
+        if (targetDrivePower < 0 && drivePower != targetDrivePower) {
+            drivePower = drivePower * -1;
+        }
+
         if (Math.abs(robot.frontRightDrive.getCurrentPosition()) < traveledDistance){
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
@@ -50,6 +79,23 @@ public class DriverState extends CyberarmState {
             robot.frontRightDrive.setPower(0);
             setHasFinished(true);
         }
+
+
+    }
+
+    @Override
+    public void telemetry() {
+        engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getCurrentPosition());
+        engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
+        engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
+        engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
+
+        engine.telemetry.addData("drivePower", drivePower);
+        engine.telemetry.addData("targetDrivePower", targetDrivePower);
+
+        engine.telemetry.addData("traveledDistance", traveledDistance);
+        engine.telemetry.addData("RampUpDistance", RampUpDistance);
+        engine.telemetry.addData("RampDownDistance", RampDownDistance);
 
     }
 }
