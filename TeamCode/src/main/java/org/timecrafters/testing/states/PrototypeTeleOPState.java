@@ -2,10 +2,13 @@ package org.timecrafters.testing.states;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.vuforia.Vuforia;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.cyberarm.engine.V2.GamepadChecker;
 
 public class PrototypeTeleOPState extends CyberarmState {
 
@@ -28,6 +31,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower;
+    private GamepadChecker gamepad1Checker, gamepad2Checker;
 
     public PrototypeTeleOPState(PrototypeBot1 robot) {
         this.robot = robot;
@@ -74,6 +78,9 @@ public class PrototypeTeleOPState extends CyberarmState {
         robot.HighRiserLeft.setPosition(0.45);
         robot.HighRiserRight.setPosition(0.45);
 
+
+        gamepad1Checker = new GamepadChecker(engine, engine.gamepad1);
+        gamepad2Checker = new GamepadChecker(engine, engine.gamepad2);
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -170,7 +177,7 @@ public class PrototypeTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.a) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            RotationTarget = -180;
+            RotationTarget = 180;
             CalculateDeltaRotation();
             if (RobotRotation < 0 && RobotRotation > -179) {
                 drivePower = (1 * DeltaRotation/180) + 0.3;
@@ -179,14 +186,14 @@ public class PrototypeTeleOPState extends CyberarmState {
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation > 0) {
+            else if (RobotRotation > 0) {
                 drivePower = (-1 * DeltaRotation/180) - 0.3;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation < -179 || RobotRotation > 179) {
+            else if (RobotRotation <= -179 || RobotRotation >= 179) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
@@ -328,6 +335,18 @@ public class PrototypeTeleOPState extends CyberarmState {
                 robot.frontRightDrive.setPower(-drivePower);
             }
         }
+
+//        if (engine.gamepad1.start) {
+//            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+//
+//            robot.imu.initialize(parameters);
+//
+//            parameters.mode = BNO055IMU.SensorMode.IMU;
+//            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+//            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//            parameters.loggingEnabled = false;
+//
+//        }
 
         if (engine.gamepad2.dpad_left) {
             robot.collectorLeft.setPower(-1);
@@ -838,7 +857,21 @@ public class PrototypeTeleOPState extends CyberarmState {
 //                            break;
 
 
-        }
-
-
+        gamepad1Checker.update();
+        gamepad2Checker.update();
     }
+
+    @Override
+    public void buttonUp(Gamepad gamepad, String button) {
+        if (engine.gamepad1 == gamepad && button.equals("start")) {
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+            parameters.mode = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled = false;
+
+            robot.imu.initialize(parameters);
+        }
+    }
+}
