@@ -18,6 +18,24 @@ public class RotationState extends CyberarmState {
     private double drivePower;
     private float targetRotation;
     float RobotRotation;
+    private double RotationTarget, DeltaRotation;
+    private double RotationDirectionMinimum;
+
+
+    public void CalculateDeltaRotation() {
+        if (RotationTarget >= 0 && RobotRotation >= 0) {
+            DeltaRotation = Math.abs(RotationTarget - RobotRotation);
+        }
+        else if (RotationTarget <= 0 && RobotRotation <= 0) {
+            DeltaRotation = Math.abs(RotationTarget - RobotRotation);
+        }
+        else if (RotationTarget >= 0 && RobotRotation <= 0) {
+            DeltaRotation = Math.abs(RotationTarget + RobotRotation);
+        }
+        else if (RotationTarget <=0 && RobotRotation >= 0) {
+            DeltaRotation = Math.abs(RobotRotation + RotationTarget);
+        }
+    }
 
     @Override
     public void exec() {
@@ -27,6 +45,14 @@ public class RotationState extends CyberarmState {
         }
 
         RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+        RotationTarget = targetRotation;
+        CalculateDeltaRotation();
+        if (drivePower < 0){
+            RotationDirectionMinimum = -0.3;
+        } else {
+            RotationDirectionMinimum = 0.3;
+        }
+        drivePower = (drivePower * DeltaRotation/180) + RotationDirectionMinimum;
         if (RobotRotation <= targetRotation -3 || RobotRotation >= targetRotation + 3) {
             robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(drivePower);

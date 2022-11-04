@@ -117,8 +117,8 @@ public class PrototypeBot1 {
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
 
-            LowRiserLeft.setPosition(0.45);
-            LowRiserRight.setPosition(0.45);
+            LowRiserLeft.setPosition(0.35);
+            LowRiserRight.setPosition(0.35);
             HighRiserLeft.setPosition(0.45);
             HighRiserRight.setPosition(0.45);
 

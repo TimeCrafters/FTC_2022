@@ -47,12 +47,27 @@ public class TestAutonomousEngine extends CyberarmEngine {
         addState(new RotationState(robot, "TestAutonomous", "12-0"));
         //adjust arm height to cone.
         addState(new TopArm(robot, "TestAutonomous", "13-0"));
-        //drive towards stack of cones
-        addState(new CollectorDistanceState(robot, "", ""));
-//        DriverState driverState = new DriverState(robot, "TestAutonomous", "14-0");
-//        addState(driverState);
-//        //collect next cone
-//        driverState.addParallelState(new CollectorState(robot, "TestAutonomous", "15-0"));
+        //drive towards stack of cones while collecting
+        addState(new CollectorDistanceState(robot, "TestAutonomous", "14-0"));
+        //drive slightly back
+        addState(new DriverState(robot, "TestAutonomous", "15-0"));
+        //lift arm up
+        addState(new TopArm(robot, "TestAutonomous", "16-0"));
+        // drive backwards too position
+        addState(new DriverState(robot, "TestAutonomous", "17-0"));
+        // rotate
+        addState(new RotationState(robot, "TestAutonomous", "18-0"));
+        //lift the upper arm
+        addState(new TopArm(robot, "TestAutonomous", "19-0"));
+        //lift the lower arm
+        addState(new BottomArm(robot, "TestAutonomous", "20-0"));
+        //drive forward to allign
+        addState(new DriverState(robot, "TestAutonomous", "21-0"));
+        // bring arm down.
+        addState(new TopArm(robot, "TestAutonomous", "22-0"));
+        // get rid of cone
+        addState(new CollectorState(robot, "TestAutonomous", "23-0"));
+
 
 
 

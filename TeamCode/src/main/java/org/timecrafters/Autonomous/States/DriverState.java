@@ -42,24 +42,22 @@ public class DriverState extends CyberarmState {
             return;
         }
 
-        double delta = traveledDistance - robot.frontRightDrive.getCurrentPosition();
+        double delta = traveledDistance - Math.abs(robot.frontRightDrive.getCurrentPosition());
 
         if (Math.abs(robot.frontRightDrive.getCurrentPosition()) <= RampUpDistance){
-           drivePower = (((float)robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.25;
+            // ramping up
+           drivePower = (Math.abs((float)robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.25;
         }
         else if (Math.abs(robot.frontRightDrive.getCurrentPosition()) >= delta){
-            drivePower = (((delta - RampDownDistance) / RampDownDistance) + 0.25) - 1;
-
-            if (drivePower < 0) {
-
-                drivePower = 0.25;
-
-            }
-        } else {
+            // ramping down
+            drivePower = ((delta / RampDownDistance) + 0.25);
+            } else {
+            // middle ground
             drivePower = targetDrivePower;
         }
 
         if (Math.abs(drivePower) > Math.abs(targetDrivePower)){
+            // This is limiting drive power to the targeted drive power
             drivePower = targetDrivePower;
         }
 
