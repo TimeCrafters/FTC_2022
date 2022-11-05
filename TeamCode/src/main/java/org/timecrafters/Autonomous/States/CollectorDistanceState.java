@@ -14,6 +14,10 @@ public class CollectorDistanceState extends CyberarmState {
     private int RampDownDistance;
     private double drivePower;
     private double targetDrivePower;
+    private double lastMeasuredTime;
+    private double currentDistance;
+    private double LastDistanceRead;
+
 
     public CollectorDistanceState(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
@@ -38,6 +42,8 @@ public class CollectorDistanceState extends CyberarmState {
         engine.telemetry.addData("traveledDistance", traveledDistance);
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
+        engine.telemetry.addData("Current Distance", currentDistance);
+        engine.telemetry.addData("last Distance", LastDistanceRead);
 
     }
 
@@ -57,12 +63,37 @@ public class CollectorDistanceState extends CyberarmState {
 
         robot.collectorLeft.setPower(1);
         robot.collectorRight.setPower(1);
+
+        lastMeasuredTime = System.currentTimeMillis();
+        LastDistanceRead = robot.collectorDistance.getDistance(DistanceUnit.MM);
+
+
+
     }
 
 
 
     @Override
     public void exec() {
+
+        if (System.currentTimeMillis() - lastMeasuredTime > 150) {
+            // checking to see if time is greater than 150 milliseconds
+            lastMeasuredTime = System.currentTimeMillis();
+
+            currentDistance = robot.collectorDistance.getDistance(DistanceUnit.MM);
+
+            if (LastDistanceRead - currentDistance >= 0.0 || currentDistance > 500) {
+                // I am moving forward
+                // and im close too my target.
+                LastDistanceRead = currentDistance;
+
+            } else {
+                // I have stopped
+                targetDrivePower = 0;
+//                setHasFinished(true);
+            }
+        }
+
     if (robot.collectorDistance.getDistance(DistanceUnit.MM) > 60) {
         double delta = traveledDistance - Math.abs(robot.frontRightDrive.getCurrentPosition());
 

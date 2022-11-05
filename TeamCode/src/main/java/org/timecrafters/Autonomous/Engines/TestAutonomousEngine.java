@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
+import org.timecrafters.Autonomous.States.ConeIdentification;
 import org.timecrafters.Autonomous.States.DriverState;
 import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.RotationState;
@@ -20,7 +21,7 @@ public class TestAutonomousEngine extends CyberarmEngine {
     @Override
     public void setup() {
         robot = new PrototypeBot1(this);
-
+        addState(new ConeIdentification(robot, "TestAutonomous", "00-0"));
         //drive to high pole
         addState(new DriverState(robot, "TestAutonomous", "01-0"));
         //turn towards high pole
@@ -67,15 +68,22 @@ public class TestAutonomousEngine extends CyberarmEngine {
         addState(new TopArm(robot, "TestAutonomous", "22-0"));
         // get rid of cone
         addState(new CollectorState(robot, "TestAutonomous", "23-0"));
+        // lift arm up to clear
+        addState(new TopArm(robot, "TestAutonomous", "24-0"));
+        // drive back
+        addState(new DriverState(robot, "TestAutonomous", "25-0"));
+        // bring bottom arm down
+        addState(new BottomArm(robot, "TestAutonomous", "26-0"));
+        // bring top arm down
+        addState(new TopArm(robot, "TestAutonomous", "27-0"));
+        // rotate towards stack of cones
+        addState(new RotationState(robot, "TestAutonomous", "28-0"));
+    }
 
+    @Override
+    public void loop() {
+        super.loop();
 
-
-
-
-
-
-
-
-
+        telemetry.addData("BlackBoard Input", blackboard.get("parkPlace"));
     }
 }

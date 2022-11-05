@@ -5,6 +5,8 @@ import android.util.Log;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -17,7 +19,8 @@ public abstract class CyberarmEngine extends OpMode {
   public static CyberarmEngine instance;
   //Array To Hold States
   final private CopyOnWriteArrayList<CyberarmState> cyberarmStates = new CopyOnWriteArrayList<>();
-  private int activeStateIndex = 0;
+    public HashMap<String, String> blackboard = new HashMap<>();
+    private int activeStateIndex = 0;
   private boolean isRunning;
 
   private final static String TAG = "PROGRAM.ENGINE";
