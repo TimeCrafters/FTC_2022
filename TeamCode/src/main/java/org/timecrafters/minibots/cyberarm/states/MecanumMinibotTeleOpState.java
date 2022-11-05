@@ -71,7 +71,7 @@ public class MecanumMinibotTeleOpState extends CyberarmState {
         }
 
         /* ............................................................................ grab */
-        if(engine.gamepad1.left_stick_x>0.5 || engine.gamepad1.right_stick_x<-0.5 ||
+        if(engine.gamepad1.left_stick_x < -0.5 || engine.gamepad1.right_stick_x < -0.5 ||
                 engine.gamepad2.x){ // in
             robot.pServoGrab.setPosition(0.9);
         }
@@ -79,7 +79,7 @@ public class MecanumMinibotTeleOpState extends CyberarmState {
                 engine.gamepad2.back){ // small out
             robot.pServoGrab.setPosition(0.50);
         }
-        if(engine.gamepad1.right_stick_x>0.5 || engine.gamepad1.right_stick_x>0.5 ||
+        if(engine.gamepad1.left_stick_x > 0.5 || engine.gamepad1.right_stick_x > 0.5 ||
                 engine.gamepad2.b){ // big out
             robot.pServoGrab.setPosition(0.0);
         }

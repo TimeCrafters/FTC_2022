@@ -17,6 +17,9 @@ public class CollectorDistanceState extends CyberarmState {
     private double lastMeasuredTime;
     private double currentDistance;
     private double LastDistanceRead;
+    private double distanceDelta;
+    private double debugRunTime;
+    private String debugStatus = "?";
 
 
     public CollectorDistanceState(PrototypeBot1 robot, String groupName, String actionName) {
@@ -30,20 +33,30 @@ public class CollectorDistanceState extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("Distance Sensor", robot.collectorDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getCurrentPosition());
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
-
-        engine.telemetry.addData("drivePower", drivePower);
-        engine.telemetry.addData("targetDrivePower", targetDrivePower);
+        engine.telemetry.addLine();
 
         engine.telemetry.addData("traveledDistance", traveledDistance);
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
+
+        engine.telemetry.addLine();
+
+        engine.telemetry.addData("drivePower", drivePower);
+        engine.telemetry.addData("targetDrivePower", targetDrivePower);
+
+        engine.telemetry.addLine();
+        engine.telemetry.addData("Distance Sensor", robot.collectorDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Current Distance", currentDistance);
         engine.telemetry.addData("last Distance", LastDistanceRead);
+        engine.telemetry.addLine();
+
+        engine.telemetry.addData("distanceDelta", distanceDelta);
+        engine.telemetry.addData("DEBUG RunTime", debugRunTime);
+        engine.telemetry.addData("DEBUG Status", debugStatus);
 
     }
 
@@ -82,15 +95,19 @@ public class CollectorDistanceState extends CyberarmState {
 
             currentDistance = robot.collectorDistance.getDistance(DistanceUnit.MM);
 
-            if (LastDistanceRead - currentDistance >= 0.0 || currentDistance > 500) {
+            distanceDelta = LastDistanceRead - currentDistance;
+
+            if (distanceDelta >= 0.0 || currentDistance > 500) {
                 // I am moving forward
                 // and im close too my target.
                 LastDistanceRead = currentDistance;
-
+                debugRunTime = runTime();
+                debugStatus = "RUNNING";
             } else {
                 // I have stopped
-                targetDrivePower = 0;
-//                setHasFinished(true);
+                debugStatus = "STOPPED";
+                setHasFinished(true);
+                return;
             }
         }
 
