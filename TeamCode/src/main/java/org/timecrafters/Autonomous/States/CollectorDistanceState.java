@@ -102,45 +102,46 @@ public class CollectorDistanceState extends CyberarmState {
                 // and im close too my target.
                 LastDistanceRead = currentDistance;
                 debugRunTime = runTime();
-                debugStatus = "RUNNING";
+                debugStatus = "Driving Towards Cone";
             } else {
                 // I have stopped
-                debugStatus = "STOPPED";
+                debugStatus = "Nothing Collected";
+                robot.collectorLeft.setPower(0);
+                robot.collectorRight.setPower(0);
                 setHasFinished(true);
                 return;
             }
         }
 
-    if (robot.collectorDistance.getDistance(DistanceUnit.MM) > 60) {
-        double delta = traveledDistance - Math.abs(robot.frontRightDrive.getCurrentPosition());
+        if (robot.collectorDistance.getDistance(DistanceUnit.MM) > 60) {
+            double delta = traveledDistance - Math.abs(robot.frontRightDrive.getCurrentPosition());
 
-        if (Math.abs(robot.frontRightDrive.getCurrentPosition()) <= RampUpDistance){
-            // ramping up
-            drivePower = (Math.abs((float)robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.15;
-        }
-        else if (Math.abs(robot.frontRightDrive.getCurrentPosition()) >= delta){
-            // ramping down
-            drivePower = ((delta / RampDownDistance) + 0.15);
-        } else {
-            // middle ground
-            drivePower = targetDrivePower;
-        }
+            if (Math.abs(robot.frontRightDrive.getCurrentPosition()) <= RampUpDistance) {
+                // ramping up
+                drivePower = (Math.abs((float) robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.15;
+            } else if (Math.abs(robot.frontRightDrive.getCurrentPosition()) >= delta) {
+                // ramping down
+                drivePower = ((delta / RampDownDistance) + 0.15);
+            } else {
+                // middle ground
+                drivePower = targetDrivePower;
+            }
 
-        if (Math.abs(drivePower) > Math.abs(targetDrivePower)){
-            // This is limiting drive power to the targeted drive power
-            drivePower = targetDrivePower;
-        }
+            if (Math.abs(drivePower) > Math.abs(targetDrivePower)) {
+                // This is limiting drive power to the targeted drive power
+                drivePower = targetDrivePower;
+            }
 
-        if (targetDrivePower < 0 && drivePower != targetDrivePower) {
-            drivePower = drivePower * -1;
-        }
+            if (targetDrivePower < 0 && drivePower != targetDrivePower) {
+                drivePower = drivePower * -1;
+            }
 
-        if (Math.abs(robot.frontRightDrive.getCurrentPosition()) < traveledDistance){
-            robot.backLeftDrive.setPower(drivePower);
-            robot.backRightDrive.setPower(drivePower);
-            robot.frontLeftDrive.setPower(drivePower);
-            robot.frontRightDrive.setPower(drivePower);
-        }
+            if (Math.abs(robot.frontRightDrive.getCurrentPosition()) < traveledDistance) {
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(drivePower);
+            }
     } else {
         robot.frontRightDrive.setPower(0);
         robot.frontLeftDrive.setPower(0);
@@ -150,10 +151,9 @@ public class CollectorDistanceState extends CyberarmState {
         robot.collectorLeft.setPower(0);
         setHasFinished(true);
 
-    }
+            }
+
+        }
 
     }
 
-
-
-}

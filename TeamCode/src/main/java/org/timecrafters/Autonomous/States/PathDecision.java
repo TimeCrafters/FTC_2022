@@ -17,17 +17,7 @@ public class PathDecision extends CyberarmState {
     @Override
     public void exec() {
         String placement = engine.blackboard.get("parkPlace");
-
-        if (placement != null) {
-            if (placement.equals("2")) {
-                engine.insertState(this, new DriverState(robot, groupName, "29-1"));
-            } else if (placement.equals("3")) {
-                engine.insertState(this, new DriverState(robot, groupName, "29-2"));
-            }
-        }
-          else {
-              engine.insertState(this, new DriverState(robot, groupName, "29-0"));
-          }
+        setHasFinished(true);
         }
 
     }
