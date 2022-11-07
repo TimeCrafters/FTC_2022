@@ -360,7 +360,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.dpad_up) {
-            if (robot.HighRiserLeft.getPosition() < 0.9) {
+            if (robot.HighRiserLeft.getPosition() < 1.0) {
                 if (System.currentTimeMillis() - lastStepTime >= 150) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
@@ -380,7 +380,7 @@ public class PrototypeTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.y) {
-            if (robot.HighRiserLeft.getPosition() < 0.84) {
+            if (robot.HighRiserLeft.getPosition() < 0.9) {
                 if (System.currentTimeMillis() - lastStepTime >= 150) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
