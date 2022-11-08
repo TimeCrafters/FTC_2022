@@ -31,7 +31,7 @@ public class LeftSideAutonomousEngine extends CyberarmEngine {
         addState(new TopArm(robot, "LeftSideAutonomous", "03-0"));
         //lift the lower arm
         addState(new BottomArm(robot, "LeftSideAutonomous", "04-0"));
-        //drive forward
+        //drive forward to junction
         addState(new DriverState(robot, "LeftSideAutonomous", "05-0"));
         //lower the bottom arm to get closer
         addState(new TopArm(robot, "LeftSideAutonomous", "06-0"));
@@ -39,14 +39,14 @@ public class LeftSideAutonomousEngine extends CyberarmEngine {
         addState(new CollectorState(robot, "LeftSideAutonomous", "07-0"));
         //lift the lower arm to clear the pole
         addState(new TopArm(robot, "LeftSideAutonomous", "08-0"));
-        //Drive Backwards
+        //Drive Backwards away from junction
         addState(new DriverState(robot, "LeftSideAutonomous", "09-0"));
         // Rotate to either set up for cones to grab or park somewhere
-        addState(new RotationState(robot, "LeftSideAutonomous", "12-0"));
+        addState(new RotationState(robot, "LeftSideAutonomous", "10-0"));
         // lower the bottom arm so we dont fall over
-        addState(new BottomArm(robot, "LeftSideAutonomous", "10-0"));
+        addState(new BottomArm(robot, "LeftSideAutonomous", "11-0"));
         // lower the upper arm so we dont fall over
-        addState(new TopArm(robot, "LeftSideAutonomous", "11-0"));;
+        addState(new TopArm(robot, "LeftSideAutonomous", "12-0"));;
         //adjust arm height to cone.
         addState(new TopArm(robot, "LeftSideAutonomous", "13-0"));
         //drive towards stack of cones while collecting
@@ -59,32 +59,32 @@ public class LeftSideAutonomousEngine extends CyberarmEngine {
         addState(new TopArm(robot, "LeftSideAutonomous", "16-0"));
         // drive backwards too position
         addState(new DriverState(robot, "LeftSideAutonomous", "17-0"));
-        // rotate
+        // face low junction
         addState(new RotationState(robot, "LeftSideAutonomous", "18-0"));
-
-        addState(new DriverState(robot, "LeftSideAutonomous", "21-0"));
+        // drive up to junction
+        addState(new DriverState(robot, "LeftSideAutonomous", "19-0"));
         // bring arm down.
-        addState(new TopArm(robot, "LeftSideAutonomous", "22-0"));
+        addState(new TopArm(robot, "LeftSideAutonomous", "20-0"));
         // get rid of cone
-        addState(new CollectorState(robot, "LeftSideAutonomous", "23-0"));
+        addState(new CollectorState(robot, "LeftSideAutonomous", "21-0"));
         // lift arm up to clear
-        addState(new TopArm(robot, "LeftSideAutonomous", "24-0"));
+        addState(new TopArm(robot, "LeftSideAutonomous", "22-0"));
         // rotate towards stack of cones
-        addState(new RotationState(robot, "LeftSideAutonomous", "28-0"));
+        addState(new RotationState(robot, "LeftSideAutonomous", "23-0"));
         // Choose Parking Spot
-        addState(new PathDecision(robot, "LeftSideAutonomous", "29-0"));
+        addState(new PathDecision(robot, "LeftSideAutonomous", "24-0"));
         // case 1 drive forward
-        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "29-1"));
+        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "24-1"));
         // case 2 drive forward
-        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "29-2"));
+        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "24-2"));
         // case 3 drive forward
-        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "29-3"));
+        addState(new DriverParkPlaceState(robot, "LeftSideAutonomous", "24-3"));
         // zero out
-        addState(new RotationState(robot, "LeftSideAutonomous", "30-0"));
+        addState(new RotationState(robot, "LeftSideAutonomous", "25-0"));
         // Top Arm Down
-        addState(new TopArm(robot, "LeftSideAutonomous", "28-1"));
+        addState(new TopArm(robot, "LeftSideAutonomous", "25-1"));
         //Drive Backwards
-        addState(new DriverState(robot, "LeftSideAutonomous", "30-1"));
+        addState(new DriverState(robot, "LeftSideAutonomous", "26-0"));
     }
 
     @Override
