@@ -27,6 +27,8 @@ public class LeftSideAutonomousEngine extends CyberarmEngine {
         addState(new DriverState(robot, "LeftSideAutonomous", "01-0"));
         //turn towards high pole
         addState(new RotationState(robot, "LeftSideAutonomous", "02-0"));
+        //drive back
+        addState(new DriverState(robot, "LeftSideAutonomous", "02-1"));
         //lift the upper arm
         addState(new TopArm(robot, "LeftSideAutonomous", "03-0"));
         //lift the lower arm

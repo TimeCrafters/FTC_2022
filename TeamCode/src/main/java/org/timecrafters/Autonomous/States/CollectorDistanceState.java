@@ -20,6 +20,9 @@ public class CollectorDistanceState extends CyberarmState {
     private double distanceDelta;
     private double debugRunTime;
     private String debugStatus = "?";
+    private boolean inRange = false;
+    private float collectTime;
+    private double inRangeTime;
 
 
     public CollectorDistanceState(PrototypeBot1 robot, String groupName, String actionName) {
@@ -28,6 +31,7 @@ public class CollectorDistanceState extends CyberarmState {
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();
         this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
+        this.collectTime = robot.configuration.variable(groupName, actionName, "collectTime").value();
 
     }
 
@@ -147,9 +151,18 @@ public class CollectorDistanceState extends CyberarmState {
         robot.frontLeftDrive.setPower(0);
         robot.backRightDrive.setPower(0);
         robot.backLeftDrive.setPower(0);
-        robot.collectorRight.setPower(0);
-        robot.collectorLeft.setPower(0);
-        setHasFinished(true);
+
+        if (!inRange){
+            inRange = true;
+            inRangeTime = runTime();
+        } else {
+
+            if (runTime() - inRangeTime >= collectTime){
+                robot.collectorRight.setPower(0);
+                robot.collectorLeft.setPower(0);
+                setHasFinished(true);
+            }
+        }
 
             }
 
