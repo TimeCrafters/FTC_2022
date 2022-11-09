@@ -29,11 +29,11 @@ public class PrototypeBot1 {
     private static final String VUFORIA_KEY =
             "Abmu1jv/////AAABmYzrcgDEi014nv+wD6PkEPVnOlV2pI3S9sGUMMR/X7hF72x20rP1JcVtsU0nI6VK0yUlYbCSA2k+yMo4hQmPDBvrqeqAgXKa57ilPhW5e1cB3BEevP+9VoJ9QYFhKA3JJTiuFS50WQeuFy3dp0gOPoqHL3XClRFZWbhzihyNnLXgXlKiq+i5GbfONECucQU2DgiuuxYlCaeNdUHl1X5C2pO80zZ6y7PYAp3p0ciXJxqfBoVAklhd69avaAE5Z84ctKscvcbxCS16lq81X7XgIFjshLoD/vpWa300llDG83+Y777q7b5v7gsUCZ6FiuK152Rd272HLuBRhoTXAt0ug9Baq5cz3sn0sAIEzSHX1nah";
 
-    private VuforiaLocalizer vuforia;
+    public VuforiaLocalizer vuforia;
 
-    private TFObjectDetector tfod;
+    public TFObjectDetector tfod;
 
-    public Servo LowRiserLeft, LowRiserRight, HighRiserLeft, HighRiserRight;
+    public Servo LowRiserLeft, LowRiserRight, HighRiserLeft, HighRiserRight, CameraServo;
     private final CyberarmEngine engine;
 
     public Rev2mDistanceSensor collectorDistance;
@@ -80,6 +80,9 @@ public class PrototypeBot1 {
 
             // servo configuration
 
+            //Camera Servo
+            CameraServo = engine.hardwareMap.servo.get("Camera Servo");
+
             // Collector
             collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
             collectorRight = engine.hardwareMap.crservo.get("Collector Right");
@@ -117,10 +120,12 @@ public class PrototypeBot1 {
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
 
-            LowRiserLeft.setPosition(0.45);
-            LowRiserRight.setPosition(0.45);
+            LowRiserLeft.setPosition(0.35);
+            LowRiserRight.setPosition(0.35);
             HighRiserLeft.setPosition(0.45);
             HighRiserRight.setPosition(0.45);
+
+            CameraServo.setPosition(0);
 
         }
 
@@ -128,10 +133,12 @@ public class PrototypeBot1 {
                 /*
                  * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
                  */
-                VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+                int cameraMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
+                VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
                 parameters.vuforiaLicenseKey = VUFORIA_KEY;
                 parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
+
 
                 //  Instantiate the Vuforia engine
                 vuforia = ClassFactory.getInstance().createVuforia(parameters);

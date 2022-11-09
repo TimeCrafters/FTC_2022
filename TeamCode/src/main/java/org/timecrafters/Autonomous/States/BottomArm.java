@@ -11,6 +11,7 @@ public class BottomArm extends CyberarmState {
     long time;
     long lastStepTime = 0;
     boolean up;
+    boolean directPosition;
 
     public BottomArm(PrototypeBot1 robot, String groupName, String actionName) {
         this.robot = robot;
@@ -18,6 +19,7 @@ public class BottomArm extends CyberarmState {
         this.LowerRiserRightPos = robot.configuration.variable(groupName, actionName, "LowerRiserRightPos").value();
         this.time = robot.configuration.variable(groupName, actionName, "time").value();
         this.AddedDistance = robot.configuration.variable(groupName, actionName, "AddedDistance").value();
+        this.directPosition = robot.configuration.variable(groupName, actionName, "directPosition").value();
 
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
 
@@ -35,21 +37,30 @@ public class BottomArm extends CyberarmState {
             return;
         }
 
-        if (System.currentTimeMillis() - lastStepTime >= time) {
-            lastStepTime = System.currentTimeMillis();
+        if (directPosition) {
+            robot.LowRiserLeft.setPosition(LowerRiserLeftPos);
+            robot.LowRiserRight.setPosition(LowerRiserLeftPos);
 
-            if (robot.LowRiserLeft.getPosition() < LowerRiserLeftPos && up) {
-
-                robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + AddedDistance);
-                robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + AddedDistance);
-
-            } else if (robot.LowRiserLeft.getPosition() > LowerRiserLeftPos && !up) {
-
-                robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - AddedDistance);
-                robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - AddedDistance);
-
-            } else {
+            if (runTime() >= time){
                 setHasFinished(true);
+            }
+        } else {
+            if (System.currentTimeMillis() - lastStepTime >= time) {
+                lastStepTime = System.currentTimeMillis();
+
+                if (robot.LowRiserLeft.getPosition() < LowerRiserLeftPos && up) {
+
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + AddedDistance);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + AddedDistance);
+
+                } else if (robot.LowRiserLeft.getPosition() > LowerRiserLeftPos && !up) {
+
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - AddedDistance);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - AddedDistance);
+
+                } else {
+                    setHasFinished(true);
+                }
             }
         }
     }
