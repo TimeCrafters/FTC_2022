@@ -10,9 +10,9 @@ import com.vuforia.Vuforia;
 import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
 
-public class PrototypeTeleOPState extends CyberarmState {
+public class PhoenixTeleOPState extends CyberarmState {
 
-    private final PrototypeBot1 robot;
+    private final PhoenixBot1 robot;
     private double drivePower = 1;
     private long lastStepTime = 0;
     private int CyclingArmUpAndDown = 0;
@@ -21,7 +21,7 @@ public class PrototypeTeleOPState extends CyberarmState {
     private double MinimalPower = 0.2;
     private GamepadChecker gamepad1Checker, gamepad2Checker;
 
-    public PrototypeTeleOPState(PrototypeBot1 robot) {
+    public PhoenixTeleOPState(PhoenixBot1 robot) {
         this.robot = robot;
     }
 
@@ -148,21 +148,21 @@ public class PrototypeTeleOPState extends CyberarmState {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             RotationTarget = 0;
             CalculateDeltaRotation();
-            if (RobotRotation < -3) {
+            if (RobotRotation < -1) {
                 drivePower = (-1 * DeltaRotation/180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation > 3) {
+            if (RobotRotation > 1) {
                 drivePower = (1 * DeltaRotation/180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation > -3 && RobotRotation < 3) {
+            if (RobotRotation > -1 && RobotRotation < 1) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);

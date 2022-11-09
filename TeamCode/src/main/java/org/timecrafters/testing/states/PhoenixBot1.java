@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 
-public class PrototypeBot1 {
+public class PhoenixBot1 {
 
     private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
 
@@ -47,7 +47,7 @@ public class PrototypeBot1 {
          public TimeCraftersConfiguration configuration;
 
 
-        public PrototypeBot1(CyberarmEngine engine) {
+        public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
 
             initVuforia();
