@@ -3,16 +3,16 @@ package org.timecrafters.Autonomous.States;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 public class DriverParkPlaceState extends CyberarmState {
     private final boolean stateDisabled;
-    PrototypeBot1 robot;
+    PhoenixBot1 robot;
     private int RampUpDistance;
     private int RampDownDistance;
     private String intendedPlacement;
 
-    public DriverParkPlaceState(PrototypeBot1 robot, String groupName, String actionName) {
+    public DriverParkPlaceState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();

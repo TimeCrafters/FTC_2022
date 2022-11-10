@@ -1,12 +1,12 @@
 package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 public class RotationState extends CyberarmState {
     private final boolean stateDisabled;
-    PrototypeBot1 robot;
-    public RotationState(PrototypeBot1 robot, String groupName, String actionName) {
+    PhoenixBot1 robot;
+    public RotationState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "DrivePower").value();
         this.targetRotation = robot.configuration.variable(groupName, actionName, "targetRotation").value();

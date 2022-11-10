@@ -1,19 +1,19 @@
 package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 public class BottomArm extends CyberarmState {
 
     private final boolean stateDisabled;
-    PrototypeBot1 robot;
+    PhoenixBot1 robot;
     double LowerRiserRightPos, LowerRiserLeftPos, AddedDistance;
     long time;
     long lastStepTime = 0;
     boolean up;
     boolean directPosition;
 
-    public BottomArm(PrototypeBot1 robot, String groupName, String actionName) {
+    public BottomArm(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.LowerRiserLeftPos = robot.configuration.variable(groupName, actionName, "LowerRiserLeftPos").value();
         this.LowerRiserRightPos = robot.configuration.variable(groupName, actionName, "LowerRiserRightPos").value();

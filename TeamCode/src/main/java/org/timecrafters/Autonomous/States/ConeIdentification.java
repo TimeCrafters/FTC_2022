@@ -4,17 +4,17 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 import java.util.List;
 
 public class ConeIdentification extends CyberarmState {
-    PrototypeBot1 robot;
+    PhoenixBot1 robot;
     private int time;
     private float minimumConfidence;
     private int ParkPlace;
 
-    public ConeIdentification(PrototypeBot1 robot, String groupName, String actionName) {
+    public ConeIdentification(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         minimumConfidence = robot.configuration.variable(groupName, actionName, "Minimum Confidence").value();
         time = robot.configuration.variable(groupName, actionName, "time").value();

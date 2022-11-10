@@ -12,16 +12,16 @@ import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.TopArm;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 @Autonomous (name = "Right Side")
 
 public class RightSideAutonomousEngine extends CyberarmEngine {
-    PrototypeBot1 robot;
+    PhoenixBot1 robot;
 
     @Override
     public void setup() {
-        robot = new PrototypeBot1(this);
+        robot = new PhoenixBot1(this);
         addState(new ConeIdentification(robot, "RightSideAutonomous", "00-0"));
         //drive to high pole
         addState(new DriverState(robot, "RightSideAutonomous", "01-0"));

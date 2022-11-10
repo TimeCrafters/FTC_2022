@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 public class CollectorDistanceState extends CyberarmState {
 
-    private final PrototypeBot1 robot;
+    private final PhoenixBot1 robot;
     private int traveledDistance;
     private int RampUpDistance;
     private int RampDownDistance;
@@ -25,7 +25,7 @@ public class CollectorDistanceState extends CyberarmState {
     private double inRangeTime;
 
 
-    public CollectorDistanceState(PrototypeBot1 robot, String groupName, String actionName) {
+    public CollectorDistanceState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();

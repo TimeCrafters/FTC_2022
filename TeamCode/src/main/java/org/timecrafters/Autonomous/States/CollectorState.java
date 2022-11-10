@@ -2,18 +2,18 @@ package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.timecrafters.testing.states.PrototypeBot1;
+import org.timecrafters.testing.states.PhoenixBot1;
 
 public class CollectorState extends CyberarmState {
 
-    private final PrototypeBot1 robot;
+    private final PhoenixBot1 robot;
     private final boolean stateDisabled;
     private boolean collecting;
     private long duration;
     private long BeginningofActionTime;
 
 
-    public CollectorState(PrototypeBot1 robot, String groupName, String actionName) {
+    public CollectorState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
 
         this.duration = robot.configuration.variable(groupName, actionName, "Duration").value();
