@@ -11,6 +11,7 @@ import org.timecrafters.Autonomous.States.DriverState;
 import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
+import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.testing.states.PhoenixBot1;
 
@@ -22,7 +23,9 @@ public class RightSideAutonomousEngine extends CyberarmEngine {
     @Override
     public void setup() {
         robot = new PhoenixBot1(this);
-        addState(new ConeIdentification(robot, "RightSideAutonomous", "00-0"));
+        addState(new ServoCameraRotate(robot, "RightSideAutonomous", "00-0"));
+        addState(new ConeIdentification(robot, "RightSideAutonomous", "00-1"));
+        addState(new ServoCameraRotate(robot, "RightSideAutonomous", "00-2"));
         //drive to high pole
         addState(new DriverState(robot, "RightSideAutonomous", "01-0"));
         //turn towards high pole

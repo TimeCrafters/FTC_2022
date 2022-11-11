@@ -82,6 +82,7 @@ public class PhoenixBot1 {
 
             //Camera Servo
             CameraServo = engine.hardwareMap.servo.get("Camera Servo");
+            CameraServo.setDirection(Servo.Direction.REVERSE);
 
             // Collector
             collectorLeft = engine.hardwareMap.crservo.get("Collector Left");
