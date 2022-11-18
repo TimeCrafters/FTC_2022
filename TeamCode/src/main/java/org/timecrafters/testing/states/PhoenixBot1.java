@@ -1,6 +1,8 @@
 package org.timecrafters.testing.states;
 
+import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -46,6 +48,8 @@ public class PhoenixBot1 {
 
          public TimeCraftersConfiguration configuration;
 
+         public AdafruitI2cColorSensor AdafruitEncoder;
+
 
         public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
@@ -71,6 +75,7 @@ public class PhoenixBot1 {
             imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
             configuration = new TimeCraftersConfiguration("Phoenix");
+            AdafruitEncoder = engine.hardwareMap.AdafruitI2cColorSensor.get("adafruit");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
@@ -155,4 +160,5 @@ public class PhoenixBot1 {
                 tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
                 tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
             }
-        }
+
+}
