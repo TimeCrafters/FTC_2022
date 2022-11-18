@@ -5,7 +5,11 @@ import android.util.Log;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import java.util.ArrayList;
+import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
+import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Action;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -277,5 +281,61 @@ public abstract class CyberarmEngine extends OpMode {
    */
   public int getActiveStateIndex() {
     return activeStateIndex;
+  }
+
+  /**
+   * Automatically populates states from a TimeCraftersConfiguration Group actions
+   * requires action comments to start with an @ character followed by the class name
+   * state must have a construction that takes 3 arguments: object, groupName, and actionName
+   * @param configuration TimeCraftersConfiguration
+   * @param packageName Package name where states are defined
+   * @param object Object to pass to as first argument to states constructor
+   * @param objectClass Class to cast object to
+   * @param groupName Group name
+   */
+  protected void setupFromConfig(TimeCraftersConfiguration configuration, String packageName, Object object, Class<?> objectClass, String groupName) {
+    CyberarmState lastState = null;
+    String lastActionName = null;
+    String[] lastActionNameSplit = new String[0];
+
+    for (Action action : configuration.group(groupName).getActions()) {
+      if (!action.enabled) {
+        continue;
+      }
+
+      String className = null;
+
+      if (action.comment.startsWith("@")) {
+        String[] split = action.comment.split("@");
+        className =  split[1].split("[ \\-]")[0];
+      } else {
+        throw(new RuntimeException("setupFromConfig: Action \"" + action.name + "\" in group \"" + groupName + "\" is missing magic @ in comment."));
+      }
+
+      Class<?> klass = null;
+      try {
+        klass = Class.forName("" + packageName + "." + className);
+        if (klass !=  null) {
+          String[] actionNameSplit = action.name.split("-");
+          Constructor<?> constructor = klass.getConstructor(objectClass, String.class, String.class);
+          CyberarmState state = (CyberarmState) constructor.newInstance(objectClass.cast(object), groupName, action.name);
+
+          if (lastState != null && lastActionNameSplit.length == 2 && actionNameSplit.length == 2 && actionNameSplit[0].equals(lastActionNameSplit[0]))
+          {
+            lastState.addParallelState(state);
+          } else {
+            addState(state);
+            lastState = state;
+          }
+
+          lastActionName = action.name;
+          lastActionNameSplit = lastActionName.split("-");
+        }
+      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
+        e.printStackTrace();
+
+        throw(new RuntimeException(e));
+      }
+    }
   }
 }
