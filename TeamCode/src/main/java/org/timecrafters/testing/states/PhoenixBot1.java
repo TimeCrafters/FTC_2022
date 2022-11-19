@@ -54,13 +54,13 @@ public class PhoenixBot1 {
         public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
 
-            initVuforia();
-            initTfod();
+//            initVuforia();
+//            initTfod();
             setupRobot();
         }
 
         private void setupRobot () {
-            collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
+//            collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
 
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -75,7 +75,7 @@ public class PhoenixBot1 {
             imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
             configuration = new TimeCraftersConfiguration("Phoenix");
-            AdafruitEncoder = engine.hardwareMap.AdafruitI2cColorSensor.get("adafruit");
+//            AdafruitEncoder = engine.hardwareMap.AdafruitI2cColorSensor.get("adafruit");
 
             //motors configuration
             frontLeftDrive = engine.hardwareMap.dcMotor.get("Front Left");
@@ -147,7 +147,7 @@ public class PhoenixBot1 {
 
 
                 //  Instantiate the Vuforia engine
-                vuforia = ClassFactory.getInstance().createVuforia(parameters);
+//                vuforia = ClassFactory.getInstance().createVuforia(parameters);
             }
 
             private void initTfod() {
