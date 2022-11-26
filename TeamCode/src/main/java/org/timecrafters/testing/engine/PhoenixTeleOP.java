@@ -18,6 +18,6 @@ public class PhoenixTeleOP extends CyberarmEngine {
 
         robot = new PhoenixBot1(this);
 
-        addState(new PhoenixTeleOPState(robot));
+//        addState(new PhoenixTeleOPState(robot));
     }
 }
