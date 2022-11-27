@@ -80,7 +80,7 @@ public class PhoenixTeleOPState extends CyberarmState {
             robot.frontRightDrive.setPower(drivePower);
         }
 
-        if (engine.gamepad1.left_trigger > 0) {
+        else if (engine.gamepad1.left_trigger > 0) {
             drivePower = engine.gamepad1.left_trigger;
             robot.backLeftDrive.setPower(-drivePower);
             robot.backRightDrive.setPower(-drivePower);
@@ -88,14 +88,14 @@ public class PhoenixTeleOPState extends CyberarmState {
             robot.frontRightDrive.setPower(-drivePower);
         }
 
-        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
-            drivePower = engine.gamepad1.left_stick_y;
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.05) {
+            drivePower = engine.gamepad1.left_stick_y * 0.3;
             robot.backRightDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
         }
 
-        if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
-            drivePower = engine.gamepad1.right_stick_y;
+        if (Math.abs(engine.gamepad1.right_stick_y) > 0.05) {
+            drivePower = engine.gamepad1.right_stick_y * 0.3;
             robot.backLeftDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
         }
@@ -117,7 +117,7 @@ public class PhoenixTeleOPState extends CyberarmState {
             robot.frontRightDrive.setPower(-drivePower);
         }
 
-        if (engine.gamepad1.a) {
+        if (engine.gamepad1.y) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             RotationTarget = 180;
             CalculateDeltaRotation();
@@ -128,7 +128,7 @@ public class PhoenixTeleOPState extends CyberarmState {
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            else if (RobotRotation > 0) {
+            else if (RobotRotation >= 0) {
                 drivePower = (-1 * DeltaRotation/180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
@@ -144,7 +144,7 @@ public class PhoenixTeleOPState extends CyberarmState {
             }
         }
 
-        if (engine.gamepad1.y) {
+        if (engine.gamepad1.a) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
             RotationTarget = 0;
             CalculateDeltaRotation();
@@ -199,23 +199,23 @@ public class PhoenixTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.x) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            RotationTarget = -90;
+            RotationTarget = -45;
             CalculateDeltaRotation();
-            if (RobotRotation < 90 && RobotRotation < -89) {//CCW
+            if (RobotRotation < -46 || RobotRotation > 135) {//CCW
                 drivePower = (-1 * DeltaRotation/180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation > 90 || RobotRotation < -91) {//CW
+            if (RobotRotation > -44 && RobotRotation < 135) {//CW
                 drivePower = (1 * DeltaRotation/180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation > -91 && RobotRotation < -89) {
+            if (RobotRotation > -46 && RobotRotation < -44) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
@@ -253,23 +253,23 @@ public class PhoenixTeleOPState extends CyberarmState {
 
         if (engine.gamepad1.b) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            RotationTarget = 90;
+            RotationTarget = 45;
             CalculateDeltaRotation();
-            if (RobotRotation > -90 && RobotRotation < 89) {//CCW
+            if (RobotRotation > -135 && RobotRotation < 44) {//CCW
                 drivePower = (-1 * DeltaRotation/180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation < -90 || RobotRotation > 91) {//CW
+            if (RobotRotation < -135 || RobotRotation > 44) {//CW
                 drivePower = (1 * DeltaRotation/180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation < 91 && RobotRotation > 89) {
+            if (RobotRotation < 46 && RobotRotation > 44) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
@@ -310,7 +310,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.y) {
-            if (robot.HighRiserLeft.getPosition() < 0.9) {
+            if (robot.HighRiserLeft.getPosition() < 0.85) {
                 if (System.currentTimeMillis() - lastStepTime >= 150) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
@@ -388,62 +388,6 @@ public class PhoenixTeleOPState extends CyberarmState {
             }
 
         }
-
-
-
-     if (engine.gamepad2.start) {
-
-         if (System.currentTimeMillis() - lastStepTime >= 150) {
-             lastStepTime = System.currentTimeMillis();
-
-             switch (CyclingArmUpAndDown) {
-
-                 // upper arm up
-                 case 0:
-                     if (robot.HighRiserLeft.getPosition() < 1) {
-                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                     }
-                     break;
-
-                 // lower arm up
-                 case 1:
-                     if (robot.LowRiserLeft.getPosition() < 1) {
-                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                     }
-                     break;
-
-                 // lower arm down
-                 case 2:
-                     if (robot.LowRiserLeft.getPosition() >= 0.44) {
-                         robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
-                         robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
-                     } else {
-                         CyclingArmUpAndDown = CyclingArmUpAndDown + 1;
-                     }
-                     break;
-
-                 // upper arm down
-                 case 3:
-                     if (robot.HighRiserLeft.getPosition() >= 0.45) {
-                         robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                         robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                     } else {
-                         CyclingArmUpAndDown = 0;
-                     }
-                     break;
-
-                 default:
-                     break;
-
-             } // end of switch
-         }// end of time if statement
-     }// end of start button press
 
 
 

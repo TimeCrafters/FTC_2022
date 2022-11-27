@@ -1,11 +1,12 @@
 package org.timecrafters.minibots.cyberarm.engines;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.minibots.cyberarm.states.MecanumRobot;
 import org.timecrafters.minibots.cyberarm.states.Mecanum_Fancy_Drive_State;
-
+@Disabled
 @TeleOp(name = "Fancy Drive TeleOp")
 
 public class Mecanum_fancy_drive_TeleOp extends CyberarmEngine {

@@ -23,6 +23,7 @@ public class CollectorDistanceState extends CyberarmState {
     private boolean inRange = false;
     private float collectTime;
     private double inRangeTime;
+    private boolean stateDisabled;
 
 
     public CollectorDistanceState(PhoenixBot1 robot, String groupName, String actionName) {
@@ -32,6 +33,8 @@ public class CollectorDistanceState extends CyberarmState {
         this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
         this.collectTime = robot.configuration.variable(groupName, actionName, "collectTime").value();
+        this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
+
 
     }
 
@@ -92,6 +95,10 @@ public class CollectorDistanceState extends CyberarmState {
 
     @Override
     public void exec() {
+        if (stateDisabled){
+            setHasFinished(true);
+            return;
+        }
 
         if (System.currentTimeMillis() - lastMeasuredTime > 150) {
             // checking to see if time is greater than 150 milliseconds

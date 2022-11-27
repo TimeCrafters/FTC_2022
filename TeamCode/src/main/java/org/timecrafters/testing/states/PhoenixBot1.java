@@ -60,7 +60,7 @@ public class PhoenixBot1 {
         }
 
         private void setupRobot () {
-//            collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
+            collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
 
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 

@@ -24,7 +24,7 @@ public class RightSideAutonomousEngine extends CyberarmEngine {
     public void setup() {
         robot = new PhoenixBot1(this);
         addState(new ServoCameraRotate(robot, "RightSideAutonomous", "00-0"));
-        addState(new ConeIdentification(robot, "RightSideAutonomous", "00-1"));
+//        addState(new ConeIdentification(robot, "RightSideAutonomous", "00-1"));
         addState(new ServoCameraRotate(robot, "RightSideAutonomous", "00-2"));
         //drive to high pole
         addState(new DriverState(robot, "RightSideAutonomous", "01-0"));
