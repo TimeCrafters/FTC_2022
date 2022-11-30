@@ -51,8 +51,8 @@ public class TeleOPTankDriver extends CyberarmState {
 
         if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
             drivePower = engine.gamepad1.left_stick_y;
-            robot.backRightDrive.setPower(drivePower);
-            robot.frontRightDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower * 0.95);
+            robot.frontRightDrive.setPower(drivePower * 0.95);
         }
 
         if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
@@ -165,9 +165,9 @@ public class TeleOPTankDriver extends CyberarmState {
             if (RobotRotation < 90 && RobotRotation < -89) {//CCW
                 drivePower = (-1 * DeltaRotation/180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
+                robot.backRightDrive.setPower(-drivePower * 0.95);
                 robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
+                robot.frontRightDrive.setPower(-drivePower * 0.95);
             }
             if (RobotRotation > 90 || RobotRotation < -91) {//CW
                 drivePower = (1 * DeltaRotation/180) + MinimalPower;
