@@ -1,4 +1,4 @@
-package org.timecrafters.testing.states;
+package org.timecrafters.TeleOp.states;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;

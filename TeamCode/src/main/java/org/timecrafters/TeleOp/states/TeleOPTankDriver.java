@@ -1,4 +1,4 @@
-package org.timecrafters.testing.states;
+package org.timecrafters.TeleOp.states;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -9,7 +9,7 @@ import org.cyberarm.engine.V2.GamepadChecker;
 public class TeleOPTankDriver extends CyberarmState {
 
     private final PhoenixBot1 robot;
-    private double drivePower = 1;
+    private double drivePower = 0.3;
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;

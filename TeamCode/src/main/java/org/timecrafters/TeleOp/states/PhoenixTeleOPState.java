@@ -1,11 +1,10 @@
-package org.timecrafters.testing.states;
+package org.timecrafters.TeleOp.states;
 
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.vuforia.Vuforia;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
@@ -89,13 +88,13 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (Math.abs(engine.gamepad1.left_stick_y) > 0.05) {
-            drivePower = engine.gamepad1.left_stick_y * 0.3;
+            drivePower = engine.gamepad1.left_stick_y * 0.35;
             robot.backRightDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
         }
 
         if (Math.abs(engine.gamepad1.right_stick_y) > 0.05) {
-            drivePower = engine.gamepad1.right_stick_y * 0.3;
+            drivePower = engine.gamepad1.right_stick_y * 0.35;
             robot.backLeftDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
         }

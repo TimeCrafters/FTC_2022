@@ -1,7 +1,7 @@
-package org.timecrafters.testing.states;
+package org.timecrafters.TeleOp.states;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.testing.engine.DynamicSetupEngine;
+import org.timecrafters.TeleOp.engine.DynamicSetupEngine;
 
 public class DynamicSetupState extends CyberarmState {
     private long delay;

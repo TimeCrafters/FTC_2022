@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
-import org.timecrafters.Autonomous.States.ConeIdentification;
 import org.timecrafters.Autonomous.States.DriverParkPlaceState;
 import org.timecrafters.Autonomous.States.DriverState;
 import org.timecrafters.Autonomous.States.BottomArm;
@@ -13,7 +12,7 @@ import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
-import org.timecrafters.testing.states.PhoenixBot1;
+import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 @Autonomous (name = "Right Side")
 
