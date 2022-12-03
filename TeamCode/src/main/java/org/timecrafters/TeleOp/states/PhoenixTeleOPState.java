@@ -88,13 +88,13 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (Math.abs(engine.gamepad1.left_stick_y) > 0.05) {
-            drivePower = engine.gamepad1.left_stick_y * 0.35;
+            drivePower = engine.gamepad1.left_stick_y * 0.75;
             robot.backRightDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
         }
 
         if (Math.abs(engine.gamepad1.right_stick_y) > 0.05) {
-            drivePower = engine.gamepad1.right_stick_y * 0.35;
+            drivePower = engine.gamepad1.right_stick_y * 0.75;
             robot.backLeftDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
         }
