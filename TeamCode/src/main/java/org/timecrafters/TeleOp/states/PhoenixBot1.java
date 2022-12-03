@@ -105,19 +105,19 @@ public class PhoenixBot1 {
 
             frontLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             frontRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             backRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
             HighRiserLeft.setDirection(Servo.Direction.REVERSE);
