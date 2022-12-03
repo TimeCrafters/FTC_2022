@@ -3,21 +3,16 @@ package org.timecrafters.Autonomous.Engines;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
-import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
-import org.timecrafters.Autonomous.States.DriverParkPlaceState;
 import org.timecrafters.Autonomous.States.DriverState;
-import org.timecrafters.Autonomous.States.PathDecision;
-import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
-import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 @Autonomous (name = "3 cone auto right")
 
-public class ThreeConeCycleAutonomousEngine extends CyberarmEngine {
+public class RightFourConeAutonomousEngine extends CyberarmEngine {
     PhoenixBot1 robot;
 
     @Override
@@ -25,13 +20,13 @@ public class ThreeConeCycleAutonomousEngine extends CyberarmEngine {
         robot = new PhoenixBot1(this);
 
         // 1 Rotate camera down at the signal
-        addState(new ServoCameraRotate(robot, "ThreeConeCycleAutonomousRight", "01-0"));
+        addState(new ServoCameraRotate(robot, "RightFourCone", "01-0"));
         // 2 Scan custom image
-        addState(new ConeIdentification(robot, "ThreeConeCycleAutonomousRight", "02-0"));
+        addState(new ConeIdentification(robot, "RightFourCone", "02-0"));
         // 3 Rotate Camera up, out of the way so it doesn't crash into stuff
-        addState(new ServoCameraRotate(robot, "ThreeConeCycleAutonomousRight", "03-0"));
+        addState(new ServoCameraRotate(robot, "RightFourCone", "03-0"));
         // 4 Drive to the tall Pole (not all the way) while raising upper arm, this will be parallel
-
+        addState(new DriverState(robot, "RightFourCone", "04-0"));
         // 5 Turn Towards and look for junction with sensor
 
         // 6 Raise lower arm while slowly driving at the junction
@@ -61,7 +56,6 @@ public class ThreeConeCycleAutonomousEngine extends CyberarmEngine {
         // 18 Bring upper arm down
 
         // 19 Drop cone
-        addState(new CollectorState(robot, "ThreeConeCycleAutonomousRight", "17-0"));
 
         // 20 Bring upper arm up
 
@@ -70,7 +64,6 @@ public class ThreeConeCycleAutonomousEngine extends CyberarmEngine {
         // 22 Drop the Upper arm to the position of the new top cone / 4th cone and check with sensor and start driving fast to get to the stack (this is a parallel state)
 
         // 23 Drive slower at the stack and run the collector to grab a 2nd cone off of the stack
-        addState(new CollectorDistanceState(robot, "ThreeConeCycleAutonomousRight", "21-0"));
 
         // 24 Drive Back and lift up all the way to position for the low junction (parallel state)
 

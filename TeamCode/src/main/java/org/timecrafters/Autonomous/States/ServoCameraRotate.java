@@ -14,13 +14,14 @@ public class ServoCameraRotate extends CyberarmState {
         this.ServoPosition = robot.configuration.variable(groupName, actionName, "ServoPosition").value();
 
     }
+
     @Override
     public void exec() {
         if (stateDisabled) {
             setHasFinished(true);
         } else {
             robot.CameraServo.setPosition(ServoPosition);
-            setHasFinished(true);
+//            setHasFinished(true);
     }
     }
 }

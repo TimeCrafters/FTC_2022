@@ -125,6 +125,8 @@ public class PhoenixBot1 {
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
 
+            CameraServo.setDirection(Servo.Direction.FORWARD);
+
             LowRiserLeft.setPosition(0.35);
             LowRiserRight.setPosition(0.35);
             HighRiserLeft.setPosition(0.45);
