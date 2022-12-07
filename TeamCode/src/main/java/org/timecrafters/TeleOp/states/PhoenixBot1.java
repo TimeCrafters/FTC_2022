@@ -53,8 +53,8 @@ public class PhoenixBot1 {
         public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
 
-//            initVuforia();
-//            initTfod();
+            initVuforia();
+            initTfod();
             setupRobot();
         }
 
@@ -132,7 +132,7 @@ public class PhoenixBot1 {
             HighRiserLeft.setPosition(0.45);
             HighRiserRight.setPosition(0.45);
 
-            CameraServo.setPosition(0);
+            CameraServo.setPosition(0.8);
 
         }
 
@@ -148,7 +148,7 @@ public class PhoenixBot1 {
 
 
                 //  Instantiate the Vuforia engine
-//                vuforia = ClassFactory.getInstance().createVuforia(parameters);
+                vuforia = ClassFactory.getInstance().createVuforia(parameters);
             }
 
             private void initTfod() {
