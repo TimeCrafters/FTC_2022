@@ -19,12 +19,15 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfig
 
 public class PhoenixBot1 {
 
-    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
+//    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
+    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+
+
 
     private static final String[] LABELS = {
-            "Yellow 1",
-            "Red 2",
-            "Blue 3"
+            "1 Bolt",
+            "2 Bulb",
+            "3 Panel"
     };
 
     private static final String VUFORIA_KEY =

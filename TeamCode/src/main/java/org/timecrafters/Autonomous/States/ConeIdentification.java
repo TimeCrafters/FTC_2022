@@ -11,6 +11,7 @@ public class ConeIdentification extends CyberarmState {
     private int time;
     private float minimumConfidence;
     private int ParkPlace;
+    long initTime;
 
     public ConeIdentification(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
@@ -22,6 +23,7 @@ public class ConeIdentification extends CyberarmState {
     public void init() {
         engine.blackboard.put("parkPlace", "1");
         robot.tfod.activate();
+        initTime = System.currentTimeMillis();
     }
 
     @Override
@@ -47,12 +49,12 @@ public class ConeIdentification extends CyberarmState {
                     engine.telemetry.addData("- Position (Row/Col)","%.0f / %.0f", row, col);
                     engine.telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
 
-                    if (recognition.getLabel().equals("Red 2")) {
-                        engine.telemetry.addData("Red 2", engine.blackboard.put("parkPlace", "2"));
-                    } else if (recognition.getLabel().equals("Blue 3")) {
-                        engine.telemetry.addData("Blue 3",engine.blackboard.put("parkPlace", "3"));
+                    if (recognition.getLabel().equals("2 Bulb")) {
+                        engine.telemetry.addData("2 Bulb", engine.blackboard.put("parkPlace", "2"));
+                    } else if (recognition.getLabel().equals("3 Panel")) {
+                        engine.telemetry.addData("3 Panel",engine.blackboard.put("parkPlace", "3"));
                     } else {
-                        engine.telemetry.addData("Yellow 1", engine.blackboard.put("parkPlace", "1"));
+                        engine.telemetry.addData("1 Bolt", engine.blackboard.put("parkPlace", "1"));
                     }
                 }
             }
@@ -60,7 +62,19 @@ public class ConeIdentification extends CyberarmState {
     }
 
     @Override
+    public void start() {
+        long startTime = System.currentTimeMillis() - initTime;
+        if (startTime < time){
+            time = (int) (time - startTime);
+        }
+        else {
+            time = 0;
+        }
+    }
+
+    @Override
     public void exec() {
+
 
         if (robot.tfod != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
@@ -75,9 +89,9 @@ public class ConeIdentification extends CyberarmState {
                     if (recognition.getConfidence() >= minimumConfidence && recognition.getConfidence() > bestConfidence) {
                         bestConfidence = recognition.getConfidence();
 
-                        if (recognition.getLabel().equals("Red 2")) {
+                        if (recognition.getLabel().equals("2 Bulb")) {
                             engine.blackboard.put("parkPlace", "2");
-                        } else if (recognition.getLabel().equals("Blue 3")) {
+                        } else if (recognition.getLabel().equals("3 Panel")) {
                             engine.blackboard.put("parkPlace", "3");
 
                         } else {
