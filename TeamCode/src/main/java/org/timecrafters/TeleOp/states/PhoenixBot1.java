@@ -37,7 +37,7 @@ public class PhoenixBot1 {
     public Servo LowRiserLeft, LowRiserRight, HighRiserLeft, HighRiserRight, CameraServo;
     private final CyberarmEngine engine;
 
-    public Rev2mDistanceSensor collectorDistance;
+    public Rev2mDistanceSensor collectorDistance, downSensor, leftPoleDistance, rightPoleDistance;
 
         public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
 
@@ -60,6 +60,8 @@ public class PhoenixBot1 {
 
         private void setupRobot () {
             collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
+            leftPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Left Pole Distance");
+            rightPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Right Pole Distance");
 
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
