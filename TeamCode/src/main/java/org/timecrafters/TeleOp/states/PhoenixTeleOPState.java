@@ -47,6 +47,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("IMU", robot.imu.getAngularOrientation().firstAngle);
         engine.telemetry.addData("Drive Power", drivePower);
         engine.telemetry.addData("Delta Rotation", DeltaRotation);
+        engine.telemetry.addData("Cone Distance", robot.collectorDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Left Pole Distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));

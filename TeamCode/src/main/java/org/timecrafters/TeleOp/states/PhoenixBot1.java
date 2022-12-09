@@ -63,6 +63,7 @@ public class PhoenixBot1 {
 
         private void setupRobot () {
             collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
+            downSensor = engine.hardwareMap.get(Rev2mDistanceSensor.class, "downDistance");
             leftPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Left Pole Distance");
             rightPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Right Pole Distance");
 
