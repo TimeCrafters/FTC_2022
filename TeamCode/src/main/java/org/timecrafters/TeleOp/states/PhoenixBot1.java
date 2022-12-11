@@ -42,7 +42,7 @@ public class PhoenixBot1 {
 
     public Rev2mDistanceSensor collectorDistance, downSensor, leftPoleDistance, rightPoleDistance;
 
-        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive;
+        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoder;
 
         public CRServo collectorLeft, collectorRight;
 
@@ -125,11 +125,18 @@ public class PhoenixBot1 {
             backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+            // Dead Wheel encoder for driving
+
+            OdometerEncoder.setDirection(DcMotorSimple.Direction.FORWARD);
+            OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
             HighRiserLeft.setDirection(Servo.Direction.REVERSE);
             HighRiserRight.setDirection(Servo.Direction.FORWARD);
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
+
 
             CameraServo.setDirection(Servo.Direction.FORWARD);
 
