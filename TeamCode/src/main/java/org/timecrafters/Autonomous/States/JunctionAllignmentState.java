@@ -28,6 +28,8 @@ public class JunctionAllignmentState extends CyberarmState {
             double leftDistance = robot.leftPoleDistance.getDistance(DistanceUnit.MM);
             double rightDistance = robot.rightPoleDistance.getDistance(DistanceUnit.MM);
 
+
+            // TODO: 12/11/2022 Make sure these are the correct values for the distance from low, mid, and high junctions!!!
             switch (targetedJunction) {
                 case "low":
                     TargetSensorDistance = 90.0;
