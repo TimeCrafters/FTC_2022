@@ -1,6 +1,7 @@
 package org.timecrafters.TeleOp.states;
 
 import android.annotation.SuppressLint;
+import android.widget.Switch;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -20,6 +21,7 @@ public class PhoenixTeleOPState extends CyberarmState {
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
     private GamepadChecker gamepad1Checker, gamepad2Checker;
+    private int OCD;
 
     public PhoenixTeleOPState(PhoenixBot1 robot) {
         this.robot = robot;
@@ -51,6 +53,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Left Pole Distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
+        engine.telemetry.addData("OCD", OCD);
     }
 
     @Override
@@ -67,6 +70,7 @@ public class PhoenixTeleOPState extends CyberarmState {
 
         gamepad1Checker = new GamepadChecker(engine, engine.gamepad1);
         gamepad2Checker = new GamepadChecker(engine, engine.gamepad2);
+        OCD = 0;
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -386,127 +390,45 @@ public class PhoenixTeleOPState extends CyberarmState {
 //
 //        }
 
-        if (engine.gamepad2.left_bumper) {
-            if (robot.HighRiserLeft.getPosition() < 0.73) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                }
-            }
-            if (robot.HighRiserLeft.getPosition() > 0.77 && robot.LowRiserLeft.getPosition() < 0.47) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                }
-            }
-            if (robot.HighRiserLeft.getPosition() > 0.77 && robot.LowRiserLeft.getPosition() > 0.47) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-                        lastStepTime = System.currentTimeMillis();
-                        robot.HighRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
-                        robot.HighRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
-                    }
-                }
-            }
-//            if (!engine.gamepad2.left_bumper) {
-//                if (robot.HighRiserLeft.getPosition() < 0.73) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.HighRiserLeft.setPosition(0.73);
-//                        robot.HighRiserRight.setPosition(0.73);
-//                    }
-//                }
-//            }
+        if (engine.gamepad2.right_bumper) {
+            OCD = 1;
         }
 
-        if (engine.gamepad2.right_bumper) {
-            if (robot.HighRiserLeft.getPosition() < 0.85) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                }
-            }
-
-            if (robot.LowRiserLeft.getPosition() < 0.6 && robot.HighRiserLeft.getPosition() >= 0.85) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                }
-            }
-            if (robot.LowRiserLeft.getPosition() > 0.8) {
-                if (robot.HighRiserLeft.getPosition() > 0.87 && robot.LowRiserLeft.getPosition() < 0.7) {
-                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-                        lastStepTime = System.currentTimeMillis();
-                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                    }
-                }
-            }
-//            if (!engine.gamepad2.right_bumper) {
-//                if (robot.HighRiserLeft.getPosition() < 0.85) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//
-//                if (robot.LowRiserLeft.getPosition() < 0.6 && robot.HighRiserLeft.getPosition() >= 0.85) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-//                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//                if (robot.HighRiserLeft.getPosition() > 0.87) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-//                    }
-//                }
-//            }
+        if (engine.gamepad2.left_bumper) {
+            OCD = 2;
         }
 
         if (engine.gamepad2.x) {
-            if (robot.HighRiserLeft.getPosition() < 0.85) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                }
-            }
-
-            if (robot.LowRiserLeft.getPosition() < 0.75 && robot.HighRiserLeft.getPosition() > 0.7) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                }
-            }
-//            if (!engine.gamepad2.x) {
-//                if (robot.HighRiserLeft.getPosition() < 0.85) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//
-//                if (robot.LowRiserLeft.getPosition() < 0.75 && robot.HighRiserLeft.getPosition() > 0.7) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-//                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//            }
+            OCD = 3;
         }
 
+        if (engine.gamepad2.b) {
+            OCD = 4;
+        }
+
+        if (OCD == 1) {
+            switch (OCD) {
+                case 1:
+                    if (robot.HighRiserLeft.getPosition() > 0.5 && robot.LowRiserLeft.getPosition() < 0.5) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                            robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+                            robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+                        }
+                    }
+
+                    if (robot.LowRiserLeft.getPosition() > 0.5) {
+                        if (System.currentTimeMillis() - lastStepTime >= 150) {
+                            lastStepTime = System.currentTimeMillis();
+                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                        }
+                    }
+                case 2:
+
+            }
+
+        }
 
         gamepad1Checker.update();
         gamepad2Checker.update();

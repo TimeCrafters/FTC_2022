@@ -127,6 +127,8 @@ public class PhoenixBot1 {
 
             // Dead Wheel encoder for driving
 
+            OdometerEncoder = engine.hardwareMap.dcMotor.get("odometer encoder");
+
             OdometerEncoder.setDirection(DcMotorSimple.Direction.FORWARD);
             OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
