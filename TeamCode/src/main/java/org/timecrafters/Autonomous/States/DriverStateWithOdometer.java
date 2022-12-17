@@ -10,12 +10,14 @@ public class DriverStateWithOdometer extends CyberarmState {
     PhoenixBot1 robot;
     private int RampUpDistance;
     private int RampDownDistance;
+    private int maximumTolerance;
     public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();
         this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
+        this.maximumTolerance = robot.configuration.variable(groupName, actionName, "maximumTolerance").value();
 
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
@@ -66,11 +68,18 @@ public class DriverStateWithOdometer extends CyberarmState {
             drivePower = drivePower * -1;
         }
 
-        if (Math.abs(CurrentPosition) < traveledDistance){
+        if (Math.abs(CurrentPosition) < traveledDistance - maximumTolerance){
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
+
+        }
+        else if (Math.abs(CurrentPosition) > traveledDistance + maximumTolerance) {
+            robot.backLeftDrive.setPower(targetDrivePower * -0.25);
+            robot.backRightDrive.setPower(targetDrivePower * -0.25);
+            robot.frontLeftDrive.setPower(targetDrivePower * -0.25);
+            robot.frontRightDrive.setPower(targetDrivePower * -0.25);
         } else {
             robot.backLeftDrive.setPower(0);
             robot.backRightDrive.setPower(0);
@@ -89,19 +98,6 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
         engine.telemetry.addData("Odometer", robot.OdometerEncoder.getCurrentPosition());
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);
