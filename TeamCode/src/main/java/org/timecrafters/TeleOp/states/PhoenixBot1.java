@@ -20,14 +20,14 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfig
 public class PhoenixBot1 {
 
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
-    private static final String TFOD_MODEL_ASSET = "PowerPlay.tflite";
+    private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
 
 
 
     private static final String[] LABELS = {
-            "1 Bolt",
-            "2 Bulb",
-            "3 Panel"
+            "#1",
+            "#2",
+            "#3"
     };
 
     private static final String VUFORIA_KEY =
@@ -112,24 +112,28 @@ public class PhoenixBot1 {
             frontLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             frontRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             backRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             // Dead Wheel encoder for driving
 
             OdometerEncoder = engine.hardwareMap.dcMotor.get("odometer encoder");
 
-            OdometerEncoder.setDirection(DcMotorSimple.Direction.FORWARD);
+            OdometerEncoder.setDirection(DcMotorSimple.Direction.REVERSE);
             OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
