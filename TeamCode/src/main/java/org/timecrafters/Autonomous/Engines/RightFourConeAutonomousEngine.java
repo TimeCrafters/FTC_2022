@@ -7,6 +7,7 @@ import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
 import org.timecrafters.Autonomous.States.DriverState;
+import org.timecrafters.Autonomous.States.DriverStateWithOdometer;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
@@ -26,7 +27,7 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 3 Rotate Camera up, out of the way so it doesn't crash into stuff
         addState(new ServoCameraRotate(robot, "RightFourCone", "03-0"));
         // 4 Drive to the tall Pole (not all the way) while raising upper arm, this will be parallel
-        addState(new DriverState(robot, "RightFourCone", "04-0"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "04-0"));
         // 5 Turn Towards and look for junction with sensor
 
         // 6 Raise lower arm while slowly driving at the junction

@@ -75,7 +75,7 @@ public class DriverState extends CyberarmState {
             robot.backRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.frontRightDrive.setPower(0);
-            setHasFinished(true);
+//            setHasFinished(true);
         }
 
 
@@ -87,6 +87,7 @@ public class DriverState extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
+        engine.telemetry.addData("leftOdometerDrive", robot.OdometerEncoder.getCurrentPosition());
 
         engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);
