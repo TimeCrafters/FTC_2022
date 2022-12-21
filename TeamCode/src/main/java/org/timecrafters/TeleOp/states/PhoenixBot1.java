@@ -19,6 +19,10 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfig
 
 public class PhoenixBot1 {
 
+    private static final float mmPerInch        = 25.4f;
+    public static final double WHEEL_CIRCUMFERENCE = 7.42108499;
+    public static final int COUNTS_PER_REVOLUTION = 8192;
+
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
     private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
 
@@ -52,6 +56,14 @@ public class PhoenixBot1 {
 
          public AdafruitI2cColorSensor AdafruitEncoder;
 
+    public double ticksToInches(int ticks) {
+        return ticks * (WHEEL_CIRCUMFERENCE / COUNTS_PER_REVOLUTION);
+    }
+
+    public double inchesToTicks(double inches) {
+        return inches * (COUNTS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE);
+    }
+
 
         public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
@@ -62,6 +74,7 @@ public class PhoenixBot1 {
         }
 
         private void setupRobot () {
+
             collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
             downSensor = engine.hardwareMap.get(Rev2mDistanceSensor.class, "downDistance");
             leftPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Left Pole Distance");

@@ -3,7 +3,7 @@ package org.timecrafters.Autonomous.States;
 import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
-public class TopArm extends CyberarmState {
+public class TopArmRotateParallelState extends CyberarmState {
 
     private final boolean stateDisabled;
     PhoenixBot1 robot;
@@ -13,7 +13,7 @@ public class TopArm extends CyberarmState {
     boolean up;
     boolean directPosition;
 
-    public TopArm(PhoenixBot1 robot, String groupName, String actionName) {
+    public TopArmRotateParallelState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.UpperRiserLeftPos = robot.configuration.variable(groupName, actionName, "UpperRiserLeftPos").value();
         this.UpperRiserRightPos = robot.configuration.variable(groupName, actionName, "UpperRiserRightPos").value();
@@ -32,6 +32,8 @@ public class TopArm extends CyberarmState {
 
     @Override
     public void exec() {
+        addParallelState(new RotationState(robot, "RightFourCone", "12-0"));
+
         if (stateDisabled){
             setHasFinished(true);
             return;
@@ -53,7 +55,7 @@ public class TopArm extends CyberarmState {
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
 
-                } if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
+                } else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
 
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);

@@ -5,13 +5,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
-public class DriverStateWithOdometer extends CyberarmState {
+public class DriverStateWithOdometerLowerArmParallelState2nd extends CyberarmState {
     private final boolean stateDisabled;
     PhoenixBot1 robot;
     private int RampUpDistance;
     private int RampDownDistance;
     private int maximumTolerance;
-    public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
+    public DriverStateWithOdometerLowerArmParallelState2nd(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
         this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveledDistance").value();
@@ -39,6 +39,8 @@ public class DriverStateWithOdometer extends CyberarmState {
 
     @Override
     public void exec() {
+
+        addParallelState(new BottomArm(robot, "RightFourCone", "10-1"));
         if (stateDisabled) {
             setHasFinished(true);
             return;
