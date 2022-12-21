@@ -49,93 +49,93 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         addState(new TopArm(robot, "RightFourCone", "07-0"));
 
         // 8 Drop cone as soon as arm is in position
-        addState(new CollectorState(robot, "RightFourCone", "08-0"));
+//        addState(new CollectorState(robot, "RightFourCone", "08-0"));
 
         // 9 Raise arm to clear junction
-        addState(new TopArm(robot, "RightFourCone", "09-0"));
-
-        // 10 Back up and bring lower arm down (parallel state)
-        addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
-
-        // 11 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
-        addState(new TopArm(robot, "RightFourCone", "11-0"));
-
-        // 12 Rotate towards stack
-        //filled in as parallel state. in parallel with previous state
-
-        // 13 Drive at stack while collecting and check to see when we grab it
-        addState(new CollectorDistanceState(robot, "RightFourCone", "13-0"));
-
-        // 14 Back up and raise arm
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "14-0"));
-        addState(new TopArm(robot, "RightFourCone", "14-1"));
-
-        // 15 Drive All the way back to the medium Junction and raise upper arm (parallel state)
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "15-0"));
-
-        // 16 Rotate and use sensor to find junction
-        addState(new RotationState(robot, "RightFourCone", "16-0"));
-        addState(new JunctionAllignmentState(robot, "RightFourCone", "16-1"));
-
-        // 17 Drive Towards Junction (This is optional, idk if this is needed atm)
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "17-0"));
-
-        // 18 Bring upper arm down
-        addState(new TopArm(robot, "RightFourCone", "18-0"));
-
-        // 19 Drop cone
-        addState(new CollectorState(robot, "RightFourCone", "19-0"));
-
-        // 20 Bring upper arm up
-        addState(new TopArm(robot, "RightFourCone", "20-0"));
-
-        // 21 Drive away from Junction (this is optional and only used if we use the drive forward from earlier)
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "21-0"));
-
-        // 22 Drop the Upper arm to the position of the new top cone / 4th cone and check with sensor and start driving fast to get to the stack (this is a parallel state)
-        addState(new TopArm(robot, "RightFourCone", "22-0"));
-
-        // 23 Drive slower at the stack and run the collector to grab a 2nd cone off of the stack
-        addState(new CollectorDistanceState(robot, "RightFourCone", "23-0"));
-
-        // 24 Drive Back and lift up all the way to position for the low junction
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "24-0"));
-        addState(new TopArm(robot, "RightFourCone", "24-1"));
-
-        // 25 Drive back faster after the cone is fully off of the stack
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "25-0"));
-
-        // 26 Turn and look for the low junction with the distance sensor and align
-        addState(new RotationState(robot, "RightFourCone", "26-0"));
-
-        // 27 Drive forward / backwards if you need to. (check with distance sensor)
-        addState(new JunctionAllignmentState(robot, "RightFourCone", "26-1"));
-
-        // 28 Bring Upper arm down on junction
-        addState(new TopArm(robot, "RightFourCone", "28-0"));
-
-        // 29 Let go of cone right after arm is in position
-        addState(new CollectorState(robot, "RightFourCone", "29-0"));
-
-        // 30 Raise arm as soon as the cone is dropped
-        addState(new TopArm(robot, "RightFourCone", "30-0"));
-
-        // 31 Back up / go forward (optional, only needed if we drove forwards or backwards to align to low junction
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "31-0"));
-
-        // 32 Rotate towards Stack of cones
-        addState(new RotationState(robot, "RightFourCone", "32-0"));
-
-        // 33 Decide which path after scanning image from earlier
-        addState(new PathDecision(robot, "RightFourCone", "33-0"));
-
-        // 34 Drive backwards, forwards, or stay put
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-1"));
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-2"));
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-3"));
-
-        // 35 Rotate towards alliance terminal
-        addState(new RotationState(robot, "RightFourCone", "35-0"));
+//        addState(new TopArm(robot, "RightFourCone", "09-0"));
+//
+//        // 10 Back up and bring lower arm down (parallel state)
+//        addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
+//
+//        // 11 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
+//        addState(new TopArm(robot, "RightFourCone", "11-0"));
+//
+//        // 12 Rotate towards stack
+//        //filled in as parallel state. in parallel with previous state
+//
+//        // 13 Drive at stack while collecting and check to see when we grab it
+//        addState(new CollectorDistanceState(robot, "RightFourCone", "13-0"));
+//
+//        // 14 Back up and raise arm
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "14-0"));
+//        addState(new TopArm(robot, "RightFourCone", "14-1"));
+//
+//        // 15 Drive All the way back to the medium Junction and raise upper arm (parallel state)
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "15-0"));
+//
+//        // 16 Rotate and use sensor to find junction
+//        addState(new RotationState(robot, "RightFourCone", "16-0"));
+//        addState(new JunctionAllignmentState(robot, "RightFourCone", "16-1"));
+//
+//        // 17 Drive Towards Junction (This is optional, idk if this is needed atm)
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "17-0"));
+//
+//        // 18 Bring upper arm down
+//        addState(new TopArm(robot, "RightFourCone", "18-0"));
+//
+//        // 19 Drop cone
+//        addState(new CollectorState(robot, "RightFourCone", "19-0"));
+//
+//        // 20 Bring upper arm up
+//        addState(new TopArm(robot, "RightFourCone", "20-0"));
+//
+//        // 21 Drive away from Junction (this is optional and only used if we use the drive forward from earlier)
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "21-0"));
+//
+//        // 22 Drop the Upper arm to the position of the new top cone / 4th cone and check with sensor and start driving fast to get to the stack (this is a parallel state)
+//        addState(new TopArm(robot, "RightFourCone", "22-0"));
+//
+//        // 23 Drive slower at the stack and run the collector to grab a 2nd cone off of the stack
+//        addState(new CollectorDistanceState(robot, "RightFourCone", "23-0"));
+//
+//        // 24 Drive Back and lift up all the way to position for the low junction
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "24-0"));
+//        addState(new TopArm(robot, "RightFourCone", "24-1"));
+//
+//        // 25 Drive back faster after the cone is fully off of the stack
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "25-0"));
+//
+//        // 26 Turn and look for the low junction with the distance sensor and align
+//        addState(new RotationState(robot, "RightFourCone", "26-0"));
+//
+//        // 27 Drive forward / backwards if you need to. (check with distance sensor)
+//        addState(new JunctionAllignmentState(robot, "RightFourCone", "26-1"));
+//
+//        // 28 Bring Upper arm down on junction
+//        addState(new TopArm(robot, "RightFourCone", "28-0"));
+//
+//        // 29 Let go of cone right after arm is in position
+//        addState(new CollectorState(robot, "RightFourCone", "29-0"));
+//
+//        // 30 Raise arm as soon as the cone is dropped
+//        addState(new TopArm(robot, "RightFourCone", "30-0"));
+//
+//        // 31 Back up / go forward (optional, only needed if we drove forwards or backwards to align to low junction
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "31-0"));
+//
+//        // 32 Rotate towards Stack of cones
+//        addState(new RotationState(robot, "RightFourCone", "32-0"));
+//
+//        // 33 Decide which path after scanning image from earlier
+//        addState(new PathDecision(robot, "RightFourCone", "33-0"));
+//
+//        // 34 Drive backwards, forwards, or stay put
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-1"));
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-2"));
+//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-3"));
+//
+//        // 35 Rotate towards alliance terminal
+//        addState(new RotationState(robot, "RightFourCone", "35-0"));
 
     }
 

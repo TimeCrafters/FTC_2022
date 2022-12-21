@@ -85,7 +85,7 @@ public class DriverStateWithOdometer extends CyberarmState {
             robot.backRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.frontRightDrive.setPower(0);
-//            setHasFinished(true);
+            setHasFinished(true);
         }
 
 

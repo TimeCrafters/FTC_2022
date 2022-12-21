@@ -53,7 +53,7 @@ public class TopArm extends CyberarmState {
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
 
-                } else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
+                } if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
 
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);
