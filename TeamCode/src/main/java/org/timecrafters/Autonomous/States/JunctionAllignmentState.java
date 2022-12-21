@@ -42,7 +42,7 @@ public class JunctionAllignmentState extends CyberarmState {
                     break;
             }
                 // the state is finished if the distance sensors are at the correct distance.
-                if (leftDistance == TargetSensorDistance && rightDistance == TargetSensorDistance) {
+                if ((leftDistance > TargetSensorDistance -2 || leftDistance < TargetSensorDistance + 2) && (rightDistance > TargetSensorDistance -2 || rightDistance < TargetSensorDistance + 2)) {
                     robot.frontLeftDrive.setPower(0);
                     robot.frontRightDrive.setPower(0);
                     robot.backLeftDrive.setPower(0);
@@ -77,29 +77,29 @@ public class JunctionAllignmentState extends CyberarmState {
                     robot.backLeftDrive.setPower(drivePower);
                     robot.backRightDrive.setPower(-drivePower);
                     }
-                // The right sensor is aligned but the robot must rotate rotate CW with only the left side powered
-                else if (leftDistance < TargetSensorDistance && rightDistance == TargetSensorDistance) {
+                // The right sensor is aligned but the robot must rotate CW with only the left side powered
+                else if (leftDistance < TargetSensorDistance && (rightDistance > TargetSensorDistance -2 || rightDistance < TargetSensorDistance + 2)) {
                     robot.frontLeftDrive.setPower(drivePower);
                     robot.frontRightDrive.setPower(0);
                     robot.backLeftDrive.setPower(drivePower);
                     robot.backRightDrive.setPower(0);
                     }
                 // The right sensor is aligned but the robot must rotate rotate CCW with only the left side powered
-                else if (leftDistance > TargetSensorDistance && rightDistance == TargetSensorDistance) {
+                else if (leftDistance > TargetSensorDistance && (rightDistance > TargetSensorDistance -2 || rightDistance < TargetSensorDistance + 2)) {
                     robot.frontLeftDrive.setPower(-drivePower);
                     robot.frontRightDrive.setPower(0);
                     robot.backLeftDrive.setPower(-drivePower);
                     robot.backRightDrive.setPower(0);
                     }
-                // The left sensor is aligned but the robot must rotate rotate CW with only the right side powered
-                else if (leftDistance == TargetSensorDistance && rightDistance < TargetSensorDistance) {
+                // The left sensor is aligned but the robot must rotate CW with only the right side powered
+                else if ((leftDistance > TargetSensorDistance -2 || leftDistance < TargetSensorDistance + 2) && rightDistance < TargetSensorDistance) {
                     robot.frontLeftDrive.setPower(0);
                     robot.frontRightDrive.setPower(-drivePower);
                     robot.backLeftDrive.setPower(0);
                     robot.backRightDrive.setPower(-drivePower);
                     }
                 // The left sensor is aligned but the robot must rotate CCW with only the right side powered
-                else if (leftDistance == TargetSensorDistance && rightDistance > TargetSensorDistance) {
+                else if ((leftDistance > TargetSensorDistance -2 || leftDistance < TargetSensorDistance + 2) && rightDistance > TargetSensorDistance) {
                     robot.frontLeftDrive.setPower(0);
                     robot.frontRightDrive.setPower(drivePower);
                     robot.backLeftDrive.setPower(0);
