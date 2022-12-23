@@ -21,7 +21,7 @@ public class ServoCameraRotate extends CyberarmState {
             setHasFinished(true);
         } else {
             robot.CameraServo.setPosition(ServoPosition);
-//            setHasFinished(true);
+            setHasFinished(true);
     }
     }
 }

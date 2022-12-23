@@ -30,17 +30,22 @@ public class DriverStateWithOdometerLowerArmParallelState2nd extends CyberarmSta
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+
+        addParallelState(new BottomArm(robot, "RightFourCone", "10-1"));
+
     }
 
     @Override
     public void exec() {
 
-        addParallelState(new BottomArm(robot, "RightFourCone", "10-1"));
         if (stateDisabled) {
             setHasFinished(true);
             return;

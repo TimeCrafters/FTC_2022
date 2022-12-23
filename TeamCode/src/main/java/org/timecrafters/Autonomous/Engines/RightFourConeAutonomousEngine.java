@@ -3,6 +3,7 @@ package org.timecrafters.Autonomous.Engines;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
+import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
@@ -18,7 +19,7 @@ import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
-@Autonomous (name = "3 cone auto right")
+@Autonomous (name = "4 cone auto right")
 
 public class RightFourConeAutonomousEngine extends CyberarmEngine {
     PhoenixBot1 robot;
@@ -39,23 +40,27 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 4 Drive to the tall Pole (not all the way) while raising upper arm, this will be parallel
         addState(new DriverStateWithOdometerUpperArmParallelState(robot, "RightFourCone", "04-0"));
 
-        // 5 Turn Towards and look for junction with sensor
-        addState(new RotationState(robot, "RightFourCone", "05-0"));
-
         // 6 Raise lower arm while slowly driving at the junction (parallel state)
-        addState(new JunctionAllignmentState(robot, "RightFourCone", "06-0"));
+        addState(new BottomArm(robot, "RightFourCone", "05-0"));
 
-        // 7 Drop top arm down on the junction to place cone
-        addState(new TopArm(robot, "RightFourCone", "07-0"));
+        // 6 Turn Towards and look for junction with sensor
+        addState(new RotationState(robot, "RightFourCone", "06-0"));
+
+        // 6-1 drive forward or backwards if needed this is customizable so we can adapt
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "06-1"));
+
+
+        // 7 Drop bottom arm down on the junction to place cone
+        addState(new BottomArm(robot, "RightFourCone", "07-0"));
 
         // 8 Drop cone as soon as arm is in position
-//        addState(new CollectorState(robot, "RightFourCone", "08-0"));
+        addState(new CollectorState(robot, "RightFourCone", "08-0"));
 
-        // 9 Raise arm to clear junction
-//        addState(new TopArm(robot, "RightFourCone", "09-0"));
+        // 9 Raise bottom arm to clear junction
+        addState(new BottomArm(robot, "RightFourCone", "09-0"));
 //
 //        // 10 Back up and bring lower arm down (parallel state)
-//        addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
+        addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
 //
 //        // 11 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
 //        addState(new TopArm(robot, "RightFourCone", "11-0"));
