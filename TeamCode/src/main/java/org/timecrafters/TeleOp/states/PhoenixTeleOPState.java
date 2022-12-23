@@ -53,7 +53,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Left Pole Distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
-        engine.telemetry.addData("OCD", OCD);
+//        engine.telemetry.addData("OCD", OCD);
     }
 
     @Override
@@ -390,45 +390,23 @@ public class PhoenixTeleOPState extends CyberarmState {
 //
 //        }
 
-        if (engine.gamepad2.y) {
+        if (engine.gamepad2.a) {
             OCD = 1;
         }
 
-        if (engine.gamepad2.a) {
+        if (engine.gamepad2.x) {
             OCD = 2;
         }
 
-        if (engine.gamepad2.x) {
+        if (engine.gamepad2.b && !engine.gamepad2.start) {
             OCD = 3;
         }
 
-        if (engine.gamepad2.b && !engine.gamepad2.start) {
+        if (engine.gamepad2.y) {
             OCD = 4;
         }
 
-        if (OCD == 1) {
-                    if (robot.HighRiserLeft.getPosition() < 0.84) {
-                        if (System.currentTimeMillis() - lastStepTime >= 125) {
-                            lastStepTime = System.currentTimeMillis();
-                            robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                            robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                        }
-                    }
-                    if (robot.LowRiserLeft.getPosition() <= 0.64) {
-                        if (System.currentTimeMillis() - lastStepTime >= 125) {
-                            lastStepTime = System.currentTimeMillis();
-                            robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                            robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                        }
-                    }
-                    if (robot.HighRiserLeft.getPosition() >= 0.84 && robot.LowRiserLeft.getPosition() >= 0.64) {
-                        OCD = 0;
-                    }
-            }
-
-
-
-        if (OCD == 2) {
+        if (OCD == 1) { //Ground junction
             if (robot.LowRiserLeft.getPosition() >= 0.5) {
                 if (System.currentTimeMillis() - lastStepTime >= 125) {
                     lastStepTime = System.currentTimeMillis();
@@ -446,18 +424,93 @@ public class PhoenixTeleOPState extends CyberarmState {
             }
         }
 
-        if (OCD == 3) {
-            if (robot.LowRiserLeft.getPosition() > 0.5 && robot.HighRiserLeft.getPosition() < 0.75) {
+        if (OCD == 2) { //low junction
+            if (robot.LowRiserLeft.getPosition() > 0.5 && robot.HighRiserLeft.getPosition() > 0.75) {
                 if (System.currentTimeMillis() - lastStepTime >= 125) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
-            } else if (robot.HighRiserLeft.getPosition() < 0.75) {
-
+            } // <-- both levels too high
+            if (robot.LowRiserLeft.getPosition() <= 0.5 && robot.LowRiserLeft.getPosition() > 0.49 && robot.HighRiserLeft.getPosition() > 0.75) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                    robot.HighRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                }
+            } // <-- top level too high
+            if (robot.LowRiserLeft.getPosition() < 0.49 && robot.HighRiserLeft.getPosition() < 0.74) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            } // <-- both levels too low
+            if (robot.LowRiserLeft.getPosition() > 0.49 && robot.LowRiserLeft.getPosition() >= 0.5 && robot.HighRiserLeft.getPosition() < 0.74) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.HighRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            } // <-- high level too low
+            if (robot.LowRiserLeft.getPosition() > 0.49 && robot.LowRiserLeft.getPosition() <= 0.5 && robot.HighRiserLeft.getPosition() > 0.74 && robot.HighRiserLeft.getPosition() <= 0.75) {
+                OCD = 0;
             }
         }
 
+        if (OCD == 3) { // Medium junction
+            if (robot.LowRiserLeft.getPosition() > 0.6 && robot.HighRiserLeft.getPosition() > 0.85) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                }
+            } // <-- both levels too high
+            if (robot.LowRiserLeft.getPosition() <= 0.6 && robot.LowRiserLeft.getPosition() > 0.59 && robot.HighRiserLeft.getPosition() > 0.85) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
+                    robot.HighRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
+                }
+            } // <-- top level too high
+            if (robot.LowRiserLeft.getPosition() < 0.59 && robot.HighRiserLeft.getPosition() < 0.84) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            } // <-- both levels too low
+            if (robot.LowRiserLeft.getPosition() > 0.59 && robot.LowRiserLeft.getPosition() <= 0.6 && robot.HighRiserLeft.getPosition() < 0.84) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.HighRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            } // <-- high level too low
+            if (robot.LowRiserLeft.getPosition() > 0.59 && robot.LowRiserLeft.getPosition() <= 0.6 && robot.HighRiserLeft.getPosition() > 0.84 && robot.HighRiserLeft.getPosition() <= 0.85) {
+                OCD = 0;
+            }
+        }
+
+        if (OCD == 4) { // High Junction
+            if (robot.HighRiserLeft.getPosition() < 0.84) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
+                }
+            }
+            if (robot.LowRiserLeft.getPosition() <= 0.64) {
+                if (System.currentTimeMillis() - lastStepTime >= 125) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            }
+            if (robot.HighRiserLeft.getPosition() >= 0.84 && robot.LowRiserLeft.getPosition() >= 0.64) {
+                OCD = 0;
+            }
+        }
 
         gamepad1Checker.update();
         gamepad2Checker.update();
