@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.widget.Switch;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -19,7 +20,7 @@ public class PhoenixTeleOPState extends CyberarmState {
     private int CyclingArmUpAndDown = 0;
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
-    private double MinimalPower = 0.3;
+    private double MinimalPower = 0.25;
     private GamepadChecker gamepad1Checker, gamepad2Checker;
     private int OCD;
 
@@ -33,9 +34,9 @@ public class PhoenixTeleOPState extends CyberarmState {
         } else if (RotationTarget <= 0 && RobotRotation <= 0) {
             DeltaRotation = Math.abs(RotationTarget - RobotRotation);
         } else if (RotationTarget >= 0 && RobotRotation <= 0) {
-            DeltaRotation = Math.abs(RotationTarget + RobotRotation);
+            DeltaRotation = (RotationTarget + Math.abs(RobotRotation));
         } else if (RotationTarget <= 0 && RobotRotation >= 0) {
-            DeltaRotation = Math.abs(RobotRotation + RotationTarget);
+            DeltaRotation = (RobotRotation + Math.abs(RotationTarget));
         }
     }
 
@@ -53,6 +54,8 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Left Pole Distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
+        engine.telemetry.addData("Odometer Encoder, Right", robot.OdometerEncoder.getCurrentPosition());
+        engine.telemetry.addData("Odometer Encoder, Left", robot.OdometerEncoderLeft.getCurrentPosition());
 //        engine.telemetry.addData("OCD", OCD);
     }
 
@@ -66,7 +69,8 @@ public class PhoenixTeleOPState extends CyberarmState {
         robot.LowRiserRight.setPosition(0.45);
         robot.HighRiserLeft.setPosition(0.45);
         robot.HighRiserRight.setPosition(0.45);
-
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         gamepad1Checker = new GamepadChecker(engine, engine.gamepad1);
         gamepad2Checker = new GamepadChecker(engine, engine.gamepad2);
@@ -76,6 +80,11 @@ public class PhoenixTeleOPState extends CyberarmState {
     @SuppressLint("SuspiciousIndentation")
     @Override
     public void exec() {
+
+        if (engine.gamepad1.start && !engine.gamepad1.a) {
+            robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
 
         if (engine.gamepad1.right_trigger > 0) {
             drivePower = engine.gamepad1.right_trigger;
@@ -171,32 +180,6 @@ public class PhoenixTeleOPState extends CyberarmState {
                 robot.frontRightDrive.setPower(-drivePower);
             }
         }
-        if (engine.gamepad1.dpad_left) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            RotationTarget = -45;
-            CalculateDeltaRotation();
-            if (RobotRotation > -45 && RobotRotation <= 135) {//CCW
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-            if (RobotRotation < -45 || RobotRotation > 136) {//CW
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-            if (RobotRotation < -44 && RobotRotation > -46) {
-                drivePower = 0;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-        }
 
         if (engine.gamepad1.x) {
             RobotRotation = robot.imu.getAngularOrientation().firstAngle;
@@ -263,7 +246,7 @@ public class PhoenixTeleOPState extends CyberarmState {
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
-            if (RobotRotation < -135 || RobotRotation > 44) {//CW
+            if (RobotRotation < -135 || RobotRotation > 46) {//CW
                 drivePower = (1 * DeltaRotation / 180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
