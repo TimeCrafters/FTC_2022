@@ -304,7 +304,7 @@ public class PhoenixTeleOPState extends CyberarmState {
                 }
             }
 
-            if (/*robot.LowRiserLeft.getPosition() < 0.75 &&*/ robot.HighRiserLeft.getPosition() > 0.85 && downSensor() < 840) {
+            if (robot.LowRiserLeft.getPosition() < 0.75 && robot.HighRiserLeft.getPosition() > 0.85) {
                 if (System.currentTimeMillis() - lastStepTime >= 150) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
@@ -516,18 +516,13 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
     }
     public double downSensor() {
-        double Distance, Distance_1, Distance_2, Distance_3, Distance_4, Distance_5, Distance_6, Distance_7, Distance_8, Distance_9, Distance_10;
+        double Distance, Distance_1, Distance_2, Distance_3, Distance_4, Distance_5;
         Distance_1 = robot.downSensor.getDistance(DistanceUnit.MM);
         Distance_2 = robot.downSensor.getDistance(DistanceUnit.MM);
         Distance_3 = robot.downSensor.getDistance(DistanceUnit.MM);
         Distance_4 = robot.downSensor.getDistance(DistanceUnit.MM);
         Distance_5 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_6 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_7 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_8 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_9 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_10 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance = (Distance_1 + Distance_2 + Distance_3 + Distance_4 + Distance_5/* + Distance_6 + Distance_7 + Distance_8 + Distance_9 + Distance_10*/)/5;
+        Distance = (Distance_1 + Distance_2 + Distance_3 + Distance_4 + Distance_5)/5;
         return Distance;
 
     }
