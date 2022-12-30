@@ -123,10 +123,64 @@ public class PhoenixTeleOPState extends CyberarmState {
                 Math.abs(engine.gamepad1.left_stick_y) < 0.1 &&
                 Math.abs(engine.gamepad1.right_stick_y) < 0.1) {
             drivePower = 0;
-            robot.backLeftDrive.setPower(-drivePower);
-            robot.backRightDrive.setPower(-drivePower);
-            robot.frontLeftDrive.setPower(-drivePower);
-            robot.frontRightDrive.setPower(-drivePower);
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (engine.gamepad1.dpad_right) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RotationTarget = 90;
+            CalculateDeltaRotation();
+            if (RobotRotation > -90 && RobotRotation < 89) {//CCW
+                drivePower = (-0.95 * DeltaRotation / 180) - MinimalPower;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation > 91 || RobotRotation < -90) {//CW
+                drivePower = (0.95 * DeltaRotation / 180) + MinimalPower;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation < 91 && RobotRotation > 89) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(drivePower);
+            }
+        }
+
+        if (engine.gamepad1.dpad_left) {
+            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RotationTarget = -90;
+            CalculateDeltaRotation();
+            if (RobotRotation > -89 && RobotRotation <= 90) {//CW
+                drivePower = (0.95 * DeltaRotation / 180) - MinimalPower;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation > 90 || RobotRotation < -91) {//CCW
+                drivePower = (-0.95 * DeltaRotation / 180) + MinimalPower;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+            if (RobotRotation < 91 && RobotRotation > 89) {
+                drivePower = 0;
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(drivePower);
+            }
         }
 
         if (engine.gamepad1.y) {
@@ -134,13 +188,13 @@ public class PhoenixTeleOPState extends CyberarmState {
             RotationTarget = 180;
             CalculateDeltaRotation();
             if (RobotRotation < 0 && RobotRotation > -179) {
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
+                drivePower = (0.95 * DeltaRotation / 180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             } else if (RobotRotation >= 0) {
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
+                drivePower = (-0.95 * DeltaRotation / 180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -159,14 +213,14 @@ public class PhoenixTeleOPState extends CyberarmState {
             RotationTarget = 0;
             CalculateDeltaRotation();
             if (RobotRotation < -1) {
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
+                drivePower = (-0.95 * DeltaRotation / 180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > 1) {
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
+                drivePower = (0.95 * DeltaRotation / 180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -186,14 +240,14 @@ public class PhoenixTeleOPState extends CyberarmState {
             RotationTarget = -45;
             CalculateDeltaRotation();
             if (RobotRotation < -46 || RobotRotation > 135) {//CCW
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
+                drivePower = (-0.95 * DeltaRotation / 180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation > -44 && RobotRotation < 135) {//CW
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
+                drivePower = (0.95 * DeltaRotation / 180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -202,36 +256,9 @@ public class PhoenixTeleOPState extends CyberarmState {
             if (RobotRotation > -46 && RobotRotation < -44) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
+                robot.backRightDrive.setPower(drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-        }
-
-        if (engine.gamepad1.dpad_right) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
-            RotationTarget = 45;
-            CalculateDeltaRotation();
-            if (RobotRotation > -135 && RobotRotation < 44) {//CCW
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-            if (RobotRotation < -135 || RobotRotation < 46) {//CW
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
-            }
-            if (RobotRotation < 46 && RobotRotation > 44) {
-                drivePower = 0;
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
+                robot.frontRightDrive.setPower(drivePower);
             }
         }
 
@@ -240,14 +267,14 @@ public class PhoenixTeleOPState extends CyberarmState {
             RotationTarget = 45;
             CalculateDeltaRotation();
             if (RobotRotation > -135 && RobotRotation < 44) {//CCW
-                drivePower = (-1 * DeltaRotation / 180) - MinimalPower;
+                drivePower = (-0.95 * DeltaRotation / 180) - MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
                 robot.frontRightDrive.setPower(-drivePower);
             }
             if (RobotRotation < -135 || RobotRotation > 46) {//CW
-                drivePower = (1 * DeltaRotation / 180) + MinimalPower;
+                drivePower = (0.95 * DeltaRotation / 180) + MinimalPower;
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(-drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
@@ -256,9 +283,9 @@ public class PhoenixTeleOPState extends CyberarmState {
             if (RobotRotation < 46 && RobotRotation > 44) {
                 drivePower = 0;
                 robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
+                robot.backRightDrive.setPower(drivePower);
                 robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
+                robot.frontRightDrive.setPower(drivePower);
             }
         }
 
@@ -331,49 +358,8 @@ public class PhoenixTeleOPState extends CyberarmState {
             }
         }//end of a
 
-//        if (engine.gamepad2.back) {
-//            robot.backLeftDrive.setPower(1);
-//            robot.backRightDrive.setPower(1);
-//            robot.frontLeftDrive.setPower(1);
-//            robot.frontRightDrive.setPower(1);
-//            if (System.currentTimeMillis() - lastStepTime >= 1500) {
-//                robot.backLeftDrive.setPower(0);
-//                robot.backRightDrive.setPower(0);
-//                robot.frontLeftDrive.setPower(0);
-//                robot.frontRightDrive.setPower(0);
-//            }
-//            if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                if (robot.HighRiserLeft.getPosition() < 1) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-//                        robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//            }
-//            if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                if (robot.LowRiserLeft.getPosition() < 1 && robot.HighRiserLeft.getPosition() == 1) {
-//                    if (System.currentTimeMillis() - lastStepTime >= 150) {
-//                        lastStepTime = System.currentTimeMillis();
-//                        robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-//                        robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-//                    }
-//                }
-//            }
-//            if (System.currentTimeMillis() >= 250) {
-//                robot.backLeftDrive.setPower(1);
-//                robot.backRightDrive.setPower(1);
-//                robot.frontLeftDrive.setPower(1);
-//                robot.frontRightDrive.setPower(1);
-//                if (System.currentTimeMillis() - lastStepTime >= 250) {
-//                    robot.backLeftDrive.setPower(0);
-//                    robot.backRightDrive.setPower(0);
-//                    robot.frontLeftDrive.setPower(0);
-//                    robot.frontRightDrive.setPower(0);
-//                }
-//            }
-//
-//        }
+        //i feel like removing that was a stupidly impulsive move but i gave up on not being stupidly
+        // impulsive a long time ago lol. Besides, when have we even used that function? It got replaced.
 
         if (engine.gamepad2.a) {
             OCD = 1;
