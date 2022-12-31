@@ -21,7 +21,7 @@ public class ConeIdentification extends CyberarmState {
 
     @Override
     public void init() {
-        engine.blackboard.put("parkPlace", "1");
+        engine.blackboard_set("parkPlace", "1");
         robot.tfod.activate();
         initTime = System.currentTimeMillis();
     }
@@ -50,11 +50,11 @@ public class ConeIdentification extends CyberarmState {
                     engine.telemetry.addData("- Size (Width/Height)","%.0f / %.0f", width, height);
 
                     if (recognition.getLabel().equals("#2")) {
-                        engine.telemetry.addData("#2", engine.blackboard.put("parkPlace", "2"));
+                        engine.telemetry.addData("#2", engine.blackboard_set("parkPlace", "2"));
                     } else if (recognition.getLabel().equals("#3")) {
-                        engine.telemetry.addData("#3",engine.blackboard.put("parkPlace", "3"));
+                        engine.telemetry.addData("#3",engine.blackboard_set("parkPlace", "3"));
                     } else {
-                        engine.telemetry.addData("#1", engine.blackboard.put("parkPlace", "1"));
+                        engine.telemetry.addData("#1", engine.blackboard_set("parkPlace", "1"));
                     }
                 }
             }
@@ -90,12 +90,12 @@ public class ConeIdentification extends CyberarmState {
                         bestConfidence = recognition.getConfidence();
 
                         if (recognition.getLabel().equals("2 Bulb")) {
-                            engine.blackboard.put("parkPlace", "2");
+                            engine.blackboard_set("parkPlace", "2");
                         } else if (recognition.getLabel().equals("3 Panel")) {
-                            engine.blackboard.put("parkPlace", "3");
+                            engine.blackboard_set("parkPlace", "3");
 
                         } else {
-                            engine.blackboard.put("parkPlace", "1");
+                            engine.blackboard_set("parkPlace", "1");
                         }
                     }
                 }

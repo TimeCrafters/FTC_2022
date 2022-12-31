@@ -96,6 +96,6 @@ public class LeftSideAutonomousEngine extends CyberarmEngine {
     public void loop() {
         super.loop();
 
-        telemetry.addData("BlackBoard Input", blackboard.get("parkPlace"));
+        telemetry.addData("BlackBoard Input", blackboard_get("parkPlace"));
     }
 }
