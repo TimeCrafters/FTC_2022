@@ -10,7 +10,6 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Act
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -32,7 +31,7 @@ public abstract class CyberarmEngine extends OpMode {
   // Array to Hold Tasks
   final private CopyOnWriteArrayList<CyberarmState> backgroundTasks = new CopyOnWriteArrayList<>();
   // HashMap to store data for States and Tasks
-  private ConcurrentHashMap<String, Object> blackboard = new ConcurrentHashMap<>();
+  final private ConcurrentHashMap<String, Object> blackboard = new ConcurrentHashMap<>();
   private int activeStateIndex = 0; // Index of currently running state
   private boolean isRunning; // Whether engine is running or not
 
@@ -139,7 +138,7 @@ public abstract class CyberarmEngine extends OpMode {
 
       // Background tasks
       for (CyberarmState task : backgroundTasks) {
-        initState(task);
+        stateTelemetry(task);
       }
     }
 
@@ -293,11 +292,34 @@ public abstract class CyberarmEngine extends OpMode {
   /**
    * Retrieve value from blackboard
    * @param key String to use to look up value
-   * @return Returns Object which should be autocast to the correct type
+   * @return Returns T of stored Object
    */
-  @SuppressWarnings("unchecked")
-  public <T> T blackboard_get(String key) {
+  public <T> T blackboardGet(String key) {
     return (T) blackboard.get(key);
+  }
+
+  public String blackboardGetString(String key) {
+    return (String) blackboard.get(key);
+  }
+
+  public int blackboardGetInt(String key) {
+    return (int) blackboard.get(key);
+  }
+
+  public long blackboardGetLong(String key) {
+    return (long) blackboard.get(key);
+  }
+
+  public float blackboardGetFloat(String key) {
+    return (float) blackboard.get(key);
+  }
+
+  public double blackboardGetDouble(String key) {
+    return (double) blackboard.get(key);
+  }
+
+  public boolean blackboardGetBoolean(String key) {
+    return (boolean) blackboard.get(key);
   }
 
   /**
@@ -306,8 +328,8 @@ public abstract class CyberarmEngine extends OpMode {
    * @param value Object
    * @return Returns T
    */
-  @SuppressWarnings("unchecked")
-  public <T> T blackboard_set(String key, Object value) {
+
+  public <T> T blackboardSet(String key, T value) {
     blackboard.put(key, value);
 
     return (T) value;
@@ -319,8 +341,7 @@ public abstract class CyberarmEngine extends OpMode {
    * @param value Object
    * @return Returns T
    */
-  @SuppressWarnings("unchecked")
-  public <T> T blackboard_remove(String key, Object value) {
+  public <T> T blackboardRemove(String key, T value) {
     blackboard.remove(key);
 
     return (T) value;

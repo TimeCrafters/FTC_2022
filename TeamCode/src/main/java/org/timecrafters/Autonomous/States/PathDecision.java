@@ -16,7 +16,7 @@ public class PathDecision extends CyberarmState {
 
     @Override
     public void exec() {
-        String placement = engine.blackboard_get("parkPlace");
+        String placement = engine.blackboardGetString("parkPlace");
         setHasFinished(true);
         }
 

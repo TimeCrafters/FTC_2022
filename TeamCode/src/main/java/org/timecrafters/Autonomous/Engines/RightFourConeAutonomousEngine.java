@@ -148,6 +148,6 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
     public void loop() {
         super.loop();
 
-        telemetry.addData("BlackBoard Input", blackboard_get("parkPlace"));
+        telemetry.addData("BlackBoard Input", blackboardGetString("parkPlace"));
     }
 }
