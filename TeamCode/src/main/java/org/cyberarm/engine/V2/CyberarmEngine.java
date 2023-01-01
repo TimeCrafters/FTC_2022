@@ -10,10 +10,15 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Act
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * CyberarmEngine Version 3.0 | December 31st 2022
+ * After a few years of use, it's safe to say this implementation is stable and reasonably feature complete.
+ * * Added support for background tasks that run unqueued for the duration of the op mode unless stopped.
+ * * Added thread-safe 'blackboard' for storing bits that need to be easily shared between states/tasks.
+ *
  * CyberarmEngine Version 2.0 | October 26th 2018
  * AN Experimental reimplementation of GoldfishPi's original Engine system.
  * Designed to be easily maintainable, extensible, and easy to understand.
@@ -23,9 +28,12 @@ public abstract class CyberarmEngine extends OpMode {
   public static CyberarmEngine instance;
   //Array To Hold States
   final private CopyOnWriteArrayList<CyberarmState> cyberarmStates = new CopyOnWriteArrayList<>();
-    public HashMap<String, String> blackboard = new HashMap<>();
-    private int activeStateIndex = 0;
-  private boolean isRunning;
+  // Array to Hold Tasks
+  final private CopyOnWriteArrayList<CyberarmState> backgroundTasks = new CopyOnWriteArrayList<>();
+  // HashMap to store data for States and Tasks
+  final private ConcurrentHashMap<String, Object> blackboard = new ConcurrentHashMap<>();
+  private int activeStateIndex = 0; // Index of currently running state
+  private boolean isRunning; // Whether engine is running or not
 
   private final static String TAG = "PROGRAM.ENGINE";
   public boolean showStateChildrenListInTelemetry = false;
@@ -48,6 +56,11 @@ public abstract class CyberarmEngine extends OpMode {
 
     for (CyberarmState state: cyberarmStates) {
       initState(state);
+    }
+
+    // Background tasks
+    for (CyberarmState task : backgroundTasks) {
+      initState(task);
     }
   }
 
@@ -73,6 +86,11 @@ public abstract class CyberarmEngine extends OpMode {
     if (cyberarmStates.size() > 0) {
       runState(cyberarmStates.get(0));
     }
+
+    // Background tasks
+    for (CyberarmState task : backgroundTasks) {
+      runState(task);
+    }
   }
 
   /**
@@ -95,7 +113,11 @@ public abstract class CyberarmEngine extends OpMode {
     }
 
       // Add telemetry to show currently running state
-    telemetry.addLine("Running state: " +state.getClass().getSimpleName() + ". State: " + activeStateIndex + " of " + (cyberarmStates.size()-1));
+    telemetry.addLine(
+            "Running state: " +state.getClass().getSimpleName() + ". State: " +
+                    (activeStateIndex + 1) + " of " + (cyberarmStates.size()) +
+                    " (" + activeStateIndex + "/" + (cyberarmStates.size() - 1) + ")");
+
     if (showStateChildrenListInTelemetry && state.hasChildren()) {
       for(CyberarmState child: state.children) {
         telemetry.addLine("    Child: " + child.getClass().getSimpleName() + " [" + child.children.size() + "] grandchildren");
@@ -113,6 +135,11 @@ public abstract class CyberarmEngine extends OpMode {
 
     } else {
       stateTelemetry(state);
+
+      // Background tasks
+      for (CyberarmState task : backgroundTasks) {
+        stateTelemetry(task);
+      }
     }
 
     gamepadCheckerGamepad1.update();
@@ -128,7 +155,10 @@ public abstract class CyberarmEngine extends OpMode {
       stopState(state);
     }
 
-
+    // Background tasks
+    for (CyberarmState task : backgroundTasks) {
+      stopState(task);
+    }
   }
 
   /**
@@ -223,6 +253,98 @@ public abstract class CyberarmEngine extends OpMode {
     if (isRunning()) { initState(state); }
 
     return state;
+  }
+
+  /**
+   * Adds state to the most recently added top level state as a parallel state
+   * @param state State to add to last top level state
+   * @return CyberarmState
+   */
+  public CyberarmState addParallelStateToLastState(CyberarmState state) {
+    CyberarmState parentState = cyberarmStates.get(cyberarmStates.size() - 1);
+
+    Log.i(TAG, "Adding parallel cyberarmState "+ state.getClass() + " to parent state " + parentState.getClass());
+
+    parentState.addParallelState((state));
+
+    return state;
+  }
+
+  /**
+   * Adds state as a background task that is run until the opmode stops
+   * background tasks are not queued, they are all started at once.
+   * @param state State to add to list
+   * @return CyberarmState
+   */
+  public CyberarmState addTask(CyberarmState state) {
+    Log.i(TAG, "Adding task cyberarmState "+ state.getClass());
+
+    backgroundTasks.add(state);
+
+    if (isRunning()) {
+      initState(state);
+      runState(state);
+    }
+
+    return state;
+  }
+
+  /**
+   * Retrieve value from blackboard
+   * @param key String to use to look up value
+   * @return Returns T of stored Object
+   */
+  public <T> T blackboardGet(String key) {
+    return (T) blackboard.get(key);
+  }
+
+  public String blackboardGetString(String key) {
+    return (String) blackboard.get(key);
+  }
+
+  public int blackboardGetInt(String key) {
+    return (int) blackboard.get(key);
+  }
+
+  public long blackboardGetLong(String key) {
+    return (long) blackboard.get(key);
+  }
+
+  public float blackboardGetFloat(String key) {
+    return (float) blackboard.get(key);
+  }
+
+  public double blackboardGetDouble(String key) {
+    return (double) blackboard.get(key);
+  }
+
+  public boolean blackboardGetBoolean(String key) {
+    return (boolean) blackboard.get(key);
+  }
+
+  /**
+   * Set value of key to value
+   * @param key String
+   * @param value Object
+   * @return Returns T
+   */
+
+  public <T> T blackboardSet(String key, T value) {
+    blackboard.put(key, value);
+
+    return (T) value;
+  }
+
+  /**
+   * Remove value from blackboard
+   * @param key String
+   * @param value Object
+   * @return Returns T
+   */
+  public <T> T blackboardRemove(String key, T value) {
+    blackboard.remove(key);
+
+    return (T) value;
   }
 
   private void buttonDownForStates(CyberarmState state, Gamepad gamepad, String button) {

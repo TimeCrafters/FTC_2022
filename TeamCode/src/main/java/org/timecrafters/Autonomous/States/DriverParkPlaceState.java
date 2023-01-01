@@ -43,7 +43,7 @@ public class DriverParkPlaceState extends CyberarmState {
             setHasFinished(true);
             return;
         }
-        String placement = engine.blackboard.get("parkPlace");
+        String placement = engine.blackboardGetString("parkPlace");
         if (placement != null) {
             if (!placement.equals(intendedPlacement)){
                     setHasFinished(true);
