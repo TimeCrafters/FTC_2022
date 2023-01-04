@@ -1,5 +1,7 @@
 package org.timecrafters.Autonomous.States;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -35,12 +37,14 @@ public class DriverStateWithOdometerUpperArmParallelState extends CyberarmState 
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        addParallelState(new TopArm(robot, "RightFourCone", "04-1"));
+
     }
 
     @Override
     public void exec() {
 
-        addParallelState(new TopArm(robot, "RightFourCone", "04-1"));
         if (stateDisabled) {
             setHasFinished(true);
             return;
@@ -89,6 +93,22 @@ public class DriverStateWithOdometerUpperArmParallelState extends CyberarmState 
             robot.frontRightDrive.setPower(0);
             setHasFinished(true);
         }
+        if (!getHasFinished()){
+            float angle = robot.imu.getAngularOrientation().firstAngle;
+
+            if (angle < -0.25){
+                robot.backLeftDrive.setPower(drivePower * 0.25);
+                robot.backRightDrive.setPower(drivePower * 1.25);
+                robot.frontLeftDrive.setPower(drivePower * 0.25);
+                robot.frontRightDrive.setPower(drivePower * 1.25);
+            }
+            if (angle > 0.25){
+                robot.backLeftDrive.setPower(drivePower * 1.25);
+                robot.backRightDrive.setPower(drivePower * 0.25);
+                robot.frontLeftDrive.setPower(drivePower * 1.25);
+                robot.frontRightDrive.setPower(drivePower * 0.25);
+            }
+        }
 
 
     }
@@ -99,7 +119,15 @@ public class DriverStateWithOdometerUpperArmParallelState extends CyberarmState 
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
+        engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getPower());
+        engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getPower());
+        engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
+        engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
         engine.telemetry.addData("Odometer", robot.OdometerEncoder.getCurrentPosition());
+        engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
+        engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
+        engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
+
 
         engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);
@@ -107,6 +135,10 @@ public class DriverStateWithOdometerUpperArmParallelState extends CyberarmState 
         engine.telemetry.addData("traveledDistance", traveledDistance);
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
+
+        Log.i("TELEMETRY", "imu 1 angle:: " + robot.imu.getAngularOrientation().firstAngle);
+        Log.i("TELEMETRY", "imu 2 angle:: " + robot.imu.getAngularOrientation().secondAngle);
+        Log.i("TELEMETRY", "imu 3 angle:: " + robot.imu.getAngularOrientation().thirdAngle);
 
     }
 }

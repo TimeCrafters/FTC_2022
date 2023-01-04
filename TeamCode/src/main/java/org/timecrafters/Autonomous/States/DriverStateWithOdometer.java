@@ -1,5 +1,7 @@
 package org.timecrafters.Autonomous.States;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -91,6 +93,22 @@ public class DriverStateWithOdometer extends CyberarmState {
             setHasFinished(true);
         }
 
+        if (!getHasFinished()){
+            float angle = robot.imu.getAngularOrientation().firstAngle;
+
+            if (angle < 0){
+                robot.backLeftDrive.setPower(-drivePower);
+                robot.backRightDrive.setPower(drivePower);
+                robot.frontLeftDrive.setPower(-drivePower);
+                robot.frontRightDrive.setPower(drivePower);
+            }
+            if (angle > 0){
+                robot.backLeftDrive.setPower(drivePower);
+                robot.backRightDrive.setPower(-drivePower);
+                robot.frontLeftDrive.setPower(drivePower);
+                robot.frontRightDrive.setPower(-drivePower);
+            }
+        }
 
     }
 
@@ -100,7 +118,15 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
+        engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getPower());
+        engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getPower());
+        engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
+        engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
         engine.telemetry.addData("Odometer", robot.OdometerEncoder.getCurrentPosition());
+        engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
+        engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
+        engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
+
 
         engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);
@@ -108,6 +134,10 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("traveledDistance", traveledDistance);
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
+
+        Log.i("TELEMETRY", "imu 1 angle:: " + robot.imu.getAngularOrientation().firstAngle);
+        Log.i("TELEMETRY", "imu 2 angle:: " + robot.imu.getAngularOrientation().secondAngle);
+        Log.i("TELEMETRY", "imu 3 angle:: " + robot.imu.getAngularOrientation().thirdAngle);
 
     }
 }

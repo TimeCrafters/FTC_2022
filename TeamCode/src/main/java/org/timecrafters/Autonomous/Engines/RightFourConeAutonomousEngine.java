@@ -53,6 +53,9 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 7 Drop bottom arm down on the junction to place cone
         addState(new BottomArm(robot, "RightFourCone", "07-0"));
 
+        // 7-1 drive back slightly
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "07-1"));
+
         // 8 Drop cone as soon as arm is in position
         addState(new CollectorState(robot, "RightFourCone", "08-0"));
 
@@ -61,12 +64,12 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 //
 //        // 10 Back up and bring lower arm down (parallel state)
         addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
+
+        // 11 Rotate towards stack
+        addState(new RotationState(robot, "RightFourCone", "11-0"));
 //
-//        // 11 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
-//        addState(new TopArm(robot, "RightFourCone", "11-0"));
-//
-//        // 12 Rotate towards stack
-//        //filled in as parallel state. in parallel with previous state
+//        // 12 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
+//        addState(new TopArm(robot, "RightFourCone", "12-0"));
 //
 //        // 13 Drive at stack while collecting and check to see when we grab it
 //        addState(new CollectorDistanceState(robot, "RightFourCone", "13-0"));
