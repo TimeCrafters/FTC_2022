@@ -38,7 +38,8 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         addState(new ServoCameraRotate(robot, "RightFourCone", "03-0"));
 
         // 4 Drive to the tall Pole (not all the way) while raising upper arm, this will be parallel
-        addState(new DriverStateWithOdometerUpperArmParallelState(robot, "RightFourCone", "04-0"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "04-0"));
+        addParallelStateToLastState(new TopArm(robot, "RightFourCone", "04-1"));
 
         // 6 Raise lower arm while slowly driving at the junction (parallel state)
         addState(new BottomArm(robot, "RightFourCone", "05-0"));
@@ -63,7 +64,8 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         addState(new BottomArm(robot, "RightFourCone", "09-0"));
 //
 //        // 10 Back up and bring lower arm down (parallel state)
-        addState(new DriverStateWithOdometerLowerArmParallelState2nd(robot, "RightFourCone", "10-0"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "10-0"));
+        addParallelStateToLastState(new BottomArm(robot, "RightFourCone", "10-1"));
 
         // 11 Rotate towards stack
         addState(new RotationState(robot, "RightFourCone", "11-0"));
@@ -83,7 +85,6 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 //
 //        // 16 Rotate and use sensor to find junction
 //        addState(new RotationState(robot, "RightFourCone", "16-0"));
-//        addState(new JunctionAllignmentState(robot, "RightFourCone", "16-1"));
 //
 //        // 17 Drive Towards Junction (This is optional, idk if this is needed atm)
 //        addState(new DriverStateWithOdometer(robot, "RightFourCone", "17-0"));

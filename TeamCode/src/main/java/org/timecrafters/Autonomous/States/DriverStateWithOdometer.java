@@ -13,6 +13,7 @@ public class DriverStateWithOdometer extends CyberarmState {
     private int RampUpDistance;
     private int RampDownDistance;
     private int maximumTolerance;
+    private float direction;
     public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
@@ -20,6 +21,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
         this.maximumTolerance = robot.configuration.variable(groupName, actionName, "maximumTolerance").value();
+        this.direction = robot.configuration.variable(groupName, actionName, "direction").value();
 
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
@@ -32,18 +34,19 @@ public class DriverStateWithOdometer extends CyberarmState {
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
     }
 
     @Override
     public void exec() {
+
         if (stateDisabled) {
             setHasFinished(true);
             return;
@@ -54,12 +57,15 @@ public class DriverStateWithOdometer extends CyberarmState {
 
         if (Math.abs(CurrentPosition) <= RampUpDistance){
             // ramping up
-           drivePower = (Math.abs((float)CurrentPosition) / RampUpDistance) + 0.25;
+            float ratio = (Math.abs((float)CurrentPosition) / RampUpDistance);
+            drivePower = (targetDrivePower - 0.25) * ratio + 0.25;
         }
-        else if (Math.abs(CurrentPosition) >= delta){
+        else if (Math.abs(CurrentPosition) >= traveledDistance - RampDownDistance){
             // ramping down
-            drivePower = ((delta / RampDownDistance) + 0.25);
-            } else {
+            double ratio = (1.0 - ((traveledDistance - RampDownDistance) / RampDownDistance));
+            drivePower = (targetDrivePower - 0.25) * ratio + 0.25;
+
+        } else {
             // middle ground
             drivePower = targetDrivePower;
         }
@@ -92,23 +98,23 @@ public class DriverStateWithOdometer extends CyberarmState {
             robot.frontRightDrive.setPower(0);
             setHasFinished(true);
         }
-
         if (!getHasFinished()){
-            float angle = robot.imu.getAngularOrientation().firstAngle;
+            float angle = robot.imu.getAngularOrientation().firstAngle - direction;
 
-            if (angle < 0){
-                robot.backLeftDrive.setPower(-drivePower);
-                robot.backRightDrive.setPower(drivePower);
-                robot.frontLeftDrive.setPower(-drivePower);
-                robot.frontRightDrive.setPower(drivePower);
+            if (angle < -0.25){
+                robot.backLeftDrive.setPower(drivePower * 0.25);
+                robot.backRightDrive.setPower(drivePower * 1.25);
+                robot.frontLeftDrive.setPower(drivePower * 0.25);
+                robot.frontRightDrive.setPower(drivePower * 1.25);
             }
-            if (angle > 0){
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(-drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(-drivePower);
+            if (angle > 0.25){
+                robot.backLeftDrive.setPower(drivePower * 1.25);
+                robot.backRightDrive.setPower(drivePower * 0.25);
+                robot.frontLeftDrive.setPower(drivePower * 1.25);
+                robot.frontRightDrive.setPower(drivePower * 0.25);
             }
         }
+
 
     }
 

@@ -39,7 +39,6 @@ public class DriverStateWithOdometerLowerArmParallelState2nd extends CyberarmSta
         robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-        addParallelState(new BottomArm(robot, "RightFourCone", "10-1"));
 
     }
 
