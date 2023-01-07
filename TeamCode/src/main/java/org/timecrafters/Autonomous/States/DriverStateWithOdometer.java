@@ -10,10 +10,11 @@ import org.timecrafters.TeleOp.states.PhoenixBot1;
 public class DriverStateWithOdometer extends CyberarmState {
     private final boolean stateDisabled;
     PhoenixBot1 robot;
-    private int RampUpDistance;
-    private int RampDownDistance;
+    private double RampUpDistance;
+    private double RampDownDistance;
     private int maximumTolerance;
     private float direction;
+    private boolean targetAchieved = false;
     public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
@@ -34,11 +35,13 @@ public class DriverStateWithOdometer extends CyberarmState {
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
 
@@ -52,18 +55,24 @@ public class DriverStateWithOdometer extends CyberarmState {
             return;
         }
 
-        double CurrentPosition = robot.OdometerEncoder.getCurrentPosition();
-        double delta = traveledDistance - Math.abs(CurrentPosition);
+        double CurrentPosition = Math.abs(robot.OdometerEncoder.getCurrentPosition());
 
         if (Math.abs(CurrentPosition) <= RampUpDistance){
             // ramping up
-            float ratio = (Math.abs((float)CurrentPosition) / RampUpDistance);
-            drivePower = (targetDrivePower - 0.25) * ratio + 0.25;
+//            double ratio = (Math.abs(CurrentPosition) / RampUpDistance);
+            if (targetDrivePower > 0) {
+                drivePower = (targetDrivePower - 0.25) * (Math.abs(CurrentPosition) / RampUpDistance) + 0.25;
+            } else {
+                drivePower = (targetDrivePower + 0.25) * (Math.abs(CurrentPosition) / RampUpDistance) - 0.25;
+            }
         }
         else if (Math.abs(CurrentPosition) >= traveledDistance - RampDownDistance){
             // ramping down
-            double ratio = (1.0 - ((traveledDistance - RampDownDistance) / RampDownDistance));
-            drivePower = (targetDrivePower - 0.25) * ratio + 0.25;
+            if (targetDrivePower > 0){
+                drivePower = ((((traveledDistance - Math.abs(CurrentPosition)) / RampDownDistance)) * (targetDrivePower - 0.25) + 0.25);
+            } else {
+                drivePower = ((((traveledDistance - Math.abs(CurrentPosition)) / RampDownDistance)) * (targetDrivePower + 0.25) - 0.25);
+            }
 
         } else {
             // middle ground
@@ -75,11 +84,22 @@ public class DriverStateWithOdometer extends CyberarmState {
             drivePower = targetDrivePower;
         }
 
-        if (targetDrivePower < 0 && drivePower != targetDrivePower) {
+        if (targetDrivePower < 0 && drivePower > 0) {
             drivePower = drivePower * -1;
         }
 
         if (Math.abs(CurrentPosition) < traveledDistance - maximumTolerance){
+            if (targetAchieved) {
+                drivePower = drivePower * 0.25;
+
+                if (Math.abs(drivePower) < 0.25){
+                    if (drivePower < 0) {
+                        drivePower = -0.25;
+                    } else {
+                        drivePower = 0.25;
+                    }
+                }
+            }
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
@@ -87,10 +107,24 @@ public class DriverStateWithOdometer extends CyberarmState {
 
         }
         else if (Math.abs(CurrentPosition) > traveledDistance + maximumTolerance) {
-            robot.backLeftDrive.setPower(targetDrivePower * -0.25);
-            robot.backRightDrive.setPower(targetDrivePower * -0.25);
-            robot.frontLeftDrive.setPower(targetDrivePower * -0.25);
-            robot.frontRightDrive.setPower(targetDrivePower * -0.25);
+            targetAchieved = true;
+
+            drivePower = targetDrivePower * -0.25;
+
+            if (Math.abs(drivePower) < 0.25){
+                if (drivePower < 0) {
+                    drivePower = -0.25;
+                } else {
+                    drivePower = 0.25;
+                }
+            }
+
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+
+
         } else {
             robot.backLeftDrive.setPower(0);
             robot.backRightDrive.setPower(0);
@@ -98,24 +132,25 @@ public class DriverStateWithOdometer extends CyberarmState {
             robot.frontRightDrive.setPower(0);
             setHasFinished(true);
         }
-        if (!getHasFinished()){
+
+        if (!getHasFinished() && !targetAchieved){
             float angle = robot.imu.getAngularOrientation().firstAngle - direction;
 
+            if (targetDrivePower < 0) { angle = angle * -1;}
+
             if (angle < -0.25){
-                robot.backLeftDrive.setPower(drivePower * 0.25);
+                robot.backLeftDrive.setPower(drivePower * 0);
                 robot.backRightDrive.setPower(drivePower * 1.25);
-                robot.frontLeftDrive.setPower(drivePower * 0.25);
+                robot.frontLeftDrive.setPower(drivePower * 0);
                 robot.frontRightDrive.setPower(drivePower * 1.25);
             }
-            if (angle > 0.25){
+            if (angle > 0.25) {
                 robot.backLeftDrive.setPower(drivePower * 1.25);
-                robot.backRightDrive.setPower(drivePower * 0.25);
+                robot.backRightDrive.setPower(drivePower * 0);
                 robot.frontLeftDrive.setPower(drivePower * 1.25);
-                robot.frontRightDrive.setPower(drivePower * 0.25);
+                robot.frontRightDrive.setPower(drivePower * 0);
             }
         }
-
-
     }
 
     @Override
@@ -132,6 +167,9 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
         engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
         engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
+
+        engine.telemetry.addData("Target Achieved", targetAchieved);
+
 
 
         engine.telemetry.addData("drivePower", drivePower);

@@ -50,6 +50,9 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 6-1 drive forward or backwards if needed this is customizable so we can adapt
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "06-1"));
 
+        //pause
+        addState(new BottomArm(robot, "RightFourCone", "06-2"));
+
 
         // 7 Drop bottom arm down on the junction to place cone
         addState(new BottomArm(robot, "RightFourCone", "07-0"));
@@ -70,18 +73,30 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 11 Rotate towards stack
         addState(new RotationState(robot, "RightFourCone", "11-0"));
 //
-//        // 12 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
-//        addState(new TopArm(robot, "RightFourCone", "12-0"));
+        // 12 Bring upper arm to the correct position for the top cone on stack (check with distance sensor)
+        addState(new TopArm(robot, "RightFourCone", "12-0"));
+
+        // drive forward at the stack without sensor
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "12-1"));
+
+        // turn and align at stack
+        addState(new RotationState(robot, "RightFourCone", "12-2"));
+
 //
-//        // 13 Drive at stack while collecting and check to see when we grab it
-//        addState(new CollectorDistanceState(robot, "RightFourCone", "13-0"));
+        // 13 Drive at stack while collecting and check to see when we grab it
+        addState(new CollectorDistanceState(robot, "RightFourCone", "13-0"));
+
+
 //
 //        // 14 Back up and raise arm
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "14-0"));
-//        addState(new TopArm(robot, "RightFourCone", "14-1"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "14-0"));
+        addState(new TopArm(robot, "RightFourCone", "14-1"));
+
+        // 14-2 align perpendicular too the wall
+        addState(new RotationState(robot, "RightFourCone", "14-2"));
 //
-//        // 15 Drive All the way back to the medium Junction and raise upper arm (parallel state)
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "15-0"));
+        // 15 Drive All the way back to the tall Junction and raise upper arm (parallel state)
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "15-0"));
 //
 //        // 16 Rotate and use sensor to find junction
 //        addState(new RotationState(robot, "RightFourCone", "16-0"));
