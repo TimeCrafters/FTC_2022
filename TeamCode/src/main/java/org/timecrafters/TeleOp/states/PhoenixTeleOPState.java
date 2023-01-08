@@ -17,15 +17,14 @@ public class PhoenixTeleOPState extends CyberarmState {
     private final PhoenixBot1 robot;
     private double drivePower = 1;
     private long lastStepTime = 0;
-    private int CyclingArmUpAndDown = 0;
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.25, topServoOffset = -0.05;
     private double servoCollectLow = 0.45; //Low servos, A button
     private double servoCollectHigh = 0.55; //High servos, A button
-    private double servoLowLow = 0.45; //Low servos, X button
+    private double servoLowLow = 0.5; //Low servos, X button
     private double servoLowHigh = 0.75; //High servos, X button
-    private double servoMedLow = 0.45; //Low servos, B button
+    private double servoMedLow = 0.5; //Low servos, B button
     private double servoMedHigh = 0.9; //High servos, B button
     private double servoHighLow = 0.8; //Low servos, Y button
     private double servoHighHigh = 0.9; //High servos, Y button
@@ -64,7 +63,6 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Odometer Encoder, Right", robot.OdometerEncoder.getCurrentPosition());
         engine.telemetry.addData("Odometer Encoder, Left", robot.OdometerEncoderLeft.getCurrentPosition());
-//        engine.telemetry.addData("OCD", OCD);
     }
 
     @Override
@@ -309,10 +307,10 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.right_bumper) {
+            OCD = 0;
             if (robot.HighRiserLeft.getPosition() < 1.0 - Math.abs(topServoOffset)) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
+                if (System.currentTimeMillis() - lastStepTime >= 120) {
                     lastStepTime = System.currentTimeMillis();
-                    OCD = 0;
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
                 }
@@ -320,8 +318,9 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad2.left_bumper) {
+            OCD = 0;
             if (robot.HighRiserLeft.getPosition() > 0.45) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
+                if (System.currentTimeMillis() - lastStepTime >= 120) {
                     lastStepTime = System.currentTimeMillis();
                     OCD = 0;
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
@@ -329,45 +328,6 @@ public class PhoenixTeleOPState extends CyberarmState {
                 }
             }
         }
-
-        if (engine.gamepad2.y) {
-            if (robot.HighRiserLeft.getPosition() < 0.85) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
-                }
-            }
-
-            if (robot.LowRiserLeft.getPosition() < 0.75 && robot.HighRiserLeft.getPosition() > 0.85) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                }
-            }
-        }//end of y
-
-        if (engine.gamepad2.a) {
-            if (robot.HighRiserLeft.getPosition() > 0.45 && robot.LowRiserLeft.getPosition() < 0.5) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                }
-            }
-
-            if (robot.LowRiserLeft.getPosition() > 0.45) {
-                if (System.currentTimeMillis() - lastStepTime >= 150) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
-                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
-                }
-            }
-        }//end of a
-
-        //i feel like removing that was a stupidly impulsive move but i gave up on not being stupidly
-        // impulsive a long time ago lol. Besides, when have we even used that function? It got replaced.
 
         if (engine.gamepad2.a) {
             OCD = 1;
@@ -386,15 +346,15 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (OCD == 1) { //Ground junction/Collect
-            if (robot.LowRiserLeft.getPosition() >= servoCollectLow + 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            if (robot.LowRiserLeft.getPosition() >= servoCollectLow + 0.01)/* <-- low level too high*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
             } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow &&
-                        robot.HighRiserLeft.getPosition() > servoCollectHigh) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+                        robot.HighRiserLeft.getPosition() > servoCollectHigh)/* <-- high level too high*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
@@ -406,37 +366,37 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (OCD == 2) { //low junction
-            if (robot.LowRiserLeft.getPosition() > servoLowLow + 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            if (robot.LowRiserLeft.getPosition() > servoLowLow + 0.01)/* <-- low level too high*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
-            } // <-- low level too high
-            if (robot.LowRiserLeft.getPosition() <= servoLowLow + 0.01 &&
-                robot.LowRiserLeft.getPosition() > servoLowLow - 0.01 &&
-                robot.HighRiserLeft.getPosition() > servoLowHigh) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
-                }
-            } // <-- top level too high
-            if (robot.LowRiserLeft.getPosition() < servoLowLow - 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            }
+            if (robot.LowRiserLeft.getPosition() < servoLowLow - 0.01)/* <-- low level too low*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
                 }
-            } // <-- low level too low
+            }
             if (robot.LowRiserLeft.getPosition() <= servoLowLow + 0.01 &&
-                robot.HighRiserLeft.getPosition() < servoLowHigh - 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+                robot.LowRiserLeft.getPosition() > servoLowLow - 0.01 &&
+                robot.HighRiserLeft.getPosition() > servoLowHigh)/* <-- high level too high*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
+                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
+                }
+            }
+            if (robot.LowRiserLeft.getPosition() <= servoLowLow + 0.01 &&
+                robot.HighRiserLeft.getPosition() < servoLowHigh - 0.01)/* <-- high level too low*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
                 }
-            } // <-- high level too low
+            }
             if (robot.LowRiserLeft.getPosition() > servoLowLow - 0.01 &&
                 robot.LowRiserLeft.getPosition() <= servoLowLow + 0.01 &&
                 robot.HighRiserLeft.getPosition() > servoLowHigh - 0.01 &&
@@ -446,16 +406,23 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (OCD == 3) { // Medium junction
-            if (robot.LowRiserLeft.getPosition() > servoMedLow + 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            if (robot.LowRiserLeft.getPosition() > servoMedLow + 0.01)/* <-- low level too high*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
-            } // <-- low level too high
+            }
+            if (robot.LowRiserLeft.getPosition() < servoMedLow - 0.01)/* <-- low level too low*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
+                    lastStepTime = System.currentTimeMillis();
+                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
+                }
+            }
             if (robot.LowRiserLeft.getPosition() <= servoMedLow + 0.01 &&
                 robot.HighRiserLeft.getPosition() > servoMedHigh + 0.01)/* <-- high level too high*/ {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - 0.05);
@@ -463,7 +430,7 @@ public class PhoenixTeleOPState extends CyberarmState {
             }
             if (robot.LowRiserLeft.getPosition() < servoMedLow + 0.01 &&
                 robot.HighRiserLeft.getPosition() < servoMedHigh - 0.01)/* <-- high level too low*/ {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
@@ -478,15 +445,15 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (OCD == 4) { // High Junction
-            if (robot.HighRiserLeft.getPosition() < servoHighHigh - 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            if (robot.HighRiserLeft.getPosition() < servoHighHigh - 0.01)/* <-- high level too low*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
                     robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + 0.05);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() < servoHighLow - 0.01) {
-                if (System.currentTimeMillis() - lastStepTime >= 120) {
+            if (robot.LowRiserLeft.getPosition() < servoHighLow - 0.01)/* <-- low level too low*/ {
+                if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
