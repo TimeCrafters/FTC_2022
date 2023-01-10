@@ -7,13 +7,8 @@ import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
-import org.timecrafters.Autonomous.States.DriverState;
 import org.timecrafters.Autonomous.States.DriverStateWithOdometer;
-import org.timecrafters.Autonomous.States.DriverStateWithOdometerLowerArmParallelState;
-import org.timecrafters.Autonomous.States.DriverStateWithOdometerLowerArmParallelState2nd;
-import org.timecrafters.Autonomous.States.DriverStateWithOdometerUpperArmParallelState;
 import org.timecrafters.Autonomous.States.JunctionAllignmentState;
-import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
@@ -49,6 +44,9 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 
         // 6-1 drive forward or backwards if needed this is customizable so we can adapt
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "06-1"));
+
+        // 6-3 align to junction with rotation or skip if it looks like it won't be able to
+        addState(new JunctionAllignmentState(robot, "RightFourCone", "06-3"));
 
         //pause
         addState(new BottomArm(robot, "RightFourCone", "06-2"));

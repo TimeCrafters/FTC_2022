@@ -7,15 +7,23 @@ import org.timecrafters.TeleOp.states.PhoenixBot1;
 public class JunctionAllignmentState extends CyberarmState {
     private final boolean stateDisabled;
     PhoenixBot1 robot;
-    private double TargetSensorDistance;
-    private final String targetedJunction;
     private final double drivePower;
-    private int whatToDo;
+    private int loopsTotal;
+    private float rotationAmount;
+    private float currentAngle;
+    private float targetAngle;
+    private float slop;
+    private double checkTime = 250;
+
+
 
     public JunctionAllignmentState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "DrivePower").value();
-        this.targetedJunction = robot.configuration.variable(groupName, actionName, "targetedJunction").value();
+        this.loopsTotal = robot.configuration.variable(groupName, actionName, "loopsTotal").value();
+        this.rotationAmount = robot.configuration.variable(groupName, actionName, "rotationAmount").value();
+        this.slop = robot.configuration.variable(groupName, actionName, "slop").value();
+
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
 
@@ -23,12 +31,30 @@ public class JunctionAllignmentState extends CyberarmState {
     public void telemetry() {
         engine.telemetry.addData("right sensor distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("left sensor distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
+        engine.telemetry.addData("front right power", robot.frontRightDrive.getPower());
+        engine.telemetry.addData("front left power", robot.frontLeftDrive.getPower());
+        engine.telemetry.addData("back left power", robot.backLeftDrive.getPower());
+        engine.telemetry.addData("back right power", robot.backRightDrive.getPower());
+        engine.telemetry.addData("target angle", targetAngle);
+        engine.telemetry.addData("current angle", currentAngle);
+        engine.telemetry.addData("drive power", drivePower);
+
+
+
 
 
     }
 
     @Override
+    public void start() {
+
+    }
+
+    @Override
     public void exec() {
+
+        currentAngle = robot.imu.getAngularOrientation().firstAngle;
+
 
         if (stateDisabled){
             setHasFinished(true);
@@ -36,120 +62,101 @@ public class JunctionAllignmentState extends CyberarmState {
 
             double leftDistance = robot.leftPoleDistance.getDistance(DistanceUnit.MM);
             double rightDistance = robot.rightPoleDistance.getDistance(DistanceUnit.MM);
+            boolean rightInRange = rightDistance > 170 && rightDistance < 200;
+            boolean leftInRange = leftDistance > 170 && leftDistance < 200;
 
 
-            // TODO: 12/11/2022 Make sure these are the correct values for the distance from low, mid, and high junctions!!!
-            switch (targetedJunction) {
-                case "low":
-                    TargetSensorDistance = 90.0;
-                    break;
-                case "mid":
-                    TargetSensorDistance = 135.0;
-                    break;
-                case "high":
-                    TargetSensorDistance = 200.0;
-                    break;
-            }
+            // The minimum Value that can be seen when in distance of the pole is 90.0 the maximum is 200.0
+
+            if (loopsTotal >= 5){
+                setHasFinished(true);
+            } else if (runTime() - checkTime >= 250 ) {
+
+                checkTime = runTime();
+                loopsTotal = loopsTotal + 1;
 
 
-                // the state is finished if the distance sensors are at the correct distance.
-                if ((leftDistance > TargetSensorDistance - 2.0 || leftDistance < TargetSensorDistance + 2.0) && (rightDistance > TargetSensorDistance -2.0 || rightDistance < TargetSensorDistance + 2.0)) {
-                    robot.frontLeftDrive.setPower(0);
-                    robot.frontRightDrive.setPower(0);
-                    robot.backLeftDrive.setPower(0);
-                    robot.backRightDrive.setPower(0);
+            } else {
+
+                if (rightInRange && leftInRange){
                     setHasFinished(true);
+                }
+
+                if (rightInRange && !leftInRange) {
+
+                    // rotate 1 degree CW
+
+                    targetAngle = currentAngle + rotationAmount;
+
+                    if (targetAngle + slop < currentAngle && targetAngle - slop > currentAngle) {
+
+                        robot.frontRightDrive.setPower(0);
+                        robot.backRightDrive.setPower(0);
+                        robot.backLeftDrive.setPower(0);
+                        robot.frontLeftDrive.setPower(0);
+
+                    } else {
+
+                        if (targetAngle - slop < currentAngle) {
+
+                            robot.frontRightDrive.setPower(-drivePower);
+                            robot.backRightDrive.setPower(-drivePower);
+                            robot.backLeftDrive.setPower(drivePower);
+                            robot.frontLeftDrive.setPower(drivePower);
+
+                        } else if (targetAngle + slop > currentAngle) {
+
+                            robot.frontRightDrive.setPower(drivePower);
+                            robot.backRightDrive.setPower(drivePower);
+                            robot.backLeftDrive.setPower(-drivePower);
+                            robot.frontLeftDrive.setPower(-drivePower);
+
+                        }
+
                     }
-
-//                whatToDo = (int)((leftDistance > TargetSensorDistance) << 1 ) + (int)(rightDistance > TargetSensorDistance);
-
-                switch (whatToDo){
-                    case 0: // drive back
-                        robot.frontLeftDrive.setPower(-drivePower);
-                        robot.frontRightDrive.setPower(-drivePower);
-                        robot.backLeftDrive.setPower(-drivePower);
-                        robot.backRightDrive.setPower(-drivePower);
-                        break;
-
-                    case 1: // rotate CW
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(-drivePower);
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(-drivePower);
-                        break;
-
-                    case 2: // rotate CCW
-                        robot.frontLeftDrive.setPower(-drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
-                        robot.backLeftDrive.setPower(-drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        break;
-
-                    case 3: // Drive Forward
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        break;
-
 
                 }
-                // the robot is lined up but needs to drive forward till the robot is at the specified distance
-                if (leftDistance > TargetSensorDistance && rightDistance > TargetSensorDistance){
-                    robot.frontLeftDrive.setPower(drivePower);
-                    robot.frontRightDrive.setPower(drivePower);
-                    robot.backLeftDrive.setPower(drivePower);
-                    robot.backRightDrive.setPower(drivePower);
+                if (!rightInRange && leftInRange) {
+
+                    // rotate 1 degree CCW
+
+                    targetAngle = currentAngle - rotationAmount;
+
+                    if (targetAngle + slop < currentAngle && targetAngle - slop > currentAngle) {
+
+                        robot.frontRightDrive.setPower(0);
+                        robot.backRightDrive.setPower(0);
+                        robot.backLeftDrive.setPower(0);
+                        robot.frontLeftDrive.setPower(0);
+
+                    } else {
+
+                        if (targetAngle - slop < currentAngle) {
+
+                            robot.frontRightDrive.setPower(-drivePower);
+                            robot.backRightDrive.setPower(-drivePower);
+                            robot.backLeftDrive.setPower(drivePower);
+                            robot.frontLeftDrive.setPower(drivePower);
+
+                        } else if (targetAngle + slop > currentAngle) {
+
+                            robot.frontRightDrive.setPower(drivePower);
+                            robot.backRightDrive.setPower(drivePower);
+                            robot.backLeftDrive.setPower(-drivePower);
+                            robot.frontLeftDrive.setPower(-drivePower);
+
+                        }
+
                     }
-                // the robot is lined up but needs to drive backward till the robot is at the specified distance
-                if (leftDistance < TargetSensorDistance && rightDistance < TargetSensorDistance){
-                    robot.frontLeftDrive.setPower(-drivePower);
-                    robot.frontRightDrive.setPower(-drivePower);
-                    robot.backLeftDrive.setPower(-drivePower);
-                    robot.backRightDrive.setPower(-drivePower);
+
+                }
+
+                if (!rightInRange && !leftInRange){
+
+                    setHasFinished(true);
+
                     }
-                // the robot is going to rotate CCW until a distance is met
-                if (leftDistance > TargetSensorDistance && rightDistance < TargetSensorDistance) {
-                    robot.frontLeftDrive.setPower(-drivePower);
-                    robot.frontRightDrive.setPower(drivePower);
-                    robot.backLeftDrive.setPower(-drivePower);
-                    robot.backRightDrive.setPower(drivePower);
-                    }
-                // the robot is going to rotate CW until a distance is met
-                if (leftDistance < TargetSensorDistance && rightDistance > TargetSensorDistance) {
-                    robot.frontLeftDrive.setPower(drivePower);
-                    robot.frontRightDrive.setPower(-drivePower);
-                    robot.backLeftDrive.setPower(drivePower);
-                    robot.backRightDrive.setPower(-drivePower);
-                    }
-                // The right sensor is aligned but the robot must rotate CW with only the left side powered
-                if (leftDistance < TargetSensorDistance && (rightDistance > TargetSensorDistance -2 || rightDistance < TargetSensorDistance + 2)) {
-                    robot.frontLeftDrive.setPower(drivePower);
-                    robot.frontRightDrive.setPower(0);
-                    robot.backLeftDrive.setPower(drivePower);
-                    robot.backRightDrive.setPower(0);
-                    }
-                // The right sensor is aligned but the robot must rotate rotate CCW with only the left side powered
-                if (leftDistance > TargetSensorDistance && (rightDistance > TargetSensorDistance -2 || rightDistance < TargetSensorDistance + 2)) {
-                    robot.frontLeftDrive.setPower(-drivePower);
-                    robot.frontRightDrive.setPower(0);
-                    robot.backLeftDrive.setPower(-drivePower);
-                    robot.backRightDrive.setPower(0);
-                    }
-                // The left sensor is aligned but the robot must rotate CW with only the right side powered
-                if ((leftDistance > TargetSensorDistance -2 || leftDistance < TargetSensorDistance + 2) && rightDistance < TargetSensorDistance) {
-                    robot.frontLeftDrive.setPower(0);
-                    robot.frontRightDrive.setPower(-drivePower);
-                    robot.backLeftDrive.setPower(0);
-                    robot.backRightDrive.setPower(-drivePower);
-                    }
-                // The left sensor is aligned but the robot must rotate CCW with only the right side powered
-                if ((leftDistance > TargetSensorDistance -2 || leftDistance < TargetSensorDistance + 2) && rightDistance > TargetSensorDistance) {
-                    robot.frontLeftDrive.setPower(0);
-                    robot.frontRightDrive.setPower(drivePower);
-                    robot.backLeftDrive.setPower(0);
-                    robot.backRightDrive.setPower(drivePower);
-                    }
+                }
+            }
         }
     }
-}

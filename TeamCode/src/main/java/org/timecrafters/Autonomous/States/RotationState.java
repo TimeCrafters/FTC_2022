@@ -81,6 +81,10 @@ public class RotationState extends CyberarmState {
         engine.telemetry.addData("Robot IMU Rotation", RobotRotation);
         engine.telemetry.addData("Robot Target Rotation", targetRotation);
         engine.telemetry.addData("Drive Power", drivePowerVariable);
+        engine.telemetry.addData("front right power", robot.frontRightDrive.getPower());
+        engine.telemetry.addData("front left power", robot.frontLeftDrive.getPower());
+        engine.telemetry.addData("back left power", robot.backLeftDrive.getPower());
+        engine.telemetry.addData("back right power", robot.backRightDrive.getPower());
 
     }
 }
