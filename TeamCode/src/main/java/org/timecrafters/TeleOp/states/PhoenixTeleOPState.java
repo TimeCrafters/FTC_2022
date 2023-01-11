@@ -19,7 +19,7 @@ public class PhoenixTeleOPState extends CyberarmState {
     private long lastStepTime = 0;
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
-    private double MinimalPower = 0.25, topServoOffset = -0.05;
+    private double MinimalPower = 0.25, topServoOffset = -0.05, lowServoOffset = -0.05;
     private double servoCollectLow = 0.40; //Low servos, A button
     private double servoCollectHigh = 0.40; //High servos, A button
     private double servoLowLow = 0.5; //Low servos, X button
@@ -72,7 +72,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         robot.LowRiserLeft.setDirection(Servo.Direction.FORWARD);
         robot.LowRiserRight.setDirection(Servo.Direction.REVERSE);
         robot.LowRiserLeft.setPosition(0.45);
-        robot.LowRiserRight.setPosition(0.45);
+        robot.LowRiserRight.setPosition(0.45 + lowServoOffset);
         robot.HighRiserLeft.setPosition(0.45);
         robot.HighRiserRight.setPosition(0.45 + topServoOffset);
         robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -319,7 +319,7 @@ public class PhoenixTeleOPState extends CyberarmState {
 
         if (engine.gamepad2.left_bumper) {
             OCD = 0;
-            if (robot.HighRiserLeft.getPosition() > 0.45) {
+            if (robot.HighRiserLeft.getPosition() > 0.4) {
                 if (System.currentTimeMillis() - lastStepTime >= 120) {
                     lastStepTime = System.currentTimeMillis();
                     OCD = 0;
