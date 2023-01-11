@@ -308,7 +308,7 @@ public class PhoenixTeleOPState extends CyberarmState {
 
         if (engine.gamepad2.right_bumper) {
             OCD = 0;
-            if (robot.HighRiserLeft.getPosition() < 1.0 - Math.abs(topServoOffset)) {
+            if (robot.HighRiserLeft.getPosition() < 0.9 - Math.abs(topServoOffset)) {
                 if (System.currentTimeMillis() - lastStepTime >= 120) {
                     lastStepTime = System.currentTimeMillis();
                     robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + 0.05);
