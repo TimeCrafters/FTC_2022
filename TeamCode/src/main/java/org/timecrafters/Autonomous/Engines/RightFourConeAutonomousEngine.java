@@ -34,8 +34,8 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 
         // 4 Drive to the tall Pole (not all the way) while raising upper arm, this will be parallel
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "04-0"));
-        addParallelStateToLastState(new TopArm(robot, "RightFourCone", "04-1"));
-
+//        addParallelStateToLastState(new TopArm(robot, "RightFourCone", "04-1"));
+        addState(new TopArm(robot, "RightFourCone", "04-1"));
         // 6 Raise lower arm while slowly driving at the junction (parallel state)
         addState(new BottomArm(robot, "RightFourCone", "05-0"));
 
@@ -96,23 +96,23 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         // 15 Drive All the way back to the tall Junction and raise upper arm (parallel state)
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "15-0"));
 //
-//        // 16 Rotate and use sensor to find junction
-//        addState(new RotationState(robot, "RightFourCone", "16-0"));
+        // 16 Rotate and use sensor to find junction
+        addState(new RotationState(robot, "RightFourCone", "16-0"));
 //
-//        // 17 Drive Towards Junction (This is optional, idk if this is needed atm)
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "17-0"));
-//
+        // 17 Drive Towards Junction (This is optional, idk if this is needed atm)
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "17-0"));
+
 //        // 18 Bring upper arm down
-//        addState(new TopArm(robot, "RightFourCone", "18-0"));
+        addState(new TopArm(robot, "RightFourCone", "18-0"));
 //
 //        // 19 Drop cone
-//        addState(new CollectorState(robot, "RightFourCone", "19-0"));
+        addState(new CollectorState(robot, "RightFourCone", "19-0"));
 //
 //        // 20 Bring upper arm up
 //        addState(new TopArm(robot, "RightFourCone", "20-0"));
 //
 //        // 21 Drive away from Junction (this is optional and only used if we use the drive forward from earlier)
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "21-0"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "21-0"));
 //
 //        // 22 Drop the Upper arm to the position of the new top cone / 4th cone and check with sensor and start driving fast to get to the stack (this is a parallel state)
 //        addState(new TopArm(robot, "RightFourCone", "22-0"));
@@ -146,7 +146,7 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 //        addState(new DriverStateWithOdometer(robot, "RightFourCone", "31-0"));
 //
 //        // 32 Rotate towards Stack of cones
-//        addState(new RotationState(robot, "RightFourCone", "32-0"));
+        addState(new RotationState(robot, "RightFourCone", "32-0"));
 //
 //        // 33 Decide which path after scanning image from earlier
 //        addState(new PathDecision(robot, "RightFourCone", "33-0"));

@@ -1,5 +1,7 @@
 package org.timecrafters.Autonomous.States;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
@@ -14,7 +16,13 @@ public class JunctionAllignmentState extends CyberarmState {
     private float targetAngle;
     private float slop;
     private double checkTime = 250;
-
+    private int traveledDistance;
+    private int loopsCurrent = 0;
+    private double minDistance;
+    private double maxDistance;
+    private String whereAmI = "init";
+    private int driveLoops;
+    private boolean finishedEnabled;
 
 
     public JunctionAllignmentState(PhoenixBot1 robot, String groupName, String actionName) {
@@ -23,6 +31,11 @@ public class JunctionAllignmentState extends CyberarmState {
         this.loopsTotal = robot.configuration.variable(groupName, actionName, "loopsTotal").value();
         this.rotationAmount = robot.configuration.variable(groupName, actionName, "rotationAmount").value();
         this.slop = robot.configuration.variable(groupName, actionName, "slop").value();
+        this.traveledDistance = robot.configuration.variable(groupName, actionName, "traveled distance").value();
+        this.minDistance = robot.configuration.variable(groupName, actionName, "minDistance").value();
+        this.maxDistance = robot.configuration.variable(groupName, actionName, "maxDistance").value();
+        this.finishedEnabled = robot.configuration.variable(groupName, actionName, "finishedEnabled").value();
+
 
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
@@ -38,6 +51,11 @@ public class JunctionAllignmentState extends CyberarmState {
         engine.telemetry.addData("target angle", targetAngle);
         engine.telemetry.addData("current angle", currentAngle);
         engine.telemetry.addData("drive power", drivePower);
+        engine.telemetry.addData("traveled distance", traveledDistance);
+        engine.telemetry.addData("Loops", loopsCurrent);
+        engine.telemetry.addData("where am i??", whereAmI);
+        engine.telemetry.addData("time", runTime() - checkTime);
+
 
 
 
@@ -47,6 +65,23 @@ public class JunctionAllignmentState extends CyberarmState {
 
     @Override
     public void start() {
+
+        robot.frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+        robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        checkTime = System.currentTimeMillis() - 250;
+
+        driveLoops = 0;
 
     }
 
@@ -62,24 +97,24 @@ public class JunctionAllignmentState extends CyberarmState {
 
             double leftDistance = robot.leftPoleDistance.getDistance(DistanceUnit.MM);
             double rightDistance = robot.rightPoleDistance.getDistance(DistanceUnit.MM);
-            boolean rightInRange = rightDistance > 170 && rightDistance < 200;
-            boolean leftInRange = leftDistance > 170 && leftDistance < 200;
+            boolean rightInRange = rightDistance > minDistance && rightDistance < maxDistance;
+            boolean leftInRange = leftDistance > minDistance && leftDistance < maxDistance;
 
 
             // The minimum Value that can be seen when in distance of the pole is 90.0 the maximum is 200.0
 
-            if (loopsTotal >= 5){
-                setHasFinished(true);
-            } else if (runTime() - checkTime >= 250 ) {
+            if (loopsCurrent >= loopsTotal){
+                setHasFinished(finishedEnabled);
+            } else if (System.currentTimeMillis() - checkTime >= 250 ) {
+
+                whereAmI = "post 250 ms";
 
                 checkTime = runTime();
-                loopsTotal = loopsTotal + 1;
 
-
-            } else {
+                loopsCurrent = loopsCurrent + 1;
 
                 if (rightInRange && leftInRange){
-                    setHasFinished(true);
+                    setHasFinished(finishedEnabled);
                 }
 
                 if (rightInRange && !leftInRange) {
@@ -94,6 +129,8 @@ public class JunctionAllignmentState extends CyberarmState {
                         robot.backRightDrive.setPower(0);
                         robot.backLeftDrive.setPower(0);
                         robot.frontLeftDrive.setPower(0);
+
+                        setHasFinished(finishedEnabled);
 
                     } else {
 
@@ -151,9 +188,31 @@ public class JunctionAllignmentState extends CyberarmState {
 
                 }
 
-                if (!rightInRange && !leftInRange){
+                if (!rightInRange && !leftInRange && driveLoops < 2){
 
-                    setHasFinished(true);
+                    if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) < traveledDistance) {
+                        robot.backLeftDrive.setPower(drivePower);
+                        robot.backRightDrive.setPower(drivePower);
+                        robot.frontLeftDrive.setPower(drivePower);
+                        robot.frontRightDrive.setPower(drivePower);
+
+                        driveLoops += 1;
+                    }
+
+                    } else {
+
+                        robot.backLeftDrive.setPower(0);
+                        robot.backRightDrive.setPower(0);
+                        robot.frontLeftDrive.setPower(0);
+                        robot.frontRightDrive.setPower(0);
+
+                        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+                        if (driveLoops == 2) {
+                            loopsCurrent = loopsTotal;
+                        }
+
 
                     }
                 }
