@@ -115,7 +115,7 @@ public class CollectorDistanceState extends CyberarmState {
 
             distanceDelta = LastDistanceRead - currentDistance;
 
-            if (distanceDelta >= -50.0 || currentDistance > 500) {
+            if (distanceDelta >= -15.0 || currentDistance > 500) {
                 // I am moving forward
                 // and im close too my target.
                 LastDistanceRead = currentDistance;

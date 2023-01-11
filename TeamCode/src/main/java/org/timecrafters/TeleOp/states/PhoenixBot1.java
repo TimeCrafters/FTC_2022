@@ -73,7 +73,35 @@ public class PhoenixBot1 {
             setupRobot();
         }
 
+    private void initVuforia(){
+        /*
+         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+         */
+        int cameraMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
+
+
+        //  Instantiate the Vuforia engine
+        vuforia = ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    private void initTfod() {
+        int tfodMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 300;
+        tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+    }
+
         private void setupRobot () {
+
+
 
             collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
             downSensor = engine.hardwareMap.get(Rev2mDistanceSensor.class, "downDistance");
@@ -170,34 +198,10 @@ public class PhoenixBot1 {
             HighRiserLeft.setPosition(0.45);
             HighRiserRight.setPosition(0.45);
 
-            CameraServo.setPosition(0.8);
+            CameraServo.setPosition(0.775);
 
         }
 
-            private void initVuforia(){
-                /*
-                 * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
-                 */
-                int cameraMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
-                VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
-                parameters.vuforiaLicenseKey = VUFORIA_KEY;
-                parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
-
-
-                //  Instantiate the Vuforia engine
-                vuforia = ClassFactory.getInstance().createVuforia(parameters);
-            }
-
-            private void initTfod() {
-                int tfodMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier(
-                        "tfodMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
-                TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-                tfodParameters.minResultConfidence = 0.75f;
-                tfodParameters.isModelTensorFlow2 = true;
-                tfodParameters.inputSize = 300;
-                tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-                tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
-            }
 
 }

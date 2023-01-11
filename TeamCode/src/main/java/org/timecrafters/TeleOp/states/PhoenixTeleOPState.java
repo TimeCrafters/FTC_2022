@@ -20,8 +20,8 @@ public class PhoenixTeleOPState extends CyberarmState {
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.25, topServoOffset = -0.05;
-    private double servoCollectLow = 0.45; //Low servos, A button
-    private double servoCollectHigh = 0.55; //High servos, A button
+    private double servoCollectLow = 0.40; //Low servos, A button
+    private double servoCollectHigh = 0.40; //High servos, A button
     private double servoLowLow = 0.5; //Low servos, X button
     private double servoLowHigh = 0.75; //High servos, X button
     private double servoMedLow = 0.5; //Low servos, B button
