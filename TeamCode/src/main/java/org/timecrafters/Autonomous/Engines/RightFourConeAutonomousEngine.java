@@ -9,6 +9,7 @@ import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
 import org.timecrafters.Autonomous.States.DriverStateWithOdometer;
 import org.timecrafters.Autonomous.States.JunctionAllignmentState;
+import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
@@ -149,12 +150,12 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         addState(new RotationState(robot, "RightFourCone", "32-0"));
 //
 //        // 33 Decide which path after scanning image from earlier
-//        addState(new PathDecision(robot, "RightFourCone", "33-0"));
+        addState(new PathDecision(robot, "RightFourCone", "33-0"));
 //
 //        // 34 Drive backwards, forwards, or stay put
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-1"));
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-2"));
-//        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-3"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-1"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-2"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "34-3"));
 //
 //        // 35 Rotate towards alliance terminal
 //        addState(new RotationState(robot, "RightFourCone", "35-0"));
