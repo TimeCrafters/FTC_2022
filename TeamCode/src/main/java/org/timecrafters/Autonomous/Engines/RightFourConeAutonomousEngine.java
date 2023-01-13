@@ -8,7 +8,8 @@ import org.timecrafters.Autonomous.States.CollectorDistanceState;
 import org.timecrafters.Autonomous.States.CollectorState;
 import org.timecrafters.Autonomous.States.ConeIdentification;
 import org.timecrafters.Autonomous.States.DriverStateWithOdometer;
-import org.timecrafters.Autonomous.States.JunctionAllignmentState;
+import org.timecrafters.Autonomous.States.JunctionAllignmentAngleState;
+import org.timecrafters.Autonomous.States.JunctionAllignmentDistanceState;
 import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
@@ -47,7 +48,8 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "06-1"));
 
         // 6-3 align to junction with rotation or skip if it looks like it won't be able to
-        addState(new JunctionAllignmentState(robot, "RightFourCone", "06-3"));
+        addState(new JunctionAllignmentDistanceState(robot, "RightFourCone", "06-3"));
+        addState(new JunctionAllignmentAngleState(robot, "RightFourCone", "06-4"));
 
         //pause
         addState(new BottomArm(robot, "RightFourCone", "06-2"));
@@ -55,16 +57,22 @@ public class RightFourConeAutonomousEngine extends CyberarmEngine {
 
         // 7 Drop bottom arm down on the junction to place cone
         addState(new BottomArm(robot, "RightFourCone", "07-0"));
+        addParallelStateToLastState(new TopArm(robot, "RightFourCone", "07-1"));
 
         // 7-1 drive back slightly
-        addState(new DriverStateWithOdometer(robot, "RightFourCone", "07-1"));
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "07-2"));
 
         // 8 Drop cone as soon as arm is in position
         addState(new CollectorState(robot, "RightFourCone", "08-0"));
+        // 8-1 drive back to lose contact
+        addState(new DriverStateWithOdometer(robot, "RightFourCone", "08-1"));
+        // 8-1 realign to old angle
+        addState(new RotationState(robot, "RightFourCone", "08-2"));
 
         // 9 Raise bottom arm to clear junction
-        addState(new BottomArm(robot, "RightFourCone", "09-0"));
-//
+        addParallelStateToLastState(new BottomArm(robot, "RightFourCone", "09-0"));
+        addParallelStateToLastState(new TopArm(robot, "RightFourCone", "09-1"));
+
 //        // 10 Back up and bring lower arm down (parallel state)
         addState(new DriverStateWithOdometer(robot, "RightFourCone", "10-0"));
         addParallelStateToLastState(new BottomArm(robot, "RightFourCone", "10-1"));
