@@ -6,7 +6,7 @@ import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
-public class JunctionAllignmentState extends CyberarmState {
+public class JunctionAllignmentAngleState extends CyberarmState {
     private final boolean stateDisabled;
     PhoenixBot1 robot;
     private final double drivePower;
@@ -25,7 +25,7 @@ public class JunctionAllignmentState extends CyberarmState {
     private boolean finishedEnabled;
 
 
-    public JunctionAllignmentState(PhoenixBot1 robot, String groupName, String actionName) {
+    public JunctionAllignmentAngleState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "DrivePower").value();
         this.loopsTotal = robot.configuration.variable(groupName, actionName, "loopsTotal").value();
@@ -114,6 +114,11 @@ public class JunctionAllignmentState extends CyberarmState {
                 loopsCurrent = loopsCurrent + 1;
 
                 if (rightInRange && leftInRange){
+
+                    robot.frontRightDrive.setPower(0);
+                    robot.backRightDrive.setPower(0);
+                    robot.backLeftDrive.setPower(0);
+                    robot.frontLeftDrive.setPower(0);
                     setHasFinished(finishedEnabled);
                 }
 
@@ -188,30 +193,32 @@ public class JunctionAllignmentState extends CyberarmState {
 
                 }
 
-                if (!rightInRange && !leftInRange && driveLoops < 2){
+                if (!rightInRange && !leftInRange /*&& driveLoops < 2*/){
 
-                    if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) < traveledDistance) {
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
+//                    if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) < traveledDistance) {
+//                        robot.backLeftDrive.setPower(drivePower);
+//                        robot.backRightDrive.setPower(drivePower);
+//                        robot.frontLeftDrive.setPower(drivePower);
+//                        robot.frontRightDrive.setPower(drivePower);
+//
+//                        driveLoops += 1;
+//                    }
+//
+//                    } else {
+//
+//                        robot.backLeftDrive.setPower(0);
+//                        robot.backRightDrive.setPower(0);
+//                        robot.frontLeftDrive.setPower(0);
+//                        robot.frontRightDrive.setPower(0);
+//
+//                        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//
+//                        if (driveLoops == 2) {
+//                            loopsCurrent = loopsTotal;
+//                        }
 
-                        driveLoops += 1;
-                    }
-
-                    } else {
-
-                        robot.backLeftDrive.setPower(0);
-                        robot.backRightDrive.setPower(0);
-                        robot.frontLeftDrive.setPower(0);
-                        robot.frontRightDrive.setPower(0);
-
-                        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-                        if (driveLoops == 2) {
-                            loopsCurrent = loopsTotal;
-                        }
+                    setHasFinished(true);
 
 
                     }
