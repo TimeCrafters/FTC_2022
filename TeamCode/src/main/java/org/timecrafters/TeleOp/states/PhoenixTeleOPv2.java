@@ -13,19 +13,8 @@ public class PhoenixTeleOPv2 extends CyberarmState {
     public void start() {
         addParallelState(new TeleOPArmDriver(robot));
         addParallelState(new TeleOPTankDriver(robot));
-        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = engine.gamepad1.left_stick_x;
-        double rx = engine.gamepad1.right_stick_x;
 
-        double backLeftPower = (y - x + rx);
-        double backRightPower = (y + x - rx);
-        double frontLeftPower = (y + x + rx);
-        double frontRightPower = (y - x - rx);
 
-        robot.frontLeftDrive.setPower(frontLeftPower * drivePower);
-        robot.backLeftDrive.setPower(backLeftPower * drivePower);
-        robot.frontRightDrive.setPower(frontRightPower * drivePower);
-        robot.backRightDrive.setPower(backRightPower * drivePower);
 
     }
 
@@ -36,9 +25,29 @@ public class PhoenixTeleOPv2 extends CyberarmState {
 
     @Override
     public void exec() {
-        if (engine.gamepad1.left_stick_x > 0.1) {
 
+        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed!
+        double x = engine.gamepad1.left_stick_x;
+        double rx = engine.gamepad1.right_stick_x;
+
+        double BLPower = (y - x + rx);
+        double BRPower = (y + x - rx);
+        double FLPower = (y + x + rx);
+        double FRPower = (y - x - rx);
+
+        robot.frontLeftDrive.setPower(FLPower * drivePower);
+        robot.backLeftDrive.setPower(BLPower * drivePower);
+        robot.frontRightDrive.setPower(FRPower * drivePower);
+        robot.backRightDrive.setPower(BRPower * drivePower);
+
+        if (engine.gamepad1.left_stick_x > 0.1) {
+            robot.backLeftDrive.setPower(BLPower);
+            robot.backRightDrive.setPower(BRPower);
+            robot.frontLeftDrive.setPower(FLPower);
+            robot.frontRightDrive.setPower(FRPower);
         }
+
+        if (engine.gamepad1.right_stick_x )
 
     }
 }
