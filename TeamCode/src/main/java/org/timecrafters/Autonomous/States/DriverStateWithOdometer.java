@@ -15,6 +15,7 @@ public class DriverStateWithOdometer extends CyberarmState {
     private int maximumTolerance;
     private float direction;
     private boolean targetAchieved = false;
+    private double CurrentPosition;
     public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.targetDrivePower = robot.configuration.variable(groupName, actionName, "targetDrivePower").value();
@@ -36,12 +37,14 @@ public class DriverStateWithOdometer extends CyberarmState {
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
 
@@ -55,7 +58,12 @@ public class DriverStateWithOdometer extends CyberarmState {
             return;
         }
 
-        double CurrentPosition = Math.abs(robot.OdometerEncoder.getCurrentPosition());
+        double RightCurrentPosition = Math.abs(robot.OdometerEncoder.getCurrentPosition());
+        double LeftCurrentPosition = Math.abs(robot.OdometerEncoderLeft.getCurrentPosition());
+
+        if (RightCurrentPosition > LeftCurrentPosition) CurrentPosition = RightCurrentPosition;
+        if (RightCurrentPosition <= LeftCurrentPosition) CurrentPosition = LeftCurrentPosition;
+
 
         if (Math.abs(CurrentPosition) <= RampUpDistance){
             // ramping up
