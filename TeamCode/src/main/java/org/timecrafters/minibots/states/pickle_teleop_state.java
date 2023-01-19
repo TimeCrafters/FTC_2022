@@ -1,7 +1,7 @@
-package org.timecrafters.minibots.cyberarm.states;
+package org.timecrafters.minibots.states;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.minibots.cyberarm.pickle_minibot_general;
+import org.timecrafters.minibots.pickle_minibot_general;
 
 public class pickle_teleop_state extends CyberarmState {
     private final pickle_minibot_general robot;

@@ -1,10 +1,10 @@
-package org.timecrafters.minibots.cyberarm.states;
+package org.timecrafters.minibots.states;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.minibots.cyberarm.MecanumMinibot;
+import org.timecrafters.minibots.MecanumMinibot;
 
 
 public class MecanumMinibotTeleOpState extends CyberarmState {

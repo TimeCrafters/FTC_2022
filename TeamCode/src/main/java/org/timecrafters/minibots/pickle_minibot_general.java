@@ -1,4 +1,4 @@
-package org.timecrafters.minibots.cyberarm;
+package org.timecrafters.minibots;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;

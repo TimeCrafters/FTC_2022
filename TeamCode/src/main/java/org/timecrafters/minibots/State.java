@@ -1,9 +1,9 @@
-package org.timecrafters.minibots.cyberarm;
+package org.timecrafters.minibots;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.minibots.cyberarm.engines.Common;
+import org.timecrafters.minibots.engines.Common;
 
 public class State extends CyberarmState {
 

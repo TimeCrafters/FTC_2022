@@ -1,4 +1,4 @@
-package org.timecrafters.minibots.cyberarm;
+package org.timecrafters.minibots;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 
