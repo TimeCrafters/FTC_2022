@@ -1,6 +1,7 @@
 package org.timecrafters.Autonomous.Engines;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.Autonomous.States.BottomArm;
@@ -16,6 +17,7 @@ import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 @Autonomous (name = "Left Side")
+@Disabled
 
 public class LeftSideAutonomousEngine extends CyberarmEngine {
     PhoenixBot1 robot;

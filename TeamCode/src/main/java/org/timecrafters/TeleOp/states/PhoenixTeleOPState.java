@@ -58,7 +58,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Drive Power", drivePower);
         engine.telemetry.addData("Delta Rotation", DeltaRotation);
         engine.telemetry.addData("Cone Distance", robot.collectorDistance.getDistance(DistanceUnit.MM));
-        engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
+//        engine.telemetry.addData("Collector Height", robot.downSensor.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Left Pole Distance", robot.leftPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Odometer Encoder, Right", robot.OdometerEncoder.getCurrentPosition());
@@ -483,15 +483,15 @@ public class PhoenixTeleOPState extends CyberarmState {
             robot.imu.initialize(parameters);
         }
     }
-    public double downSensor() {
-        double Distance, Distance_1, Distance_2, Distance_3, Distance_4, Distance_5;
-        Distance_1 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance_2 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance_3 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance_4 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance_5 = robot.downSensor.getDistance(DistanceUnit.MM);
-        Distance = (Distance_1 + Distance_2 + Distance_3 + Distance_4 + Distance_5)/5;
-        return Distance;
+//    public double downSensor() {
+//        double Distance, Distance_1, Distance_2, Distance_3, Distance_4, Distance_5;
+//        Distance_1 = robot.downSensor.getDistance(DistanceUnit.MM);
+//        Distance_2 = robot.downSensor.getDistance(DistanceUnit.MM);
+//        Distance_3 = robot.downSensor.getDistance(DistanceUnit.MM);
+//        Distance_4 = robot.downSensor.getDistance(DistanceUnit.MM);
+//        Distance_5 = robot.downSensor.getDistance(DistanceUnit.MM);
+//        Distance = (Distance_1 + Distance_2 + Distance_3 + Distance_4 + Distance_5)/5;
+//        return Distance;
 
     }
-}
+

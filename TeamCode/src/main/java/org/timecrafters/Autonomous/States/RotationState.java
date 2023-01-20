@@ -35,12 +35,12 @@ public class RotationState extends CyberarmState {
         RobotRotation = robot.imu.getAngularOrientation().firstAngle;
 
         if (Math.abs(Math.abs(targetRotation) - Math.abs(RobotRotation)) < 20){
-            drivePowerVariable = 0.3 * drivePower;
-            if (Math.abs(drivePowerVariable) < 0.3) {
+            drivePowerVariable = 0.4 * drivePower;
+            if (Math.abs(drivePowerVariable) < 0.4) {
                 if (drivePowerVariable < 0){
-                    drivePowerVariable = -0.3;
+                    drivePowerVariable = -0.4;
                 } else {
-                    drivePowerVariable = 0.3;
+                    drivePowerVariable = 0.4;
                 }
             }
             debugStatus = "Rotate Slow";

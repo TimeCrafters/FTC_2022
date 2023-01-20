@@ -44,7 +44,7 @@ public class PhoenixBot1 {
     public Servo LowRiserLeft, LowRiserRight, HighRiserLeft, HighRiserRight, CameraServo;
     private final CyberarmEngine engine;
 
-    public Rev2mDistanceSensor collectorDistance, downSensor, leftPoleDistance, rightPoleDistance;
+    public Rev2mDistanceSensor collectorDistance, /*downSensor,*/ leftPoleDistance, rightPoleDistance;
 
         public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoder, OdometerEncoderLeft;
 
@@ -104,7 +104,7 @@ public class PhoenixBot1 {
 
 
             collectorDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "collectorDistance");
-            downSensor = engine.hardwareMap.get(Rev2mDistanceSensor.class, "downDistance");
+//            downSensor = engine.hardwareMap.get(Rev2mDistanceSensor.class, "downDistance");
             leftPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Left Pole Distance");
             rightPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Right Pole Distance");
 
@@ -195,8 +195,8 @@ public class PhoenixBot1 {
 
             LowRiserLeft.setPosition(0.35);
             LowRiserRight.setPosition(0.35);
-            HighRiserLeft.setPosition(0.45);
-            HighRiserRight.setPosition(0.45);
+            HighRiserLeft.setPosition(0.40);
+            HighRiserRight.setPosition(0.40);
 
             CameraServo.setPosition(0.775);
 

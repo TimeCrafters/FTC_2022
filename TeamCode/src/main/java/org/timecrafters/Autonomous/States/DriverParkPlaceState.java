@@ -49,12 +49,12 @@ public class DriverParkPlaceState extends CyberarmState {
                     setHasFinished(true);
             }
             if (placement.equals(intendedPlacement)) {
-                double delta = traveledDistance - Math.abs(robot.frontRightDrive.getCurrentPosition());
+                double delta = traveledDistance - Math.abs(robot.OdometerEncoder.getCurrentPosition());
 
-                if (Math.abs(robot.frontRightDrive.getCurrentPosition()) <= RampUpDistance) {
+                if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) <= RampUpDistance) {
                     // ramping up
-                    drivePower = (Math.abs((float) robot.frontRightDrive.getCurrentPosition()) / RampUpDistance) + 0.25;
-                } else if (Math.abs(robot.frontRightDrive.getCurrentPosition()) >= delta) {
+                    drivePower = (Math.abs((float) robot.OdometerEncoder.getCurrentPosition()) / RampUpDistance) + 0.25;
+                } else if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) >= delta) {
                     // ramping down
                     drivePower = ((delta / RampDownDistance) + 0.25);
                 } else {
@@ -71,7 +71,7 @@ public class DriverParkPlaceState extends CyberarmState {
                     drivePower = drivePower * -1;
                 }
 
-                if (Math.abs(robot.frontRightDrive.getCurrentPosition()) < traveledDistance) {
+                if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) < traveledDistance) {
                     robot.backLeftDrive.setPower(drivePower);
                     robot.backRightDrive.setPower(drivePower);
                     robot.frontLeftDrive.setPower(drivePower);
@@ -96,6 +96,7 @@ public class DriverParkPlaceState extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
+        engine.telemetry.addData("BackLeftDrive", robot.OdometerEncoder.getCurrentPosition());
 
         engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);

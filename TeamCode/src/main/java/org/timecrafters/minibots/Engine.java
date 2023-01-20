@@ -1,9 +1,9 @@
-package org.timecrafters.minibots.cyberarm;
+package org.timecrafters.minibots;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
-import org.timecrafters.minibots.cyberarm.engines.Common;
+import org.timecrafters.minibots.engines.Common;
 
 @TeleOp (name = "light test")
 

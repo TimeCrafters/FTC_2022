@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.timecrafters.minibots.cyberarm.states.MecanumRobot;
+import org.timecrafters.minibots.states.MecanumRobot;
 
 public class LaserState extends CyberarmState {
     Rev2mDistanceSensor laser;

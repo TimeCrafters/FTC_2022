@@ -89,9 +89,9 @@ public class ConeIdentification extends CyberarmState {
                     if (recognition.getConfidence() >= minimumConfidence && recognition.getConfidence() > bestConfidence) {
                         bestConfidence = recognition.getConfidence();
 
-                        if (recognition.getLabel().equals("2 Bulb")) {
+                        if (recognition.getLabel().equals("#2")) {
                             engine.blackboardSet("parkPlace", "2");
-                        } else if (recognition.getLabel().equals("3 Panel")) {
+                        } else if (recognition.getLabel().equals("#3")) {
                             engine.blackboardSet("parkPlace", "3");
 
                         } else {

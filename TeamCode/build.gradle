@@ -20,8 +20,14 @@ android {
     buildFeatures {
         mlModelBinding true
     }
+    androidResources {
+        noCompress 'tflite'
+    }
 
     packagingOptions {
+        jniLibs {
+            pickFirsts += ['**/*.so']
+        }
         jniLibs.useLegacyPackaging true
     }
 }
