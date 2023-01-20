@@ -9,10 +9,12 @@ import org.cyberarm.engine.V2.GamepadChecker;
 public class TeleOPTankDriver extends CyberarmState {
 
     private final PhoenixBot1 robot;
+    private long lastStepTime = 0;
     private double drivePower = 0.3;
     private double RobotRotation;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
+    private int DeltaOdometerR, Endeavour, Spirit;
     private GamepadChecker gamepad1Checker;
     public TeleOPTankDriver(PhoenixBot1 robot) {
         this.robot = robot;
@@ -34,6 +36,10 @@ public class TeleOPTankDriver extends CyberarmState {
     @Override
     public void exec() {
 
+        if (drivePower > 0.1 && ) {
+
+        }
+
     }
     public void CalculateDeltaRotation() {
         if (RotationTarget >= 0 && RobotRotation >= 0) {
@@ -49,6 +55,16 @@ public class TeleOPTankDriver extends CyberarmState {
             DeltaRotation = Math.abs(RobotRotation + RotationTarget);
         }
     }
+
+    public double getDeltaOdometerR() {
+        Spirit = robot.OdometerEncoder.getCurrentPosition();
+        if (System.currentTimeMillis() - lastStepTime >= 1000) {
+            lastStepTime = System.currentTimeMillis();
+            DeltaOdometerR = robot.OdometerEncoder.getCurrentPosition() - Spirit;
+        }
+        return DeltaOdometerR;
+    }
+
     @Override
     public void buttonUp(Gamepad gamepad, String button) {
         if (engine.gamepad1 == gamepad && button.equals("start")) {

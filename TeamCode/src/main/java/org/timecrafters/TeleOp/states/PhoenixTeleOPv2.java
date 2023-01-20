@@ -5,6 +5,7 @@ import org.cyberarm.engine.V2.CyberarmState;
 public class PhoenixTeleOPv2 extends CyberarmState {
     private double drivePower = 1;
     PhoenixBot1 robot;
+
     public PhoenixTeleOPv2(PhoenixBot1 robot) {
         this.robot = robot;
     }
@@ -13,7 +14,6 @@ public class PhoenixTeleOPv2 extends CyberarmState {
     public void start() {
         addParallelState(new TeleOPArmDriver(robot));
         addParallelState(new TeleOPTankDriver(robot));
-
 
 
     }
@@ -45,9 +45,8 @@ public class PhoenixTeleOPv2 extends CyberarmState {
             robot.backRightDrive.setPower(BRPower);
             robot.frontLeftDrive.setPower(FLPower);
             robot.frontRightDrive.setPower(FRPower);
+
+
         }
-
-        if (engine.gamepad1.right_stick_x )
-
     }
 }

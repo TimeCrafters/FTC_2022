@@ -4,12 +4,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class TeleOPArmDriver extends CyberarmState {
     private final PhoenixBot1 robot;
     private long lastStepTime = 0;
     private int CyclingArmUpAndDown = 0;
     private GamepadChecker gamepad2Checker;
+    private int Opportunity, Endeavour;
+    private double drivePower;
 
     public TeleOPArmDriver(PhoenixBot1 robot) {
         this.robot = robot;
@@ -34,6 +37,8 @@ public class TeleOPArmDriver extends CyberarmState {
         robot.LowRiserRight.setPosition(0.45);
         robot.HighRiserLeft.setPosition(0.45);
         robot.HighRiserRight.setPosition(0.45);
+        Opportunity = 0;
+        Endeavour = 10;
 
 
         gamepad2Checker = new GamepadChecker(engine, engine.gamepad2);
@@ -41,6 +46,15 @@ public class TeleOPArmDriver extends CyberarmState {
 
     @Override
     public void exec() {
+        if (robot.collectorDistance.getDistance(DistanceUnit.MM) < 275 && robot.collectorDistance.getDistance(DistanceUnit.MM) > 100) {
+            Endeavour = 0;
+            }
+
+        if (robot.collectorDistance.getDistance(DistanceUnit.MM) < 550 && robot.collectorDistance.getDistance(DistanceUnit.MM) > 275) {
+            Endeavour = 1;
+        }
+
+        }
+
 
     }
-}
