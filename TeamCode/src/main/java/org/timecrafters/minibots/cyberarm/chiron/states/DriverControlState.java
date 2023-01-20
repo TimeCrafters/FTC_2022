@@ -10,7 +10,7 @@ public class DriverControlState extends CyberarmState {
     private final Robot robot;
     private final GamepadChecker controller;
     private final double releaseConfirmationDelay;
-    private double lastLiftManualControlTime = 0, lastWristManualControlTime = 0, lastLEDStatusAnimationTime = 0;
+    private double lastArmManualControlTime = 0, lastWristManualControlTime = 0, lastLEDStatusAnimationTime = 0;
     private boolean LEDStatusToggle = false;
 
     public DriverControlState(Robot robot) {
@@ -29,12 +29,20 @@ public class DriverControlState extends CyberarmState {
         robot.status = Robot.Status.OKAY;
 
         move(forwardAngle, forwardSpeed, rightSpeed);
-        liftManualControl();
+        armManualControl();
         wristManualControl();
 
         automatics();
 
         controller.update();
+    }
+
+    @Override
+    public void telemetry() {
+        engine.telemetry.addData("Run Time", runTime());
+        engine.telemetry.addData("Arm Interval", lastArmManualControlTime);
+        engine.telemetry.addData("Wrist Interval", lastWristManualControlTime);
+        engine.telemetry.addData("LED Status Interval", lastLEDStatusAnimationTime);
     }
 
     // FIXME: replace .setPower with .setVelocity
@@ -55,7 +63,7 @@ public class DriverControlState extends CyberarmState {
             robot.rightDrive.setPower(-rightSpeed);
 
             robot.frontDrive.setPower(rightSpeed);
-            robot.backDrive.setPower(-rightSpeed);
+            robot.backDrive.setPower(rightSpeed);
 
         } else if (rightSpeed != 0 && forwardSpeed != 0) { // ANGLE DRIVE
             // TODO
@@ -73,29 +81,29 @@ public class DriverControlState extends CyberarmState {
         robot.backDrive.setPower(0);
     }
 
-    private void liftManualControl() {
+    private void armManualControl() {
         if (robot.hardwareFault) {
             return;
         }
 
         robot.status = Robot.Status.WARNING;
 
-        double stepInterval = robot.tuningConfig("lift_manual_step_interval").value();
-        int stepSize = robot.tuningConfig("lift_manual_step_size").value();
+        double stepInterval = robot.tuningConfig("arm_manual_step_interval").value();
+        int stepSize = robot.tuningConfig("arm_manual_step_size").value();
 
         if ((engine.gamepad1.left_trigger > 0 || engine.gamepad1.right_trigger > 0) && runTime() - lastWristManualControlTime >= stepInterval) {
             lastWristManualControlTime = runTime();
 
-            if (engine.gamepad1.left_trigger > 0) { // Lift DOWN
-                // robot.liftDrive.setVelocity(5, AngleUnit.DEGREES);
-                robot.liftDrive.setTargetPosition(robot.leftDrive.getTargetPosition() - stepSize);
+            if (engine.gamepad1.left_trigger > 0) { // Arm DOWN
+                // robot.arm.setVelocity(5, AngleUnit.DEGREES);
+                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() - stepSize);
 
-            } else if (engine.gamepad1.right_trigger > 0) { // Lift UP
-                robot.liftDrive.setTargetPosition(robot.leftDrive.getTargetPosition() + stepSize);
+            } else if (engine.gamepad1.right_trigger > 0) { // Arm UP
+                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() + stepSize);
             }
         }
 
-        // FIXME: Detect when the triggers have been released and park lift arm at the current position
+        // FIXME: Detect when the triggers have been released and park arm at the current position
     }
 
     private void wristManualControl() {
@@ -106,8 +114,8 @@ public class DriverControlState extends CyberarmState {
         double stepInterval = robot.tuningConfig("wrist_manual_step_interval").value();
         double stepSize = robot.tuningConfig("wrist_manual_step_size").value();
 
-        if ((engine.gamepad1.dpad_left || engine.gamepad1.dpad_right) && runTime() - lastLiftManualControlTime >= stepInterval) {
-            lastLiftManualControlTime = runTime();
+        if ((engine.gamepad1.dpad_left || engine.gamepad1.dpad_right) && runTime() - lastArmManualControlTime >= stepInterval) {
+            lastArmManualControlTime = runTime();
 
             if (engine.gamepad1.dpad_left) { // Wrist Left
                 robot.wrist.setPosition(robot.wrist.getPosition() - stepSize);
@@ -118,8 +126,8 @@ public class DriverControlState extends CyberarmState {
         }
     }
 
-    private void stopLift() {
-        robot.liftDrive.setPower(0);
+    private void stopArm() {
+        robot.arm.setPower(0);
     }
 
     private void automatics() {
@@ -135,10 +143,10 @@ public class DriverControlState extends CyberarmState {
             return;
         }
 
-        if (robot.ticksToAngle(robot.liftDrive.getCurrentPosition()) >= 50) {
-            robot.wrist.setPosition(robot.hardwareConfig("wrist_deposit_position").value());
+        if (robot.ticksToAngle(robot.arm.getCurrentPosition()) >= 50) {
+            robot.wrist.setPosition(robot.tuningConfig("wrist_deposit_position").value());
         } else {
-            robot.wrist.setPosition(robot.hardwareConfig("wrist_initial_position").value());
+            robot.wrist.setPosition(robot.tuningConfig("wrist_initial_position").value());
         }
     }
 
@@ -160,7 +168,7 @@ public class DriverControlState extends CyberarmState {
             robot.status = Robot.Status.DANGER;
 
             stopDrive();
-            stopLift();
+            stopArm();
         }
     }
 
@@ -198,7 +206,7 @@ public class DriverControlState extends CyberarmState {
         }
     }
 
-    private void liftPosition(Robot.LiftPosition position) {
+    private void armPosition(Robot.ArmPosition position) {
         if (robot.hardwareFault) {
             return;
         }
@@ -207,36 +215,36 @@ public class DriverControlState extends CyberarmState {
 
         switch (position) {
             case COLLECT:
-                robot.liftDrive.setTargetPosition(robot.angleToTicks(120));
+                robot.arm.setTargetPosition(robot.angleToTicks(120));
                 break;
 
             case GROUND:
-                robot.liftDrive.setTargetPosition(robot.angleToTicks(100));
+                robot.arm.setTargetPosition(robot.angleToTicks(100));
                 break;
 
             case LOW:
-                robot.liftDrive.setTargetPosition(robot.angleToTicks(80));
+                robot.arm.setTargetPosition(robot.angleToTicks(80));
                 break;
 
             case MEDIUM:
-                robot.liftDrive.setTargetPosition(robot.angleToTicks(35));
+                robot.arm.setTargetPosition(robot.angleToTicks(35));
                 break;
 
             case HIGH:
-                robot.liftDrive.setTargetPosition(robot.angleToTicks(15));
+                robot.arm.setTargetPosition(robot.angleToTicks(15));
                 break;
 
             default:
-                throw new RuntimeException("Unexpected lift position!");
+                throw new RuntimeException("Unexpected arm position!");
         }
     }
 
     private void gripperOpen() {
-        robot.gripper.setPosition(robot.hardwareConfig("gripper_open_position").value());
+        robot.gripper.setPosition(robot.tuningConfig("gripper_open_position").value());
     }
 
     private void gripperClosed() {
-        robot.gripper.setPosition(robot.hardwareConfig("gripper_closed_position").value());
+        robot.gripper.setPosition(robot.tuningConfig("gripper_closed_position").value());
     }
 
     @Override
@@ -256,22 +264,22 @@ public class DriverControlState extends CyberarmState {
         if (button.equals("dpad_down")) {
             robot.wristManuallyControlled = false;
 
-            robot.wrist.setPosition(robot.hardwareConfig("wrist_deposit_position").value());
+            robot.wrist.setPosition(robot.tuningConfig("wrist_deposit_position").value());
         } else if (button.equals("dpad_up")) {
             robot.wristManuallyControlled = false;
 
-            robot.wrist.setPosition(robot.hardwareConfig("wrist_initial_position").value());
+            robot.wrist.setPosition(robot.tuningConfig("wrist_initial_position").value());
         }
 
-        // Automatic Lift Control
+        // Automatic Arm Control
         if (button.equals("a")) {
-            liftPosition(Robot.LiftPosition.COLLECT);
+            armPosition(Robot.ArmPosition.COLLECT);
         } else if (button.equals("x")) {
-            liftPosition(Robot.LiftPosition.GROUND);
+            armPosition(Robot.ArmPosition.GROUND);
         } else if (button.equals("b")) {
-            liftPosition(Robot.LiftPosition.LOW);
+            armPosition(Robot.ArmPosition.LOW);
         } else if (button.equals("y")) {
-            liftPosition(Robot.LiftPosition.MEDIUM);
+            armPosition(Robot.ArmPosition.MEDIUM);
         }
     }
 
@@ -279,6 +287,10 @@ public class DriverControlState extends CyberarmState {
     public void buttonUp(Gamepad gamepad, String button) {
         if (gamepad != engine.gamepad1) {
             return;
+        }
+
+        if (button.equals("guide")) {
+            robot.hardwareFault = !robot.hardwareFault;
         }
     }
 }
