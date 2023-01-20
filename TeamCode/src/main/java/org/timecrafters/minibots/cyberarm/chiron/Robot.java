@@ -18,7 +18,7 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Act
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
 
 public class Robot {
-    public final DcMotorEx leftDrive, rightDrive, frontDrive, backDrive, arm;
+    public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
     public final ServoImplEx gripper, wrist;
     public final IMU imu;
     public final ColorSensor indicatorA, indicatorB;
@@ -54,12 +54,13 @@ public class Robot {
         this.configuration = configuration;
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
 
+        // FIXME: Rename motors in configuration
         // Define hardware
-        leftDrive = engine.hardwareMap.get(DcMotorEx.class, "left_drive");    // MOTOR PORT: ?
-        rightDrive = engine.hardwareMap.get(DcMotorEx.class, "right_drive");  // MOTOR PORT: ?
+        backLeftDrive = engine.hardwareMap.get(DcMotorEx.class, "left_drive");    // MOTOR PORT: ?
+        frontRightDrive = engine.hardwareMap.get(DcMotorEx.class, "right_drive"); // MOTOR PORT: ?
 
-        frontDrive = engine.hardwareMap.get(DcMotorEx.class, "front_drive");  // MOTOR PORT: ?
-        backDrive = engine.hardwareMap.get(DcMotorEx.class, "back_drive");    // MOTOR PORT: ?
+        frontLeftDrive = engine.hardwareMap.get(DcMotorEx.class, "front_drive");  // MOTOR PORT: ?
+        backRightDrive = engine.hardwareMap.get(DcMotorEx.class, "back_drive");   // MOTOR PORT: ?
 
         // FIXME: Rename lift_drive to arm in hardware config
         arm = engine.hardwareMap.get(DcMotorEx.class, "lift_drive");          // MOTOR PORT: ?
@@ -76,30 +77,30 @@ public class Robot {
         // Configure hardware
         //   MOTORS
         //      DIRECTION
-        leftDrive.setDirection(hardwareConfig("left_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
-        rightDrive.setDirection(hardwareConfig("right_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        frontLeftDrive.setDirection(hardwareConfig("front_left_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        frontRightDrive.setDirection(hardwareConfig("front_right_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 
-        frontDrive.setDirection(hardwareConfig("front_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
-        backDrive.setDirection(hardwareConfig("back_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        backLeftDrive.setDirection(hardwareConfig("back_left_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        backRightDrive.setDirection(hardwareConfig("back_right_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 
-        arm.setDirection(hardwareConfig("arm_drive_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        arm.setDirection(hardwareConfig("arm_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 
         //      RUNMODE
-        leftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); leftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); rightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        frontDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); frontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); backDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         //      ZERO POWER BEHAVIOR
-        leftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        frontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
@@ -124,7 +125,7 @@ public class Robot {
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
         imu.initialize(parameters);
     }
@@ -139,53 +140,53 @@ public class Robot {
 
         // Motor Powers
         engine.telemetry.addLine("Motor Powers");
-        engine.telemetry.addData("  Left Drive", leftDrive.getPower());
-        engine.telemetry.addData("  Right Drive", rightDrive.getPower());
+        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getPower());
+        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getPower());
 
-        engine.telemetry.addData("  Front Drive", frontDrive.getPower());
-        engine.telemetry.addData("  Back Drive", backDrive.getPower());
+        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getPower());
+        engine.telemetry.addData("      Back Right Drive", backRightDrive.getPower());
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("  Arm", arm.getPower());
+        engine.telemetry.addData("      Arm", arm.getPower());
 
         engine.telemetry.addLine();
 
         // Motor Positions
         engine.telemetry.addLine("Motor Positions");
-        engine.telemetry.addData("  Left Drive", "%d (%2f in)", leftDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, leftDrive.getCurrentPosition()));
-        engine.telemetry.addData("  Right Drive", "%d (%2f in)", rightDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, rightDrive.getCurrentPosition()));
+        engine.telemetry.addData("      Front Left Drive", "%d (%8.2f in)", frontLeftDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, frontLeftDrive.getCurrentPosition()));
+        engine.telemetry.addData("      Front Right Drive", "%d (%8.2f in)", frontRightDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, frontRightDrive.getCurrentPosition()));
 
-        engine.telemetry.addData("  Front Drive", "%d (%2f in)", frontDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, frontDrive.getCurrentPosition()));
-        engine.telemetry.addData("  Back Drive", "%d (%2f in)", backDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, backDrive.getCurrentPosition()));
+        engine.telemetry.addData("      Back Left Drive", "%d (%8.2f in)", backLeftDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, backLeftDrive.getCurrentPosition()));
+        engine.telemetry.addData("      Back Right Drive", "%d (%8.2f in)", backRightDrive.getCurrentPosition(), ticksToUnit(DistanceUnit.INCH, backRightDrive.getCurrentPosition()));
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("  Arm", "%d (%2f degrees)", arm.getCurrentPosition(), ticksToAngle(arm.getCurrentPosition()));
+        engine.telemetry.addData("      Arm", "%d (%8.2f degrees)", arm.getCurrentPosition(), ticksToAngle(arm.getCurrentPosition()));
 
         engine.telemetry.addLine();
 
         // Motor Currents
         engine.telemetry.addLine("Motor Currents (AMPS)");
-        engine.telemetry.addData("  Left Drive", leftDrive.getCurrent(CurrentUnit.AMPS));
-        engine.telemetry.addData("  Right Drive", rightDrive.getCurrent(CurrentUnit.AMPS));
+        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getCurrent(CurrentUnit.AMPS));
+        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getCurrent(CurrentUnit.AMPS));
 
-        engine.telemetry.addData("  Front Drive", frontDrive.getCurrent(CurrentUnit.AMPS));
-        engine.telemetry.addData("  Back Drive", backDrive.getCurrent(CurrentUnit.AMPS));
+        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getCurrent(CurrentUnit.AMPS));
+        engine.telemetry.addData("      Back Right Drive", backRightDrive.getCurrent(CurrentUnit.AMPS));
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("  Arm", arm.getCurrent(CurrentUnit.AMPS));
+        engine.telemetry.addData("      Arm", arm.getCurrent(CurrentUnit.AMPS));
 
         engine.telemetry.addLine();
 
         // Motor Directions
         engine.telemetry.addLine("Motor Directions");
-        engine.telemetry.addData("      Left Drive", leftDrive.getDirection());
-        engine.telemetry.addData("      Right Drive", rightDrive.getDirection());
+        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getDirection());
+        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getDirection());
 
-        engine.telemetry.addData("      Front Drive", frontDrive.getDirection());
-        engine.telemetry.addData("      Back Drive", backDrive.getDirection());
+        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getDirection());
+        engine.telemetry.addData("      Back Right Drive", backRightDrive.getDirection());
 
         engine.telemetry.addLine();
 
@@ -195,11 +196,11 @@ public class Robot {
 
         // Motor Target Positions
         engine.telemetry.addLine("Motor Target Positions");
-        engine.telemetry.addData("      Left Drive", leftDrive.getTargetPosition());
-        engine.telemetry.addData("      Right Drive", rightDrive.getTargetPosition());
+        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getTargetPosition());
+        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getTargetPosition());
 
-        engine.telemetry.addData("      Front Drive", frontDrive.getTargetPosition());
-        engine.telemetry.addData("      Back Drive", backDrive.getTargetPosition());
+        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getTargetPosition());
+        engine.telemetry.addData("      Back Right Drive", backRightDrive.getTargetPosition());
 
         engine.telemetry.addLine();
 
@@ -248,12 +249,21 @@ public class Robot {
 
     // For: Arm
     public int angleToTicks(double angle) {
-        return 0;
+        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
+
+        double d = ticksPerRevolution / 360.0;
+
+        // Casting to float so that the int version of Math.round is used.
+        return Math.round((float)d * (float)angle);
     }
 
     // For: Arm
     public double ticksToAngle(int ticks) {
-        return 0;
+        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
+
+        double oneDegree = 360.0 / ticksPerRevolution;
+
+        return oneDegree / ticks;
     }
 
     public Variable hardwareConfig(String variableName) {
@@ -284,6 +294,10 @@ public class Robot {
     public double facing() {
         // FIXME: Apply imuAngleOffset
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+    }
+
+    public double heading() {
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     public double turnRate() {

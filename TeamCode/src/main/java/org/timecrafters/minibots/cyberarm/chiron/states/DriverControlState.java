@@ -12,6 +12,7 @@ public class DriverControlState extends CyberarmState {
     private final double releaseConfirmationDelay;
     private double lastArmManualControlTime = 0, lastWristManualControlTime = 0, lastLEDStatusAnimationTime = 0;
     private boolean LEDStatusToggle = false;
+    private boolean fieldCentricControl = true;
 
     public DriverControlState(Robot robot) {
         this.robot = robot;
@@ -22,13 +23,9 @@ public class DriverControlState extends CyberarmState {
 
     @Override
     public void exec() {
-        double forwardSpeed = engine.gamepad1.left_stick_y * -1;
-        double rightSpeed = engine.gamepad1.right_stick_x;
-        double forwardAngle = robot.facing();
-
         robot.status = Robot.Status.OKAY;
 
-        move(forwardAngle, forwardSpeed, rightSpeed);
+        move();
         armManualControl();
         wristManualControl();
 
@@ -43,42 +40,53 @@ public class DriverControlState extends CyberarmState {
         engine.telemetry.addData("Arm Interval", lastArmManualControlTime);
         engine.telemetry.addData("Wrist Interval", lastWristManualControlTime);
         engine.telemetry.addData("LED Status Interval", lastLEDStatusAnimationTime);
+        engine.telemetry.addData("Field Centric Control", fieldCentricControl);
     }
 
     // FIXME: replace .setPower with .setVelocity
-    private void move(double forwardAngle, double forwardSpeed, double rightSpeed) {
+    // REF: https://gm0.org/en/latest/docs/software/tutorials/mecanum-drive.html
+    private void move() {
         if (robot.automaticAntiTipActive || robot.hardwareFault) {
             return;
         }
 
-        if (rightSpeed == 0 && forwardSpeed != 0) { // DRIVE STRAIGHT
-            robot.leftDrive.setPower(forwardSpeed);
-            robot.rightDrive.setPower(forwardSpeed);
+        double y = -engine.gamepad1.left_stick_y;
+        double x = engine.gamepad1.left_stick_x * 1.1;
+        double rx = engine.gamepad1.right_stick_x;
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
-            robot.frontDrive.setPower(0);
-            robot.backDrive.setPower(0);
+        double frontLeftPower = 0, frontRightPower = 0, backLeftPower = 0 , backRightPower = 0;
 
-        } else if (rightSpeed != 0 && forwardSpeed == 0) { // TURN IN PLACE
-            robot.leftDrive.setPower(rightSpeed);
-            robot.rightDrive.setPower(-rightSpeed);
+        if (fieldCentricControl) {
+            double heading = -robot.heading();
+            double rotX = x * Math.cos(heading) - y * Math.sin(heading);
+            double rotY = x * Math.sin(heading) + y * Math.cos(heading);
 
-            robot.frontDrive.setPower(rightSpeed);
-            robot.backDrive.setPower(rightSpeed);
+            frontLeftPower = (rotY + rotX + rx) / denominator;
+            backLeftPower = (rotY - rotX + rx) / denominator;
+            frontRightPower = (rotY - rotX - rx) / denominator;
+            backRightPower = (rotY + rotX - rx) / denominator;
 
-        } else if (rightSpeed != 0 && forwardSpeed != 0) { // ANGLE DRIVE
-            // TODO
-            stopDrive();
         } else {
-            stopDrive();
+            frontLeftPower = (y + x + rx) / denominator;
+            backLeftPower = (y - x + rx) / denominator;
+            frontRightPower = (y - x - rx) / denominator;
+            backRightPower = (y + x - rx) / denominator;
         }
+
+        robot.frontLeftDrive.setPower(frontLeftPower);
+        robot.frontRightDrive.setPower(frontRightPower);
+
+        robot.backLeftDrive.setPower(backLeftPower);
+        robot.backRightDrive.setPower(backRightPower);
     }
 
     private void stopDrive() {
-        robot.leftDrive.setPower(0);
-        robot.rightDrive.setPower(0);
+        robot.backLeftDrive.setPower(0);
+        robot.frontRightDrive.setPower(0);
 
-        robot.frontDrive.setPower(0);
-        robot.backDrive.setPower(0);
+        robot.frontLeftDrive.setPower(0);
+        robot.backRightDrive.setPower(0);
     }
 
     private void armManualControl() {
@@ -215,23 +223,23 @@ public class DriverControlState extends CyberarmState {
 
         switch (position) {
             case COLLECT:
-                robot.arm.setTargetPosition(robot.angleToTicks(120));
+                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_collect").value()));
                 break;
 
             case GROUND:
-                robot.arm.setTargetPosition(robot.angleToTicks(100));
+                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_ground").value()));
                 break;
 
             case LOW:
-                robot.arm.setTargetPosition(robot.angleToTicks(80));
+                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_low").value()));
                 break;
 
             case MEDIUM:
-                robot.arm.setTargetPosition(robot.angleToTicks(35));
+                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_medium").value()));
                 break;
 
             case HIGH:
-                robot.arm.setTargetPosition(robot.angleToTicks(15));
+                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_high").value()));
                 break;
 
             default:
@@ -291,6 +299,8 @@ public class DriverControlState extends CyberarmState {
 
         if (button.equals("guide")) {
             robot.hardwareFault = !robot.hardwareFault;
+        } else if (button.equals("start")) {
+            fieldCentricControl = !fieldCentricControl;
         }
     }
 }

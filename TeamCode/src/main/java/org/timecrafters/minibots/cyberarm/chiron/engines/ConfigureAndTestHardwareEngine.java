@@ -26,11 +26,11 @@ public class ConfigureAndTestHardwareEngine extends CyberarmEngine {
     public void setup() {
         robot = new Robot(this, new TimeCraftersConfiguration("CHIRON"));
 
-        addState(new MotorSetupState("Left Drive", robot.leftDrive, "left_drive_direction_forward", robot));
-        addState(new MotorSetupState("Right Drive", robot.rightDrive, "right_drive_direction_forward", robot));
+        addState(new MotorSetupState("Left Drive", robot.backLeftDrive, "left_drive_direction_forward", robot));
+        addState(new MotorSetupState("Right Drive", robot.frontRightDrive, "right_drive_direction_forward", robot));
 
-        addState(new MotorSetupState("Front Drive", robot.frontDrive, "front_drive_direction_forward", robot));
-        addState(new MotorSetupState("Back Drive", robot.backDrive, "back_drive_direction_forward", robot));
+        addState(new MotorSetupState("Front Drive", robot.frontLeftDrive, "front_drive_direction_forward", robot));
+        addState(new MotorSetupState("Back Drive", robot.backRightDrive, "back_drive_direction_forward", robot));
 
         addState(new MotorSetupState("Lift Drive", robot.arm, "lift_drive_direction_forward", robot));
     }
