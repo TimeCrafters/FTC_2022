@@ -15,6 +15,7 @@ public class TeleOPTankDriver extends CyberarmState {
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
     private int DeltaOdometerR, Endeavour, Spirit;
+    private boolean FreeSpirit;
     private GamepadChecker gamepad1Checker;
     public TeleOPTankDriver(PhoenixBot1 robot) {
         this.robot = robot;
@@ -31,14 +32,38 @@ public class TeleOPTankDriver extends CyberarmState {
     @Override
     public void init() {
         gamepad1Checker = new GamepadChecker(engine, engine.gamepad1);
+        FreeSpirit = false;
     }
 
     @Override
     public void exec() {
 
-        if (drivePower > 0.1 && ) {
-
+        if (drivePower > 0.2) {
+            if (System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR < 4096) {
+                lastStepTime = System.currentTimeMillis();
+                FreeSpirit = true;
+            }
         }
+
+        if (FreeSpirit) {
+            drivePower = -engine.gamepad1.left_stick_y;
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && !FreeSpirit) {
+            drivePower = engine.gamepad1.left_stick_y;
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if ()
+
+
 
     }
     public void CalculateDeltaRotation() {
