@@ -1,11 +1,14 @@
 package org.cyberarm.engine.V2;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class GamepadChecker {
+  private final String TAG = "GamepadChecker";
   private final CyberarmEngine engine;
   private final Gamepad gamepad;
   private final HashMap<String, Boolean> buttons = new HashMap<>();
@@ -49,16 +52,23 @@ public class GamepadChecker {
           if (button) {
             if (!buttons.get(btn)) {
               engine.buttonDown(gamepad, btn);
+
+              Log.d(TAG, "Button '" + btn + "' is DOWN [" + buttons.size() + "]");
             }
 
             buttons.put(btn, true);
           } else {
             if (buttons.get(btn)) {
               engine.buttonUp(gamepad, btn);
+
+              Log.d(TAG, "Button '" + btn + "' is UP");
             }
 
             buttons.put(btn, false);
           }
+
+          buttonsDebounceInterval.put(btn, milliseconds);
+
         } else if (button == buttons.get(btn)) {
           buttonsDebounceInterval.put(btn, milliseconds);
         }

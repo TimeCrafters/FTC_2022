@@ -1,5 +1,7 @@
 package org.timecrafters.minibots.cyberarm.chiron.states;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -13,6 +15,8 @@ public class DriverControlState extends CyberarmState {
     private double lastArmManualControlTime = 0, lastWristManualControlTime = 0, lastLEDStatusAnimationTime = 0;
     private boolean LEDStatusToggle = false;
     private boolean fieldCentricControl = true;
+    private boolean invertRobotForward = false;
+    private boolean robotSlowMode = false;
 
     public DriverControlState(Robot robot) {
         this.robot = robot;
@@ -41,6 +45,7 @@ public class DriverControlState extends CyberarmState {
         engine.telemetry.addData("Wrist Interval", lastWristManualControlTime);
         engine.telemetry.addData("LED Status Interval", lastLEDStatusAnimationTime);
         engine.telemetry.addData("Field Centric Control", fieldCentricControl);
+        engine.telemetry.addData("Invert Robot Forward", invertRobotForward);
     }
 
     // FIXME: replace .setPower with .setVelocity
@@ -50,27 +55,32 @@ public class DriverControlState extends CyberarmState {
             return;
         }
 
-        double y = -engine.gamepad1.left_stick_y;
-        double x = engine.gamepad1.left_stick_x * 1.1;
-        double rx = engine.gamepad1.right_stick_x;
+        double maxSpeed = robot.tuningConfig("drivetrain_max_power").value();
+        double slowSpeed = robot.tuningConfig("drivetrain_slow_power").value();
+        double speedLimiter = robotSlowMode ? slowSpeed : maxSpeed;
+
+        double y = (invertRobotForward ? engine.gamepad1.left_stick_y : -engine.gamepad1.left_stick_y) * speedLimiter;
+        double x = ((invertRobotForward ? engine.gamepad1.left_stick_x : -engine.gamepad1.left_stick_x) * speedLimiter) * 1.1; // Counteract imperfect strafing
+        double rx = -engine.gamepad1.right_stick_x * speedLimiter;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+
 
         double frontLeftPower = 0, frontRightPower = 0, backLeftPower = 0 , backRightPower = 0;
 
         if (fieldCentricControl) {
-            double heading = -robot.heading();
+            double heading = robot.heading();
             double rotX = x * Math.cos(heading) - y * Math.sin(heading);
             double rotY = x * Math.sin(heading) + y * Math.cos(heading);
 
             frontLeftPower = (rotY + rotX + rx) / denominator;
-            backLeftPower = (rotY - rotX + rx) / denominator;
-            frontRightPower = (rotY - rotX - rx) / denominator;
+            backLeftPower = (rotY - rotX - rx) / denominator;
+            frontRightPower = (rotY - rotX + rx) / denominator;
             backRightPower = (rotY + rotX - rx) / denominator;
 
         } else {
             frontLeftPower = (y + x + rx) / denominator;
-            backLeftPower = (y - x + rx) / denominator;
-            frontRightPower = (y - x - rx) / denominator;
+            backLeftPower = (y - x - rx) / denominator;
+            frontRightPower = (y - x + rx) / denominator;
             backRightPower = (y + x - rx) / denominator;
         }
 
@@ -289,18 +299,22 @@ public class DriverControlState extends CyberarmState {
         } else if (button.equals("y")) {
             armPosition(Robot.ArmPosition.MEDIUM);
         }
+
+        if (button.equals("pause")) {
+            invertRobotForward = !invertRobotForward;
+        }
+        if (button.equals("guide")) {
+            robot.hardwareFault = !robot.hardwareFault;
+        }
+        if (button.equals("start")) {
+            fieldCentricControl = !fieldCentricControl;
+        }
     }
 
     @Override
     public void buttonUp(Gamepad gamepad, String button) {
         if (gamepad != engine.gamepad1) {
             return;
-        }
-
-        if (button.equals("guide")) {
-            robot.hardwareFault = !robot.hardwareFault;
-        } else if (button.equals("start")) {
-            fieldCentricControl = !fieldCentricControl;
         }
     }
 }

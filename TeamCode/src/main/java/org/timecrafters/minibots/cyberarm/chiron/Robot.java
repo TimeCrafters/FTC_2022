@@ -222,7 +222,8 @@ public class Robot {
 
         // Sensors / IMU
         engine.telemetry.addLine("IMU");
-        engine.telemetry.addData("      Facing", facing());
+        engine.telemetry.addData("      Facing (Degrees)", facing());
+        engine.telemetry.addData("      Heading (Radians)", heading());
         engine.telemetry.addData("      Turn Rate", turnRate());
     }
 
