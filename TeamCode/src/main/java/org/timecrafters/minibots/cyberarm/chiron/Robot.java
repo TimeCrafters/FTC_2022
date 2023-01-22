@@ -341,7 +341,7 @@ public class Robot {
 
         double oneDegree = 360.0 / ticksPerRevolution;
 
-        return oneDegree / ticks;
+        return oneDegree * ticks;
     }
 
     public Variable hardwareConfig(String variableName) {
