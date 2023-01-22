@@ -13,7 +13,7 @@ public class GamepadChecker {
   private final Gamepad gamepad;
   private final HashMap<String, Boolean> buttons = new HashMap<>();
   private final HashMap<String, Long> buttonsDebounceInterval = new HashMap<>();
-  private final long debounceTime = 50L; // ms
+  private final long debounceTime = 20L; // ms
 
   public GamepadChecker(CyberarmEngine engine, Gamepad gamepad) {
     this.engine = engine;
@@ -52,16 +52,12 @@ public class GamepadChecker {
           if (button) {
             if (!buttons.get(btn)) {
               engine.buttonDown(gamepad, btn);
-
-              Log.d(TAG, "Button '" + btn + "' is DOWN [" + buttons.size() + "]");
             }
 
             buttons.put(btn, true);
           } else {
             if (buttons.get(btn)) {
               engine.buttonUp(gamepad, btn);
-
-              Log.d(TAG, "Button '" + btn + "' is UP");
             }
 
             buttons.put(btn, false);

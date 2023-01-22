@@ -10,6 +10,7 @@ import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
+import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
 @TeleOp(name = "CHIRON | Diagnostics", group = "CHIRON")
 public class ConfigureAndTestHardwareEngine extends CyberarmEngine {
@@ -24,7 +25,7 @@ public class ConfigureAndTestHardwareEngine extends CyberarmEngine {
 
     @Override
     public void setup() {
-        robot = new Robot(this, new TimeCraftersConfiguration("CHIRON"));
+        robot = new Robot(this, new TimeCraftersConfiguration("CHIRON"), new FieldLocalizer(0, 0));
 
         addState(new MotorSetupState("Back Left Drive", robot.backLeftDrive, "back_left_drive_direction_forward", robot));
         addState(new MotorSetupState("Front Right Drive", robot.frontRightDrive, "front_right_drive_direction_forward", robot));

@@ -1,5 +1,6 @@
 package org.timecrafters.minibots.cyberarm.chiron;
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -16,6 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Action;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
+import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
 public class Robot {
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
@@ -48,10 +50,20 @@ public class Robot {
 
     private final CyberarmEngine engine;
     private final TimeCraftersConfiguration configuration;
+    private final FieldLocalizer fieldLocalizer;
+    private final double radius, diameter;
 
-    public Robot(CyberarmEngine engine, TimeCraftersConfiguration configuration) {
+    public Robot(CyberarmEngine engine, TimeCraftersConfiguration configuration, FieldLocalizer fieldLocalizer) {
         this.engine = engine;
         this.configuration = configuration;
+        this.fieldLocalizer = fieldLocalizer;
+
+        this.fieldLocalizer.setRobot(this);
+        this.fieldLocalizer.standardSetup();
+
+        radius = tuningConfig("field_localizer_robot_radius").value();
+        diameter = ((double)tuningConfig("field_localizer_robot_radius").value()) * 2;
+
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
 
         // FIXME: Rename motors in configuration
@@ -225,11 +237,29 @@ public class Robot {
         engine.telemetry.addData("      Facing (Degrees)", facing());
         engine.telemetry.addData("      Heading (Radians)", heading());
         engine.telemetry.addData("      Turn Rate", turnRate());
+
+        engine.telemetry.addLine();
+
+        // Field Localizer
+        engine.telemetry.addLine("Field Localizer");
+
+        Vector2d pos = fieldLocalizer.position();
+        Vector2d vel = fieldLocalizer.velocity();
+        engine.telemetry.addData("      Position X", pos.getX());
+        engine.telemetry.addData("      Position Y", pos.getY());
+        engine.telemetry.addData("      Velocity X", vel.getX());
+        engine.telemetry.addData("      Velocity Y", vel.getY());
+
+        engine.telemetry.addLine();
     }
 
-    public TimeCraftersConfiguration getConfiguration() {
-        return configuration;
-    }
+    public double getRadius() { return radius; }
+
+    public double getDiameter() { return diameter; }
+
+    public TimeCraftersConfiguration getConfiguration() { return configuration; }
+
+    public FieldLocalizer getFieldLocalizer() { return fieldLocalizer; }
 
     // For: Drive Wheels
     public int unitToTicks(DistanceUnit unit, double distance) {
@@ -303,5 +333,9 @@ public class Robot {
 
     public double turnRate() {
         return imu.getRobotAngularVelocity(AngleUnit.DEGREES).yRotationRate; // NOTE: UNTESTED
+    }
+
+    public boolean isBetween(double value, double min, double max) {
+        return value >= min && value <= max;
     }
 }
