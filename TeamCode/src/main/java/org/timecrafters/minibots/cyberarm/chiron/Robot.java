@@ -55,6 +55,8 @@ public class Robot {
     private final FieldLocalizer fieldLocalizer;
     private final double radius, diameter;
 
+    private final double wheelRadius, gearRatio, ticksPerRevolution;
+
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
 
@@ -70,6 +72,11 @@ public class Robot {
         diameter = radius * 2;
 
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
+
+        wheelRadius = tuningConfig("wheel_radius").value();
+        gearRatio = tuningConfig("wheel_gear_ratio").value();
+        ticksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
+
 
         // FIXME: Rename motors in configuration
         // Define hardware
@@ -312,17 +319,17 @@ public class Robot {
     public int unitToTicks(DistanceUnit unit, double distance) {
         double inches = unit.toInches(unit.fromUnit(unit, distance)); // NOTE: UNTESTED
 
-        // FIXME: This should be stored as a presudo constant at initialization
-        double wheelRadius = tuningConfig("wheel_radius").value();
-        double gearRatio = tuningConfig("wheel_gear_ratio").value();
-        double ticksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
+        double ticks = wheelRadius * 2 * Math.PI * gearRatio * inches * ticksPerRevolution;
 
-        return 0;
+        return (int)ticks; // NOTE: UNTESTED
     }
 
     // For: Drive Wheels
     public double ticksToUnit(DistanceUnit unit, int ticks) {
-        return 0;
+        // Convert to inches, then to unit.
+        double inches = wheelRadius * 2 * Math.PI * gearRatio * ticks / ticksPerRevolution;
+
+        return unit.fromUnit(DistanceUnit.INCH, inches); // NOTE: UNTESTED
     }
 
     // For: Arm
