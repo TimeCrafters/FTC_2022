@@ -1,5 +1,7 @@
 package org.timecrafters.minibots.cyberarm.chiron;
 
+import static org.timecrafters.minibots.cyberarm.chiron.Robot.Status;
+
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -40,7 +42,7 @@ public class Robot {
         HIGH
 
     }
-    
+
     public enum Status {
         OKAY,
         MONITORING,
@@ -52,6 +54,9 @@ public class Robot {
     private final TimeCraftersConfiguration configuration;
     private final FieldLocalizer fieldLocalizer;
     private final double radius, diameter;
+
+    private boolean LEDStatusToggle = false;
+    private double lastLEDStatusAnimationTime = 0;
 
     public Robot(CyberarmEngine engine, TimeCraftersConfiguration configuration, FieldLocalizer fieldLocalizer) {
         this.engine = engine;
@@ -117,7 +122,7 @@ public class Robot {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //      MOTOR POWER
-        arm.setPower(0.35);
+        arm.setPower(tuningConfig("arm_power").value());
 
         //   SERVOS (POSITIONAL)
         //      Gripper
@@ -251,6 +256,48 @@ public class Robot {
         engine.telemetry.addData("      Velocity Y", vel.getY());
 
         engine.telemetry.addLine();
+    }
+
+    public void update() {
+        status = Status.OKAY;
+
+        // TODO: Handle status priority; That is, store reported statuses and select the "worst" one as status
+
+        automaticLEDStatus();
+    }
+
+    private void automaticLEDStatus() {
+        switch (status) {
+            case OKAY:
+                indicatorA.enableLed(false);
+                indicatorB.enableLed(false);
+                break;
+
+            case MONITORING:
+                indicatorA.enableLed(true);
+                indicatorB.enableLed(true);
+                break;
+
+            case WARNING:
+                if (System.currentTimeMillis() - lastLEDStatusAnimationTime >= 500){
+                    lastLEDStatusAnimationTime = System.currentTimeMillis();
+                    LEDStatusToggle = !LEDStatusToggle;
+
+                    indicatorA.enableLed(LEDStatusToggle);
+                    indicatorA.enableLed(!LEDStatusToggle);
+                }
+                break;
+
+            case DANGER:
+                if (System.currentTimeMillis() - lastLEDStatusAnimationTime >= 200){
+                    lastLEDStatusAnimationTime = System.currentTimeMillis();
+                    LEDStatusToggle = !LEDStatusToggle;
+
+                    indicatorA.enableLed(LEDStatusToggle);
+                    indicatorA.enableLed(LEDStatusToggle);
+                }
+                break;
+        }
     }
 
     public double getRadius() { return radius; }

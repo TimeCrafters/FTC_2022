@@ -37,4 +37,11 @@ public class AutonomousRedLeftSideEngine extends CyberarmEngine {
                 Robot.class,
                 "AutonomousRedLeftSide");
     }
+
+    @Override
+    public void loop() {
+        super.loop();
+
+        robot.standardTelemetry();
+    }
 }
