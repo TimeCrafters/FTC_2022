@@ -22,7 +22,7 @@ public class FieldLocalizer extends CyberarmState {
 
     private final double twoSqrtTwo = 2.0 / Math.sqrt(2.0);
 
-    private double wheelDisplacementPerEncoderTick = 1; // FIXME
+    private double wheelDisplacementPerEncoderTickInInches = 1; // FIXME
 
     // Use this constructor to preserve displacement between opmodes
     public FieldLocalizer() {
@@ -63,7 +63,7 @@ public class FieldLocalizer extends CyberarmState {
         deltaXRotation = 0;
         deltaYRotation = 0;
 
-        // Preserve field position, of argument-less construction is used
+        // Preserve field position, if argument-less constructor is used
         lastX = FieldLocalizer.posX;
         lastY = FieldLocalizer.posY;
 
@@ -106,10 +106,10 @@ public class FieldLocalizer extends CyberarmState {
         deltaBackLeft   = robot.backLeftDrive.getCurrentPosition() - lastBackLeft;
         deltaBackRight  = robot.backRightDrive.getCurrentPosition() - lastBackRight;
 
-        displacementFrontLeft  = deltaFrontLeft * wheelDisplacementPerEncoderTick;
-        displacementFrontRight = deltaFrontRight * wheelDisplacementPerEncoderTick;
-        displacementBackLeft   = deltaBackLeft * wheelDisplacementPerEncoderTick;
-        displacementBackRight  = deltaBackRight * wheelDisplacementPerEncoderTick;
+        displacementFrontLeft  = deltaFrontLeft * wheelDisplacementPerEncoderTickInInches;
+        displacementFrontRight = deltaFrontRight * wheelDisplacementPerEncoderTickInInches;
+        displacementBackLeft   = deltaBackLeft * wheelDisplacementPerEncoderTickInInches;
+        displacementBackRight  = deltaBackRight * wheelDisplacementPerEncoderTickInInches;
 
         displacementAverage = (displacementFrontLeft + displacementFrontRight +
                 displacementBackLeft + displacementBackRight) / 4.0; // motor count

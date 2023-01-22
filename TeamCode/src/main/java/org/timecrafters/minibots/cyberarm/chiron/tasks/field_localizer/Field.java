@@ -15,7 +15,7 @@ public class Field {
     }
 
     private void populateField() {
-        // ORIGIN is field CENTER point with RED alliance on the RIGHT
+        // ORIGIN is field CENTER point with RED alliance on the RIGHT (i.e. Audience overhead perspective)
 
         // Ground Junctions
         double posX = -48;

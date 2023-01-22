@@ -62,7 +62,7 @@ public class Robot {
         this.fieldLocalizer.standardSetup();
 
         radius = tuningConfig("field_localizer_robot_radius").value();
-        diameter = ((double)tuningConfig("field_localizer_robot_radius").value()) * 2;
+        diameter = radius * 2;
 
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
 
