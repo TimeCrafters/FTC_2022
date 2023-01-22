@@ -132,8 +132,8 @@ public class FieldLocalizer extends CyberarmState {
         deltaX = deltaXRotation * cosineTheta - deltaYRotation * sinTheta;
         deltaY = deltaYRotation * cosineTheta + deltaXRotation * sinTheta;
 
-        posX = lastX + deltaX;
-        posY = lastY + deltaY;
+        posX += lastX + deltaX;
+        posY += lastY + deltaY;
 
         lastFrontLeft  = robot.frontLeftDrive.getCurrentPosition();
         lastFrontRight = robot.frontRightDrive.getCurrentPosition();

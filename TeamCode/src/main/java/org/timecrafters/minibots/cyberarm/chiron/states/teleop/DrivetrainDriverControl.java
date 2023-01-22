@@ -49,7 +49,7 @@ public class DrivetrainDriverControl extends CyberarmState {
         }
 
         double y = invertRobotForward ? controller.left_stick_y : -controller.left_stick_y;
-        double x = (invertRobotForward ? controller.left_stick_x : -controller.left_stick_x) * 1.1; // Counteract imperfect strafing
+        double x = (invertRobotForward && !fieldCentricControl ? controller.left_stick_x : -controller.left_stick_x) * 1.1; // Counteract imperfect strafing
         double rx = -controller.right_stick_x;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
@@ -86,11 +86,11 @@ public class DrivetrainDriverControl extends CyberarmState {
     }
 
     private void stopDrive() {
-        robot.backLeftDrive.setVelocity(0);
-        robot.frontRightDrive.setVelocity(0);
+        robot.backLeftDrive.setVelocity(0); robot.backLeftDrive.setPower(0);
+        robot.frontRightDrive.setVelocity(0); robot.frontRightDrive.setPower(0);
 
-        robot.frontLeftDrive.setVelocity(0);
-        robot.backRightDrive.setVelocity(0);
+        robot.frontLeftDrive.setVelocity(0); robot.frontLeftDrive.setPower(0);
+        robot.backRightDrive.setVelocity(0); robot.backRightDrive.setPower(0);
     }
 
     private void automatics() {
@@ -130,7 +130,7 @@ public class DrivetrainDriverControl extends CyberarmState {
             robot.hardwareFault = !robot.hardwareFault;
         }
 
-        if (button.equals("pause")) {
+        if (button.equals("back")) {
             invertRobotForward = !invertRobotForward;
         }
 

@@ -10,7 +10,7 @@ public class Move extends CyberarmState {
 
     private final double positionXInInches, positionYInInches, toleranceInInches, facing, targetVelocity, timeInMS;
 
-    private final double maxSpeed;
+    private final double maxVelocity;
     private double speed;
 
     private int distanceAlreadyTravelled;
@@ -25,11 +25,11 @@ public class Move extends CyberarmState {
         positionYInInches = robot.getConfiguration().variable(groupName, actionName, "positionYInInches").value();
         toleranceInInches = robot.getConfiguration().variable(groupName, actionName, "toleranceInInches").value();
         facing = robot.getConfiguration().variable(groupName, actionName, "facing").value();
-        targetVelocity = robot.getConfiguration().variable(groupName, actionName, "targetVelocity").value();
+        targetVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "targetVelocity").value());
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
 
-        maxSpeed = robot.tuningConfig("drivetrain_max_power").value();
+        maxVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.tuningConfig("drivetrain_max_velocity_in_inches").value());
         speed = 0.0;
     }
 
@@ -72,11 +72,13 @@ public class Move extends CyberarmState {
     }
 
     private void move() {
-        if (Math.abs(speed) > maxSpeed) {
-            speed = speed < 0 ? -maxSpeed : maxSpeed;
+        if (Math.abs(speed) > maxVelocity) {
+            speed = speed < 0 ? -maxVelocity : maxVelocity;
         }
 
-        double forwardSpeed = 1.0; //distanceInInches < 0 ? -1.0 : 1.0;
+        speed = 1.0;
+
+        double forwardSpeed = -1.0; //distanceInInches < 0 ? -1.0 : 1.0;
         double rightSpeed   = 0.0;
         double rotateRightSpeed = 0.0;
 
@@ -87,6 +89,8 @@ public class Move extends CyberarmState {
                 rotateRightSpeed = 0.5;
             }
         }
+
+        rotateRightSpeed = 0;
 
         // FIXME: targetSpeed * speed[Limiter] will cause infinitesimal power issues
         double y = -forwardSpeed * speed;
@@ -106,19 +110,19 @@ public class Move extends CyberarmState {
         frontRightPower = (rotY - rotX + rx) / denominator;
         backRightPower  = (rotY + rotX - rx) / denominator;
 
-        robot.frontLeftDrive.setPower(frontLeftPower);
-        robot.frontRightDrive.setPower(frontRightPower);
+        robot.frontLeftDrive.setVelocity(frontLeftPower * targetVelocity);
+        robot.frontRightDrive.setVelocity(frontRightPower * targetVelocity);
 
-        robot.backLeftDrive.setPower(backLeftPower);
-        robot.backRightDrive.setPower(backRightPower);
+        robot.backLeftDrive.setVelocity(backLeftPower * targetVelocity);
+        robot.backRightDrive.setVelocity(backRightPower * targetVelocity);
     }
 
     @Override
     public void stop() {
-        robot.frontLeftDrive.setPower(0);
-        robot.frontRightDrive.setPower(0);
+        robot.backLeftDrive.setVelocity(0); robot.frontLeftDrive.setPower(0);
+        robot.frontRightDrive.setVelocity(0); robot.frontRightDrive.setPower(0);
 
-        robot.backLeftDrive.setPower(0);
-        robot.backRightDrive.setPower(0);
+        robot.frontLeftDrive.setVelocity(0); robot.backLeftDrive.setPower(0);
+        robot.backRightDrive.setVelocity(0); robot.backRightDrive.setPower(0);
     }
 }

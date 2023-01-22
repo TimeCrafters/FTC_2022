@@ -28,6 +28,8 @@ public class AutonomousRedLeftSideEngine extends CyberarmEngine {
                 fieldLocalizer
         );
 
+        robot.imu.resetYaw();
+
         addTask(fieldLocalizer);
 
         setupFromConfig(

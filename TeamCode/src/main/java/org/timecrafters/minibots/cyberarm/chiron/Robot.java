@@ -55,7 +55,8 @@ public class Robot {
     private final FieldLocalizer fieldLocalizer;
     private final double radius, diameter;
 
-    private final double wheelRadius, gearRatio, ticksPerRevolution;
+    private final double wheelRadius, gearRatio;
+    private final int ticksPerRevolution;
 
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
@@ -64,9 +65,6 @@ public class Robot {
         this.engine = engine;
         this.configuration = configuration;
         this.fieldLocalizer = fieldLocalizer;
-
-        this.fieldLocalizer.setRobot(this);
-        this.fieldLocalizer.standardSetup();
 
         radius = tuningConfig("field_localizer_robot_radius").value();
         diameter = radius * 2;
@@ -153,6 +151,10 @@ public class Robot {
                     RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
         imu.initialize(parameters);
+
+        // INITIALIZE AFTER EVERYTHING ELSE to prevent use before set crashes
+        this.fieldLocalizer.setRobot(this);
+        this.fieldLocalizer.standardSetup();
     }
 
     public void standardTelemetry() {
@@ -230,6 +232,18 @@ public class Robot {
         engine.telemetry.addLine();
 
         engine.telemetry.addData("      Arm", arm.getTargetPosition());
+
+        // Motor Velocity
+        engine.telemetry.addLine("Motor Velocity");
+        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getVelocity());
+        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getVelocity());
+
+        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getVelocity());
+        engine.telemetry.addData("      Back Right Drive", backRightDrive.getVelocity());
+
+        engine.telemetry.addLine();
+
+        engine.telemetry.addData("      Arm", arm.getVelocity());
 
         engine.telemetry.addLine();
 
@@ -318,9 +332,11 @@ public class Robot {
 
     // For: Drive Wheels
     public int unitToTicks(DistanceUnit unit, double distance) {
+        double fI = (gearRatio * ticksPerRevolution) / (wheelRadius * 2 * Math.PI * (gearRatio * ticksPerRevolution) / (gearRatio * ticksPerRevolution));
+
         double inches = unit.toInches(unit.fromUnit(unit, distance)); // NOTE: UNTESTED
 
-        double ticks = (wheelRadius * 2 * Math.PI) / inches * (gearRatio * ticksPerRevolution);
+        double ticks = fI * inches;
 
         return (int)ticks; // NOTE: UNTESTED
     }
