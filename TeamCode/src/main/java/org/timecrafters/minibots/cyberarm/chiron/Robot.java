@@ -319,7 +319,7 @@ public class Robot {
     public int unitToTicks(DistanceUnit unit, double distance) {
         double inches = unit.toInches(unit.fromUnit(unit, distance)); // NOTE: UNTESTED
 
-        double ticks = wheelRadius * 2 * Math.PI * gearRatio * inches * ticksPerRevolution;
+        double ticks = (wheelRadius * 2 * Math.PI) / inches * (gearRatio * ticksPerRevolution);
 
         return (int)ticks; // NOTE: UNTESTED
     }
@@ -327,7 +327,7 @@ public class Robot {
     // For: Drive Wheels
     public double ticksToUnit(DistanceUnit unit, int ticks) {
         // Convert to inches, then to unit.
-        double inches = wheelRadius * 2 * Math.PI * gearRatio * ticks / ticksPerRevolution;
+        double inches = wheelRadius * 2 * Math.PI * ticks / (gearRatio * ticksPerRevolution);
 
         return unit.fromUnit(DistanceUnit.INCH, inches); // NOTE: UNTESTED
     }
