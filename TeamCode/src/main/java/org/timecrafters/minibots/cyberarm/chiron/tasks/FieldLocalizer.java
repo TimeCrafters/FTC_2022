@@ -3,6 +3,7 @@ package org.timecrafters.minibots.cyberarm.chiron.tasks;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 import org.timecrafters.minibots.cyberarm.chiron.tasks.field_localizer.Field;
 import org.timecrafters.minibots.cyberarm.chiron.tasks.field_localizer.Obstacle;
@@ -22,7 +23,7 @@ public class FieldLocalizer extends CyberarmState {
 
     private final double twoSqrtTwo = 2.0 / Math.sqrt(2.0);
 
-    private double wheelDisplacementPerEncoderTickInInches = 1; // FIXME
+    private double wheelDisplacementPerEncoderTickInInches;
 
     // Use this constructor to preserve displacement between opmodes
     public FieldLocalizer() {
@@ -35,6 +36,8 @@ public class FieldLocalizer extends CyberarmState {
 
     public void standardSetup() {
         field = new Field(robot);
+
+        wheelDisplacementPerEncoderTickInInches = robot.ticksToUnit(DistanceUnit.INCH, 1);
 
         lastFrontLeft  = 0;
         lastFrontRight = 0;
