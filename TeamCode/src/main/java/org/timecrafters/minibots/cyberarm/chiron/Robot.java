@@ -129,7 +129,8 @@ public class Robot {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //      MOTOR POWER
-        arm.setPower(tuningConfig("arm_power").value());
+        arm.setVelocity(
+                angleToTicks(tuningConfig("arm_velocity_in_degrees_per_second").value()));
 
         //   SERVOS (POSITIONAL)
         //      Gripper

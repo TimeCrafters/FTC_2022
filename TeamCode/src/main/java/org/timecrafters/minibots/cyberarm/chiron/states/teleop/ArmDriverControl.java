@@ -3,6 +3,7 @@ package org.timecrafters.minibots.cyberarm.chiron.states.teleop;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 
 public class ArmDriverControl extends CyberarmState {
@@ -86,7 +87,7 @@ public class ArmDriverControl extends CyberarmState {
     }
 
     private void stopArm() {
-        robot.arm.setPower(0);
+        robot.arm.setVelocity(0);
     }
 
     private void automatics() {
@@ -115,7 +116,8 @@ public class ArmDriverControl extends CyberarmState {
 
             stopArm();
         } else {
-            robot.arm.setPower(robot.tuningConfig("arm_power").value());
+            robot.arm.setVelocity(
+                    robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value()));
         }
     }
 

@@ -3,6 +3,7 @@ package org.timecrafters.minibots.cyberarm.chiron.states.teleop;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 
 public class DrivetrainDriverControl extends CyberarmState {
@@ -41,20 +42,15 @@ public class DrivetrainDriverControl extends CyberarmState {
         engine.telemetry.addData("Robot Slow Mode", robotSlowMode);
     }
 
-    // FIXME: replace .setPower with .setVelocity
     // REF: https://gm0.org/en/latest/docs/software/tutorials/mecanum-drive.html
     private void move() {
         if (robot.automaticAntiTipActive || robot.hardwareFault) {
             return;
         }
 
-        double maxSpeed = robot.tuningConfig("drivetrain_max_power").value();
-        double slowSpeed = robot.tuningConfig("drivetrain_slow_power").value();
-        double speedLimiter = robotSlowMode ? slowSpeed : maxSpeed;
-
-        double y = (invertRobotForward ? controller.left_stick_y : -controller.left_stick_y) * speedLimiter;
-        double x = ((invertRobotForward ? controller.left_stick_x : -controller.left_stick_x) * speedLimiter) * 1.1; // Counteract imperfect strafing
-        double rx = -controller.right_stick_x * speedLimiter;
+        double y = invertRobotForward ? controller.left_stick_y : -controller.left_stick_y;
+        double x = (invertRobotForward ? controller.left_stick_x : -controller.left_stick_x) * 1.1; // Counteract imperfect strafing
+        double rx = -controller.right_stick_x;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
 
@@ -77,19 +73,24 @@ public class DrivetrainDriverControl extends CyberarmState {
             backRightPower = (y + x - rx) / denominator;
         }
 
-        robot.frontLeftDrive.setPower(frontLeftPower);
-        robot.frontRightDrive.setPower(frontRightPower);
+        double maxVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.tuningConfig("drivetrain_max_velocity_in_inches").value());
+        double slowVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.tuningConfig("drivetrain_slow_velocity_in_inches").value());
+        double velocity = robotSlowMode ? slowVelocity : maxVelocity;
 
-        robot.backLeftDrive.setPower(backLeftPower);
-        robot.backRightDrive.setPower(backRightPower);
+        // Power is treated as a ratio here
+        robot.frontLeftDrive.setVelocity(frontLeftPower * velocity);
+        robot.frontRightDrive.setVelocity(frontRightPower * velocity);
+
+        robot.backLeftDrive.setVelocity(backLeftPower * velocity);
+        robot.backRightDrive.setVelocity(backRightPower * velocity);
     }
 
     private void stopDrive() {
-        robot.backLeftDrive.setPower(0);
-        robot.frontRightDrive.setPower(0);
+        robot.backLeftDrive.setVelocity(0);
+        robot.frontRightDrive.setVelocity(0);
 
-        robot.frontLeftDrive.setPower(0);
-        robot.backRightDrive.setPower(0);
+        robot.frontLeftDrive.setVelocity(0);
+        robot.backRightDrive.setVelocity(0);
     }
 
     private void automatics() {
