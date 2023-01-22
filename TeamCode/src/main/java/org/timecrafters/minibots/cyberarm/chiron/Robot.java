@@ -368,10 +368,10 @@ public class Robot {
         throw new RuntimeException("Failed to find variable with name: " + variableName + " in group: Robot, action: Tuning");
     }
 
-    // TODO: Convert to 360 degree range with +90 degrees being on the RIGHT
     public double facing() {
-        // FIXME: Apply imuAngleOffset
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        double imuDegrees = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+        return (imuDegrees + imuAngleOffset + 360.0) % 360.0;
     }
 
     public double heading() {
