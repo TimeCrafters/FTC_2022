@@ -1,5 +1,6 @@
 package org.timecrafters.TeleOp.engine;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
@@ -9,6 +10,7 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfig
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 import org.timecrafters.TeleOp.states.TeleOPSpeedrunState;
 
+@Disabled
 @TeleOp (name = "Speedrun Engine")
 public class SpeedrunEngine extends CyberarmEngine {
     GamepadChecker gamepadChecker;

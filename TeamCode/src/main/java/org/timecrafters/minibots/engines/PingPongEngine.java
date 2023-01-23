@@ -1,11 +1,13 @@
 package org.timecrafters.minibots.engines;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.minibots.states.MecanumRobot;
 import org.timecrafters.minibots.states.PingPongState;
 
+@Disabled
 @TeleOp (name = "Sodi PingPong")
 
 public class PingPongEngine extends CyberarmEngine {

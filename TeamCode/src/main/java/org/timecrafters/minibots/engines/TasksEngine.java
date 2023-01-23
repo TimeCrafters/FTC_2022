@@ -1,10 +1,12 @@
 package org.timecrafters.minibots.engines;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.cyberarm.engine.V2.CyberarmState;
 
+@Disabled
 @TeleOp(name = "TasksEngine", group = "testing")
 public class TasksEngine extends CyberarmEngine {
     @Override

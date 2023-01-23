@@ -1,5 +1,6 @@
 package org.timecrafters.TeleOp.engine;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
@@ -7,6 +8,7 @@ import org.timecrafters.TeleOp.states.LaserState;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 import org.timecrafters.TeleOp.states.SteeringDriveExperiment;
 
+@Disabled
 @TeleOp(name = "Steering Drive Test")
 public class SterringDriveEngine extends CyberarmEngine {
     public SterringDriveEngine(PhoenixBot1 robot) {
