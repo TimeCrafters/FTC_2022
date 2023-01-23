@@ -26,8 +26,6 @@ public class DrivetrainDriverControl extends CyberarmState {
 
     @Override
     public void exec() {
-        robot.update();
-
         move();
 
         automatics();
@@ -113,7 +111,7 @@ public class DrivetrainDriverControl extends CyberarmState {
         // robot.hardwareFault = true;
 
         if (robot.hardwareFault) {
-            robot.status = Robot.Status.DANGER;
+            robot.reportStatus(Robot.Status.DANGER);
 
             stopDrive();
         }

@@ -46,7 +46,7 @@ public class ArmDriverControl extends CyberarmState {
             return;
         }
 
-        robot.status = Robot.Status.WARNING;
+        robot.reportStatus(Robot.Status.WARNING);
 
         double stepInterval = robot.tuningConfig("arm_manual_step_interval").value();
         int stepSize = robot.tuningConfig("arm_manual_step_size").value();
@@ -112,7 +112,7 @@ public class ArmDriverControl extends CyberarmState {
 
     private void automaticHardwareMonitor() {
         if (robot.hardwareFault) {
-            robot.status = Robot.Status.DANGER;
+            robot.reportStatus(Robot.Status.DANGER);
 
             stopArm();
         } else {
@@ -126,7 +126,7 @@ public class ArmDriverControl extends CyberarmState {
             return;
         }
 
-        robot.status = Robot.Status.WARNING;
+        robot.reportStatus(Robot.Status.WARNING);
 
         switch (position) {
             case COLLECT:

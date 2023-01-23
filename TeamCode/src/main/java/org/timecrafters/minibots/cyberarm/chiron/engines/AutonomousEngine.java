@@ -1,25 +1,27 @@
 package org.timecrafters.minibots.cyberarm.chiron.engines;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
-@Autonomous(name = "CHIRON | RED Left Side", group = "CHIRON", preselectTeleOp = "CHIRON | TeleOp")
-public class AutonomousRedLeftSideEngine extends CyberarmEngine {
-    private Robot robot;
-    private FieldLocalizer fieldLocalizer;
-    private TimeCraftersConfiguration configuration;
+public class AutonomousEngine extends CyberarmEngine {
+    protected Robot robot;
+    protected FieldLocalizer fieldLocalizer;
+    protected TimeCraftersConfiguration configuration;
+
+    protected String configurationName = "CHIRON";
+    protected String actionsGroupName;
+    protected String tuningGroupName;
+    protected String tuningActionName;
 
     @Override
     public void setup() {
-        configuration = new TimeCraftersConfiguration("CHIRON");
+        configuration = new TimeCraftersConfiguration(configurationName);
 
         fieldLocalizer = new FieldLocalizer(
-                configuration.variable("Autonomous", "Tuning_Red_LeftSide", "starting_position_x_in_inches").value(),
-                configuration.variable("Autonomous", "Tuning_Red_LeftSide", "starting_position_y_in_inches").value()
+                configuration.variable(tuningGroupName, tuningActionName, "starting_position_x_in_inches").value(),
+                configuration.variable(tuningGroupName, tuningActionName, "starting_position_y_in_inches").value()
         );
 
         robot = new Robot(
@@ -37,11 +39,13 @@ public class AutonomousRedLeftSideEngine extends CyberarmEngine {
                 "org.timecrafters.minibots.cyberarm.chiron.states.autonomous",
                 robot,
                 Robot.class,
-                "AutonomousRedLeftSide");
+                actionsGroupName);
     }
 
     @Override
     public void loop() {
+        robot.update();
+
         super.loop();
 
         robot.standardTelemetry();

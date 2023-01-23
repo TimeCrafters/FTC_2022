@@ -1,9 +1,9 @@
 package org.timecrafters.minibots.cyberarm.chiron;
 
-import static org.timecrafters.minibots.cyberarm.chiron.Robot.Status;
-
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -21,18 +21,23 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Act
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
 import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 public class Robot {
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
     public final ServoImplEx gripper, wrist;
     public final IMU imu;
     public final ColorSensor indicatorA, indicatorB;
+    public LynxModule expansionHub;
 
     public final double imuAngleOffset;
     public boolean wristManuallyControlled = false;
     public boolean automaticAntiTipActive = false;
     public boolean hardwareFault = false;
 
-    public Status status = Status.OKAY;
+    private Status status = Status.OKAY, lastStatus = Status.OKAY;
+    private ArrayList<Status> reportedStatuses = new ArrayList<>();
 
     public enum ArmPosition {
         COLLECT,
@@ -152,6 +157,20 @@ public class Robot {
 
         imu.initialize(parameters);
 
+        // BulkRead from Hubs
+        for (LynxModule hub : engine.hardwareMap.getAll(LynxModule.class)) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+
+            if (!hub.isParent() && expansionHub == null) {
+                expansionHub = hub;
+            }
+        }
+
+        // Set LED pattern
+        if (expansionHub != null) {
+            expansionHub.setPattern(ledPatternOkay());
+        }
+
         // INITIALIZE AFTER EVERYTHING ELSE to prevent use before set crashes
         this.fieldLocalizer.setRobot(this);
         this.fieldLocalizer.standardSetup();
@@ -162,6 +181,7 @@ public class Robot {
 
         // STATUS
         engine.telemetry.addLine("DATA");
+        engine.telemetry.addData("      Robot Status", status);
         engine.telemetry.addData("      Hardware Fault", hardwareFault);
         engine.telemetry.addLine();
 
@@ -280,10 +300,70 @@ public class Robot {
         engine.telemetry.addLine();
     }
 
-    public void update() {
-        status = Status.OKAY;
+    private ArrayList<Blinker.Step> ledPatternOkay() {
+        final ArrayList<Blinker.Step> steps = new ArrayList<>();
 
-        // TODO: Handle status priority; That is, store reported statuses and select the "worst" one as status
+        steps.add(new Blinker.Step(0x00aa00, 500, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x00aa44, 500, TimeUnit.MILLISECONDS));
+
+        return steps;
+    }
+
+    private ArrayList<Blinker.Step> ledPatternMonitoring() {
+        final ArrayList<Blinker.Step> steps = new ArrayList<>();
+
+        steps.add(new Blinker.Step(0xaaaaaa, 500, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x000000, 250, TimeUnit.MILLISECONDS));
+
+        return steps;
+    }
+
+    private ArrayList<Blinker.Step> ledPatternWarning() {
+        final ArrayList<Blinker.Step> steps = new ArrayList<>();
+
+        steps.add(new Blinker.Step(0xffff00, 500, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0xff8800, 500, TimeUnit.MILLISECONDS));
+
+        return steps;
+    }
+
+    private ArrayList<Blinker.Step> ledPatternDanger() {
+        final ArrayList<Blinker.Step> steps = new ArrayList<>();
+
+        steps.add(new Blinker.Step(0xff0000, 250, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x000000, 100, TimeUnit.MILLISECONDS));
+
+        return steps;
+    }
+
+    public void reportStatus(Status status) {
+        reportedStatuses.add(status);
+    }
+
+    public void update() {
+        for (LynxModule hub : engine.hardwareMap.getAll(LynxModule.class)) {
+            hub.clearBulkCache();
+        }
+
+        status = Status.OKAY;
+        for (Status s : reportedStatuses) {
+            if (s.ordinal() > status.ordinal()) {
+                status = s;
+            }
+        }
+
+        reportedStatuses.clear();
+
+        if (status != lastStatus) {
+            lastStatus = status;
+
+            if (expansionHub != null) {
+                if (lastStatus == Status.OKAY) { expansionHub.setPattern(ledPatternOkay()); }
+                if (lastStatus == Status.MONITORING) { expansionHub.setPattern(ledPatternMonitoring()); }
+                if (lastStatus == Status.WARNING) { expansionHub.setPattern(ledPatternWarning()); }
+                if (lastStatus == Status.DANGER) { expansionHub.setPattern(ledPatternDanger()); }
+            }
+        }
 
         automaticLEDStatus();
     }
@@ -322,6 +402,8 @@ public class Robot {
         }
     }
 
+    public Status getStatus() { return status; }
+
     public double getRadius() { return radius; }
 
     public double getDiameter() { return diameter; }
@@ -334,11 +416,11 @@ public class Robot {
     public int unitToTicks(DistanceUnit unit, double distance) {
         double fI = (gearRatio * ticksPerRevolution) / (wheelRadius * 2 * Math.PI * (gearRatio * ticksPerRevolution) / (gearRatio * ticksPerRevolution));
 
-        double inches = unit.toInches(unit.fromUnit(unit, distance)); // NOTE: UNTESTED
+        double inches = unit.toInches(unit.fromUnit(unit, distance));
 
         double ticks = fI * inches;
 
-        return (int)ticks; // NOTE: UNTESTED
+        return (int)ticks;
     }
 
     // For: Drive Wheels
@@ -346,7 +428,7 @@ public class Robot {
         // Convert to inches, then to unit.
         double inches = wheelRadius * 2 * Math.PI * ticks / (gearRatio * ticksPerRevolution);
 
-        return unit.fromUnit(DistanceUnit.INCH, inches); // NOTE: UNTESTED
+        return unit.fromUnit(DistanceUnit.INCH, inches);
     }
 
     // For: Arm
