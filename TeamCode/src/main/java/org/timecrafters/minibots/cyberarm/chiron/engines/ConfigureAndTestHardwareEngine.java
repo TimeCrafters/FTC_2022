@@ -38,9 +38,18 @@ public class ConfigureAndTestHardwareEngine extends CyberarmEngine {
 
     @Override
     public void loop() {
+        robot.update();
+
         super.loop();
 
         robot.standardTelemetry();
+    }
+
+    @Override
+    public void stop() {
+        robot.stop();
+
+        super.stop();
     }
 
     private class MotorSetupState extends CyberarmState {

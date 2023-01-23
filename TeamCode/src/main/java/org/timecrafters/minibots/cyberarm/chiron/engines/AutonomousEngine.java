@@ -50,4 +50,11 @@ public class AutonomousEngine extends CyberarmEngine {
 
         robot.standardTelemetry();
     }
+
+    @Override
+    public void stop() {
+        robot.stop();
+
+        super.stop();
+    }
 }

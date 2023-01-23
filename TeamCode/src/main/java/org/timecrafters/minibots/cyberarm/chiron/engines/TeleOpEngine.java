@@ -27,8 +27,17 @@ public class TeleOpEngine extends CyberarmEngine {
 
     @Override
     public void loop() {
+        robot.update();
+
         super.loop();
 
         robot.standardTelemetry();
+    }
+
+    @Override
+    public void stop() {
+        robot.stop();
+
+        super.stop();
     }
 }

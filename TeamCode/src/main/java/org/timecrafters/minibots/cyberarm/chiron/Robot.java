@@ -1,5 +1,8 @@
 package org.timecrafters.minibots.cyberarm.chiron;
 
+import android.annotation.SuppressLint;
+import android.util.Log;
+
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -22,9 +25,12 @@ import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Var
 import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Robot {
+    private static final String TAG = "CHIRON | Robot";
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
     public final ServoImplEx gripper, wrist;
     public final IMU imu;
@@ -37,7 +43,9 @@ public class Robot {
     public boolean hardwareFault = false;
 
     private Status status = Status.OKAY, lastStatus = Status.OKAY;
-    private ArrayList<Status> reportedStatuses = new ArrayList<>();
+    private final CopyOnWriteArrayList<Status> reportedStatuses = new CopyOnWriteArrayList<>();
+    private final ConcurrentHashMap<String, Double> motorVelocityError = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Double> motorVelocityLastTiming = new ConcurrentHashMap<>();
 
     public enum ArmPosition {
         COLLECT,
@@ -213,6 +221,32 @@ public class Robot {
 
         engine.telemetry.addLine();
 
+        // Motor Target Positions
+        engine.telemetry.addLine("Motor Target Positions");
+        engine.telemetry.addData("      Front Left Drive", "%d (%8.2f in)", frontLeftDrive.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, frontLeftDrive.getTargetPosition()));
+        engine.telemetry.addData("      Front Right Drive", "%d (%8.2f in)", frontRightDrive.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, frontRightDrive.getTargetPosition()));
+
+        engine.telemetry.addData("      Back Left Drive", "%d (%8.2f in)", backLeftDrive.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, backLeftDrive.getTargetPosition()));
+        engine.telemetry.addData("      Back Right Drive", "%d (%8.2f in)", backRightDrive.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, backRightDrive.getTargetPosition()));
+
+        engine.telemetry.addLine();
+
+        engine.telemetry.addData("      Arm", "%d (%8.2f in)", arm.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, arm.getTargetPosition()));
+
+        // Motor Velocity
+        engine.telemetry.addLine("Motor Velocity");
+        engine.telemetry.addData("      Front Left Drive", "%8.2f (%8.2f in)", frontLeftDrive.getVelocity(), ticksToUnit(DistanceUnit.INCH, (int) frontLeftDrive.getVelocity()));
+        engine.telemetry.addData("      Front Right Drive", "%8.2f (%8.2f in)", frontRightDrive.getVelocity(), ticksToUnit(DistanceUnit.INCH, (int) frontRightDrive.getVelocity()));
+
+        engine.telemetry.addData("      Back Left Drive", "%8.2f (%8.2f in)", backLeftDrive.getVelocity(), ticksToUnit(DistanceUnit.INCH, (int) backLeftDrive.getVelocity()));
+        engine.telemetry.addData("      Back Right Drive", "%8.2f (%8.2f in)", backRightDrive.getVelocity(), ticksToUnit(DistanceUnit.INCH, (int) backRightDrive.getVelocity()));
+
+        engine.telemetry.addLine();
+
+        engine.telemetry.addData("      Arm", "%8.2f (%8.2f degrees)", arm.getVelocity(), ticksToAngle((int)arm.getVelocity()));
+
+        engine.telemetry.addLine();
+
         // Motor Currents
         engine.telemetry.addLine("Motor Currents (AMPS)");
         engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getCurrent(CurrentUnit.AMPS));
@@ -238,32 +272,6 @@ public class Robot {
         engine.telemetry.addLine();
 
         engine.telemetry.addData("      Arm", arm.getDirection());
-
-        engine.telemetry.addLine();
-
-        // Motor Target Positions
-        engine.telemetry.addLine("Motor Target Positions");
-        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getTargetPosition());
-        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getTargetPosition());
-
-        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getTargetPosition());
-        engine.telemetry.addData("      Back Right Drive", backRightDrive.getTargetPosition());
-
-        engine.telemetry.addLine();
-
-        engine.telemetry.addData("      Arm", arm.getTargetPosition());
-
-        // Motor Velocity
-        engine.telemetry.addLine("Motor Velocity");
-        engine.telemetry.addData("      Front Left Drive", frontLeftDrive.getVelocity());
-        engine.telemetry.addData("      Front Right Drive", frontRightDrive.getVelocity());
-
-        engine.telemetry.addData("      Back Left Drive", backLeftDrive.getVelocity());
-        engine.telemetry.addData("      Back Right Drive", backRightDrive.getVelocity());
-
-        engine.telemetry.addLine();
-
-        engine.telemetry.addData("      Arm", arm.getVelocity());
 
         engine.telemetry.addLine();
 
@@ -298,6 +306,17 @@ public class Robot {
         engine.telemetry.addData("      Velocity Y", vel.getY());
 
         engine.telemetry.addLine();
+    }
+
+    private ArrayList<Blinker.Step> ledPatternStandby() {
+        final ArrayList<Blinker.Step> steps = new ArrayList<>();
+
+        steps.add(new Blinker.Step(0x008000, 750, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x005000, 750, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x002000, 750, TimeUnit.MILLISECONDS));
+        steps.add(new Blinker.Step(0x001000, 250, TimeUnit.MILLISECONDS));
+
+        return steps;
     }
 
     private ArrayList<Blinker.Step> ledPatternOkay() {
@@ -345,6 +364,11 @@ public class Robot {
             hub.clearBulkCache();
         }
 
+        if (getVoltage() < 9.75) {
+            reportStatus(Status.DANGER);
+            hardwareFault = true;
+        }
+
         status = Status.OKAY;
         for (Status s : reportedStatuses) {
             if (s.ordinal() > status.ordinal()) {
@@ -366,6 +390,12 @@ public class Robot {
         }
 
         automaticLEDStatus();
+    }
+
+    public void stop() {
+        if (expansionHub != null) {
+            expansionHub.setPattern(ledPatternStandby());
+        }
     }
 
     private void automaticLEDStatus() {
@@ -474,8 +504,66 @@ public class Robot {
         throw new RuntimeException("Failed to find variable with name: " + variableName + " in group: Robot, action: Tuning");
     }
 
+    @SuppressLint("NewApi")
+    public void controlMotorPIDF(DcMotorEx motor, String motorName, double targetVelocity, double feedForward) {
+        Action action = configuration.action("Robot", "Tuning_PIDF_" + motorName);
+        double proportional = 0, integral = 0, derivative = 0;
+
+        for (Variable v : action.getVariables()) {
+            switch (v.name.trim()) {
+                case "proportional":
+                    proportional = v.value();
+                    break;
+                case "integral":
+                    integral = v.value();
+                    break;
+                case "derivative":
+                    derivative = v.value();
+                    break;
+            }
+        }
+
+        double interval = (engine.getRuntime() - motorVelocityLastTiming.getOrDefault(motorName, 0.0));
+
+        double distance = motor.getTargetPosition() - motor.getCurrentPosition();
+
+        if (Math.abs(distance) < Math.abs(targetVelocity)) {
+            if ((targetVelocity < 0 && distance > 0) || (targetVelocity > 0 && distance < 0)) {
+                targetVelocity = -distance;
+            } else {
+                targetVelocity = distance;
+            }
+        }
+
+        double error = targetVelocity - motor.getVelocity();
+        double deltaError = error - motorVelocityError.getOrDefault(motorName, 0.0);
+
+        double kIntegral = error * interval;
+        double kDerivative = deltaError / interval;
+
+        double kp = proportional * error;
+        double ki = integral * kIntegral;
+        double kd = derivative * kDerivative;
+
+        motorVelocityError.put(motorName, error);
+        motorVelocityLastTiming.put(motorName, engine.getRuntime());
+
+        double newTargetVelocity = kp + ki + kd + targetVelocity;
+
+        motor.setVelocity(newTargetVelocity);
+
+        Log.d(TAG, "Interval: " + interval + "ms, Error: " + error + " ticks, deltaError: " + deltaError + " ticks, distance: " +
+                distance + " ticks, kIntegral: " + kIntegral + ", kDerivative: " + kDerivative + ", proportional: " + proportional +
+                ", integral: " + integral + ", derivative: " + derivative + ", kp: " + kp + ", ki: " + ki + ", kd: " + kd +
+                ", targetVelocity: " + targetVelocity + " ticks, new Target Velocity: " + newTargetVelocity + " ticks, + motorVelocity: " + motor.getVelocity() + " ticks.");
+    }
+
+    public double getVoltage() {
+        return engine.hardwareMap.voltageSensor.iterator().next().getVoltage();
+    }
+
     public double facing() {
-        double imuDegrees = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+        double imuDegrees = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
         return (imuDegrees + imuAngleOffset + 360.0) % 360.0;
     }

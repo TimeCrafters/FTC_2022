@@ -1,9 +1,16 @@
 package org.timecrafters.minibots.cyberarm.chiron.states.teleop;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 
 public class ArmDriverControl extends CyberarmState {
@@ -88,10 +95,17 @@ public class ArmDriverControl extends CyberarmState {
 
     private void stopArm() {
         robot.arm.setVelocity(0);
+        robot.arm.setPower(0);
+
+        // RUN_TO_POSITION seems to override power we request
+        robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     private void automatics() {
-        automaticWrist();
+        if (!robot.hardwareFault) {
+            automaticWrist();
+            automaticArmVelocity();
+        }
 
         automaticHardwareMonitor();
     }
@@ -110,14 +124,21 @@ public class ArmDriverControl extends CyberarmState {
         }
     }
 
+    private void automaticArmVelocity() {
+        robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.controlMotorPIDF(
+                robot.arm,
+                "Arm",
+                robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value()),
+                12.0 / robot.getVoltage());
+    }
+
     private void automaticHardwareMonitor() {
         if (robot.hardwareFault) {
             robot.reportStatus(Robot.Status.DANGER);
 
             stopArm();
-        } else {
-            robot.arm.setVelocity(
-                    robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value()));
         }
     }
 
