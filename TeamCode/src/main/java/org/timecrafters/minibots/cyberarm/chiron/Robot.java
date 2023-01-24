@@ -46,6 +46,7 @@ public class Robot {
     private final CopyOnWriteArrayList<Status> reportedStatuses = new CopyOnWriteArrayList<>();
     private final ConcurrentHashMap<String, Double> motorVelocityError = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Double> motorVelocityLastTiming = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Double> motorTargetVelocity = new ConcurrentHashMap<>();
 
     public enum ArmPosition {
         COLLECT,
@@ -556,6 +557,24 @@ public class Robot {
                 distance + " ticks, kIntegral: " + kIntegral + ", kDerivative: " + kDerivative + ", proportional: " + proportional +
                 ", integral: " + integral + ", derivative: " + derivative + ", kp: " + kp + ", ki: " + ki + ", kd: " + kd +
                 ", targetVelocity: " + targetVelocity + " ticks, new Target Velocity: " + newTargetVelocity + " ticks, + motorVelocity: " + motor.getVelocity() + " ticks.");
+    }
+
+    @SuppressLint("NewApi")
+    public void controlArmMotor(double targetVelocity) {
+        double time = System.currentTimeMillis();
+        double newTargetVelocity = motorTargetVelocity.getOrDefault("Arm", targetVelocity);
+        double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
+        double deltaTime = (time - lastTiming) * 0.001;
+
+        double error = targetVelocity - arm.getVelocity();
+        double kp = 0.9;
+
+        newTargetVelocity += error * kp * deltaTime;
+
+        motorTargetVelocity.put("Arm", newTargetVelocity);
+        motorVelocityLastTiming.put("Arm", time);
+
+        arm.setVelocity(newTargetVelocity);
     }
 
     public double getVoltage() {

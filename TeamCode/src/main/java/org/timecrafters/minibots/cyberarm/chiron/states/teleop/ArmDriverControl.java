@@ -127,11 +127,15 @@ public class ArmDriverControl extends CyberarmState {
     private void automaticArmVelocity() {
         robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        robot.controlMotorPIDF(
-                robot.arm,
-                "Arm",
-                robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value()),
-                12.0 / robot.getVoltage());
+        // robot.controlMotorPIDF(
+        //        robot.arm,
+        //        "Arm",
+        //        robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value()),
+        //        12.0 / robot.getVoltage());
+
+        robot.controlArmMotor(
+                robot.angleToTicks(robot.tuningConfig("arm_velocity_in_degrees_per_second").value())
+        );
     }
 
     private void automaticHardwareMonitor() {
