@@ -2,23 +2,25 @@ package org.timecrafters.TeleOp.states;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class AdafruitIMUState extends CyberarmState {
-    AdafruitBNO055IMU imu;
+    IMU imu;
     @Override
     public void init() {
-        imu = engine.hardwareMap.get(AdafruitBNO055IMU.class, "adafruit_imu");
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        imu.initialize(parameters);
+        imu = engine.hardwareMap.get(IMU.class, "adafruit_imu");
     }
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("First Angle", imu.getAngularOrientation().firstAngle);
-        engine.telemetry.addData("Second Angle", imu.getAngularOrientation().secondAngle);
-        engine.telemetry.addData("Third Angle", imu.getAngularOrientation().thirdAngle);
+        engine.telemetry.addData("PITCH", imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
+        engine.telemetry.addData("ROLL", imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
+        engine.telemetry.addData("YAW", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
     }
 
     @Override
