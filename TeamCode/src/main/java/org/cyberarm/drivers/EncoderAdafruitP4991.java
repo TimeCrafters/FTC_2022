@@ -1,20 +1,12 @@
 package org.cyberarm.drivers;
 
-import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
-import com.qualcomm.robotcore.hardware.I2cWaitControl;
-import com.qualcomm.robotcore.hardware.TimestampedData;
 import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
 import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.RobotLog;
-import com.qualcomm.robotcore.util.TypeConversion;
 
-import org.firstinspires.ftc.robotcore.internal.android.dx.util.ByteArray;
-import org.timecrafters.testing.engine.AdafruitIMU;
-
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 @I2cDeviceType
