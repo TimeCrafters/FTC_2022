@@ -78,18 +78,22 @@ public class ArmDriverControl extends CyberarmState {
             return;
         }
 
-        double stepInterval = robot.tuningConfig("wrist_manual_step_interval").value();
-        double stepSize = robot.tuningConfig("wrist_manual_step_size").value();
+        double stepPower = robot.tuningConfig("wrist_manual_step_power").value();
 
-        if ((controller.dpad_left || controller.dpad_right) && runTime() - lastArmManualControlTime >= stepInterval) {
-            lastArmManualControlTime = runTime();
+        if ((controller.dpad_left || controller.dpad_right)) {
+            robot.wristManuallyControlled = true;
 
             if (controller.dpad_left) { // Wrist Left
-                robot.wrist.setPosition(robot.wrist.getPosition() - stepSize);
+                robot.wrist.setPower(stepPower);
 
-            } else if (controller.dpad_right) { // Wrist Right
-                robot.wrist.setPosition(robot.wrist.getPosition() + stepSize);
             }
+            if (controller.dpad_right) { // Wrist Right
+                robot.wrist.setPower(-stepPower);
+            }
+        }
+
+        if (!controller.dpad_left && !controller.dpad_right) {
+            robot.wrist.setPower(0);
         }
     }
 
@@ -103,7 +107,7 @@ public class ArmDriverControl extends CyberarmState {
 
     private void automatics() {
         if (!robot.hardwareFault) {
-            automaticWrist();
+//            automaticWrist();
             automaticArmVelocity();
         }
 
@@ -118,9 +122,9 @@ public class ArmDriverControl extends CyberarmState {
         double angle = robot.tuningConfig("wrist_auto_rotate_angle").value();
 
         if (robot.ticksToAngle(robot.arm.getCurrentPosition()) >= angle) {
-            robot.wrist.setPosition(robot.tuningConfig("wrist_deposit_position").value());
+            robot.wrist.setPower(robot.tuningConfig("wrist_up_power").value());
         } else {
-            robot.wrist.setPosition(robot.tuningConfig("wrist_collect_position").value());
+            robot.wrist.setPower(robot.tuningConfig("wrist_down_power").value());
         }
     }
 
@@ -209,11 +213,13 @@ public class ArmDriverControl extends CyberarmState {
         if (button.equals("dpad_down")) {
             robot.wristManuallyControlled = false;
 
-            robot.wrist.setPosition(robot.tuningConfig("wrist_deposit_position").value());
-        } else if (button.equals("dpad_up")) {
+            robot.wrist.setPower(robot.tuningConfig("wrist_up_power").value());
+        }
+
+        if (button.equals("dpad_up")) {
             robot.wristManuallyControlled = false;
 
-            robot.wrist.setPosition(robot.tuningConfig("wrist_collect_position").value());
+            robot.wrist.setPower(robot.tuningConfig("wrist_down_power").value());
         }
 
         // Automatic Arm Control

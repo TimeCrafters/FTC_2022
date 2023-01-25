@@ -1,5 +1,6 @@
 package org.timecrafters.minibots.cyberarm.chiron.states.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -48,6 +49,7 @@ public class DrivetrainDriverControl extends CyberarmState {
 
         double y = invertRobotForward ? controller.left_stick_y : -controller.left_stick_y;
         double x = (invertRobotForward && !fieldCentricControl ? controller.left_stick_x : -controller.left_stick_x) * 1.1; // Counteract imperfect strafing
+
         double rx = -controller.right_stick_x;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 

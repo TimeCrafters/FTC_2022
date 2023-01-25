@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Blinker;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -32,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 public class Robot {
     private static final String TAG = "CHIRON | Robot";
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
-    public final ServoImplEx gripper, wrist;
+    public final ServoImplEx gripper;
+    public final CRServoImplEx wrist;
     public final IMU imu;
     public final ColorSensor indicatorA, indicatorB;
     public LynxModule expansionHub;
@@ -102,7 +104,7 @@ public class Robot {
         arm = engine.hardwareMap.get(DcMotorEx.class, "lift_drive");          // MOTOR PORT: ?
 
         gripper = engine.hardwareMap.get(ServoImplEx.class, "gripper");       // SERVO PORT: ?
-        wrist = engine.hardwareMap.get(ServoImplEx.class, "wrist");           // SERVO PORT: ?
+        wrist = engine.hardwareMap.get(CRServoImplEx.class, "wrist");         // SERVO PORT: ?
 
         indicatorA = engine.hardwareMap.colorSensor.get("indicator_A"); // I2C
         indicatorB = engine.hardwareMap.colorSensor.get("indicator_B"); // I2C
@@ -141,17 +143,19 @@ public class Robot {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //      MOTOR POWER
-        arm.setVelocity(
-                angleToTicks(tuningConfig("arm_velocity_in_degrees_per_second").value()));
+//        arm.setVelocity(
+//                angleToTicks(tuningConfig("arm_velocity_in_degrees_per_second").value()));
+        arm.setPower(0.75);
 
         //   SERVOS (POSITIONAL)
         //      Gripper
         gripper.setDirection(hardwareConfig("gripper_direction_forward").value() ? Servo.Direction.FORWARD : Servo.Direction.REVERSE);
         gripper.setPosition(tuningConfig("gripper_initial_position").value());
 
+        //   SERVOS (CONTINUOUS)
         //      Wrist
-        wrist.setDirection(hardwareConfig("wrist_direction_forward").value() ? Servo.Direction.FORWARD : Servo.Direction.REVERSE);
-        wrist.setPosition(tuningConfig("wrist_initial_position").value());
+        wrist.setDirection(hardwareConfig("wrist_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        wrist.setPower(tuningConfig("wrist_up_power").value());
 
         //   SENSORS
         //      COLOR SENSORS
@@ -232,7 +236,7 @@ public class Robot {
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("      Arm", "%d (%8.2f in)", arm.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, arm.getTargetPosition()));
+        engine.telemetry.addData("      Arm", "%d (%8.2f degrees)", arm.getTargetPosition(), ticksToAngle(arm.getTargetPosition()));
 
         // Motor Velocity
         engine.telemetry.addLine("Motor Velocity");
@@ -283,7 +287,7 @@ public class Robot {
         engine.telemetry.addData("      Gripper Enabled", gripper.isPwmEnabled());
         engine.telemetry.addLine();
         engine.telemetry.addData("      Wrist Direction", wrist.getDirection());
-        engine.telemetry.addData("      Wrist Position", wrist.getPosition());
+        engine.telemetry.addData("      Wrist Power", wrist.getPower());
         engine.telemetry.addData("      Wrist Enabled", wrist.isPwmEnabled());
 
         engine.telemetry.addLine();
@@ -293,6 +297,7 @@ public class Robot {
         engine.telemetry.addData("      Facing (Degrees)", facing());
         engine.telemetry.addData("      Heading (Radians)", heading());
         engine.telemetry.addData("      Turn Rate", turnRate());
+        engine.telemetry.addData("      Angle Offset (Degrees)", imuAngleOffset);
 
         engine.telemetry.addLine();
 
@@ -566,7 +571,10 @@ public class Robot {
         double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
         double deltaTime = (time - lastTiming) * 0.001;
 
-        double error = targetVelocity - arm.getVelocity();
+        double distanceToTarget = arm.getTargetPosition() - arm.getCurrentPosition();
+        double adjustedTargetVelocity = Math.abs(distanceToTarget) < targetVelocity ? Math.abs(distanceToTarget) : targetVelocity;
+
+        double error = adjustedTargetVelocity - arm.getVelocity();
         double kp = 0.9;
 
         newTargetVelocity += error * kp * deltaTime;
@@ -574,7 +582,9 @@ public class Robot {
         motorTargetVelocity.put("Arm", newTargetVelocity);
         motorVelocityLastTiming.put("Arm", time);
 
-        arm.setVelocity(newTargetVelocity);
+//        arm.setVelocity(newTargetVelocity);
+
+        arm.setPower(0.75);
     }
 
     public double getVoltage() {
@@ -584,11 +594,12 @@ public class Robot {
     public double facing() {
         double imuDegrees = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
-        return (imuDegrees + imuAngleOffset + 360.0) % 360.0;
+        return (((imuDegrees + 360.0) % 360.0) + imuAngleOffset) % 360.0;
     }
 
     public double heading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return AngleUnit.normalizeRadians(-facing() * Math.PI / 180.0);
+//        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     public double turnRate() {

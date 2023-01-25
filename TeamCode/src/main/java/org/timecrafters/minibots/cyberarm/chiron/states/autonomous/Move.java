@@ -8,7 +8,7 @@ public class Move extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
-    private final double positionXInInches, positionYInInches, toleranceInInches, facing, targetVelocity, timeInMS;
+    private final double targetDistance, tolerance, facing, targetVelocity, timeInMS;
 
     private final double maxVelocity;
     private double speed;
@@ -21,11 +21,10 @@ public class Move extends CyberarmState {
         this.groupName = groupName;
         this.actionName = actionName;
 
-        positionXInInches = robot.getConfiguration().variable(groupName, actionName, "positionXInInches").value();
-        positionYInInches = robot.getConfiguration().variable(groupName, actionName, "positionYInInches").value();
-        toleranceInInches = robot.getConfiguration().variable(groupName, actionName, "toleranceInInches").value();
+        targetDistance = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "targetDistanceInInches").value());
+        tolerance = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "toleranceInInches").value());
         facing = robot.getConfiguration().variable(groupName, actionName, "facing").value();
-        targetVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "targetVelocity").value());
+        targetVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "targetVelocityInInches").value());
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
 
@@ -36,7 +35,7 @@ public class Move extends CyberarmState {
     @Override
     public void start() {
         // TODO: Use a dead wheel for this
-        distanceAlreadyTravelled = robot.frontLeftDrive.getCurrentPosition();
+        distanceAlreadyTravelled = robot.frontRightDrive.getCurrentPosition();
     }
 
     @Override
@@ -55,23 +54,33 @@ public class Move extends CyberarmState {
             return;
         }
 
-        // TODO: Double check maths
-//        int travelledDistance = (robot.frontLeftDrive.getCurrentPosition() - distanceAlreadyTravelled);
-//        int targetDistance = robot.unitToTicks(DistanceUnit.INCH, distanceInInches);
-//        int tolerance = robot.unitToTicks(DistanceUnit.INCH, toleranceInInches);
-//
-//        if (robot.isBetween(targetDistance, travelledDistance - tolerance, travelledDistance + tolerance)) {
-//            stop();
-//
-//            setHasFinished(true);
-//
-//            return;
-//        }
+        int travelledDistance = -robot.frontRightDrive.getCurrentPosition() - distanceAlreadyTravelled;
 
-        move();
+        if (robot.isBetween(travelledDistance, targetDistance - tolerance, targetDistance + tolerance)) {
+            stop();
+
+            setHasFinished(true);
+
+            return;
+        }
+
+        moveDirectional(travelledDistance);
     }
 
-    private void move() {
+    private void moveDirectional(double travelledDistance) {
+        // TODO: Ease-in-out velocity
+        double velocity = targetVelocity;
+
+        if (targetDistance > travelledDistance) {
+            robot.frontRightDrive.setVelocity(-velocity);
+            robot.backLeftDrive.setVelocity(-velocity);
+        } else {
+            robot.frontRightDrive.setVelocity(velocity);
+            robot.backLeftDrive.setVelocity(velocity);
+        }
+    }
+
+    private void moveOmni() {
         if (Math.abs(speed) > maxVelocity) {
             speed = speed < 0 ? -maxVelocity : maxVelocity;
         }

@@ -13,7 +13,7 @@ public class GamepadChecker {
   private final Gamepad gamepad;
   private final HashMap<String, Boolean> buttons = new HashMap<>();
   private final HashMap<String, Long> buttonsDebounceInterval = new HashMap<>();
-  private final long debounceTime = 20L; // ms
+  private final long debounceTime = 0L; // ms
 
   public GamepadChecker(CyberarmEngine engine, Gamepad gamepad) {
     this.engine = engine;
