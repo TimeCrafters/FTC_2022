@@ -12,11 +12,13 @@ public class TeleOPTankDriver extends CyberarmState {
     private long lastStepTime = 0;
     private double drivePower = 0.3;
     private double RobotRotation;
+    private double currentDriveCommand;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
     private int DeltaOdometerR, Endeavour, Spirit;
     private boolean FreeSpirit;
     private GamepadChecker gamepad1Checker;
+
     public TeleOPTankDriver(PhoenixBot1 robot) {
         this.robot = robot;
     }
@@ -46,7 +48,8 @@ public class TeleOPTankDriver extends CyberarmState {
         }
 
         if (FreeSpirit) {
-            drivePower = -engine.gamepad1.left_stick_y;
+            getCurrentDriveCommand();
+            drivePower = -currentDriveCommand;
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
@@ -61,33 +64,50 @@ public class TeleOPTankDriver extends CyberarmState {
             robot.frontRightDrive.setPower(drivePower);
         }
 
-        if ()
-
+        if (Math.abs(engine.gamepad1.right_stick_x) > 0.1) {
+            drivePower = engine.gamepad1.right_stick_x;
+            robot.backLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(-drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.frontRightDrive.setPower(-drivePower);
+        }
 
 
     }
+
     public void CalculateDeltaRotation() {
         if (RotationTarget >= 0 && RobotRotation >= 0) {
             DeltaRotation = Math.abs(RotationTarget - RobotRotation);
-        }
-        else if (RotationTarget <= 0 && RobotRotation <= 0) {
+        } else if (RotationTarget <= 0 && RobotRotation <= 0) {
             DeltaRotation = Math.abs(RotationTarget - RobotRotation);
-        }
-        else if (RotationTarget >= 0 && RobotRotation <= 0) {
+        } else if (RotationTarget >= 0 && RobotRotation <= 0) {
             DeltaRotation = Math.abs(RotationTarget + RobotRotation);
-        }
-        else if (RotationTarget <=0 && RobotRotation >= 0) {
+        } else if (RotationTarget <= 0 && RobotRotation >= 0) {
             DeltaRotation = Math.abs(RobotRotation + RotationTarget);
         }
     }
 
-    public double getDeltaOdometerR() {
+    public void getDeltaOdometerR() {
         Spirit = robot.OdometerEncoder.getCurrentPosition();
         if (System.currentTimeMillis() - lastStepTime >= 1000) {
             lastStepTime = System.currentTimeMillis();
             DeltaOdometerR = robot.OdometerEncoder.getCurrentPosition() - Spirit;
         }
-        return DeltaOdometerR;
+    }
+
+    public void getCurrentDriveCommand() {
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
+            currentDriveCommand = engine.gamepad1.left_stick_y;
+        } else if (Math.abs(engine.gamepad1.left_stick_x) > 0.1) {
+            currentDriveCommand = engine.gamepad1.left_stick_x;
+        } else if (Math.abs(engine.gamepad1.right_stick_x) > 0.1) {
+            currentDriveCommand = engine.gamepad1.right_stick_x;
+        } else if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
+            currentDriveCommand = engine.gamepad1.right_stick_y;
+        } else if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
+            currentDriveCommand = 0;
+        }
+
     }
 
     @Override
