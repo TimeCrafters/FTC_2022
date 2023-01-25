@@ -71,8 +71,8 @@ public class Robot {
     private final FieldLocalizer fieldLocalizer;
     private final double radius, diameter;
 
-    private final double wheelRadius, gearRatio;
-    private final int ticksPerRevolution;
+    private final double wheelRadius, wheelGearRatio, armGearRatio;
+    private final int wheelTicksPerRevolution, armTicksPerRevolution;
 
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
@@ -88,9 +88,11 @@ public class Robot {
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
 
         wheelRadius = tuningConfig("wheel_radius").value();
-        gearRatio = tuningConfig("wheel_gear_ratio").value();
-        ticksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
+        wheelGearRatio = tuningConfig("wheel_gear_ratio").value();
+        wheelTicksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
 
+        armGearRatio = tuningConfig("arm_gear_ratio").value();
+        armTicksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
 
         // FIXME: Rename motors in configuration
         // Define hardware
@@ -450,7 +452,7 @@ public class Robot {
 
     // For: Drive Wheels
     public int unitToTicks(DistanceUnit unit, double distance) {
-        double fI = (gearRatio * ticksPerRevolution) / (wheelRadius * 2 * Math.PI * (gearRatio * ticksPerRevolution) / (gearRatio * ticksPerRevolution));
+        double fI = (wheelGearRatio * wheelTicksPerRevolution) / (wheelRadius * 2 * Math.PI * (wheelGearRatio * wheelTicksPerRevolution) / (wheelGearRatio * wheelTicksPerRevolution));
 
         double inches = unit.toInches(unit.fromUnit(unit, distance));
 
@@ -462,16 +464,14 @@ public class Robot {
     // For: Drive Wheels
     public double ticksToUnit(DistanceUnit unit, int ticks) {
         // Convert to inches, then to unit.
-        double inches = wheelRadius * 2 * Math.PI * ticks / (gearRatio * ticksPerRevolution);
+        double inches = wheelRadius * 2 * Math.PI * ticks / (wheelGearRatio * wheelTicksPerRevolution);
 
         return unit.fromUnit(DistanceUnit.INCH, inches);
     }
 
     // For: Arm
     public int angleToTicks(double angle) {
-        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
-
-        double d = ticksPerRevolution / 360.0;
+        double d = (armGearRatio * armTicksPerRevolution) / 360.0;
 
         // Casting to float so that the int version of Math.round is used.
         return Math.round((float)d * (float)angle);
@@ -479,9 +479,7 @@ public class Robot {
 
     // For: Arm
     public double ticksToAngle(int ticks) {
-        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
-
-        double oneDegree = 360.0 / ticksPerRevolution;
+        double oneDegree = 360.0 / (armGearRatio * armTicksPerRevolution);
 
         return oneDegree * ticks;
     }
