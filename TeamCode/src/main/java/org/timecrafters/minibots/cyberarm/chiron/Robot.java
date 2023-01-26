@@ -17,9 +17,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Action;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
@@ -43,6 +47,7 @@ public class Robot {
     public boolean wristManuallyControlled = false;
     public boolean automaticAntiTipActive = false;
     public boolean hardwareFault = false;
+    public String hardwareFaultMessage = "";
 
     private Status status = Status.OKAY, lastStatus = Status.OKAY;
     private final CopyOnWriteArrayList<Status> reportedStatuses = new CopyOnWriteArrayList<>();
@@ -81,6 +86,11 @@ public class Robot {
 
     private WristPosition wristTargetPosition, wristCurrentPosition;
     private double wristPositionChangeTime, wristPositionChangeRequestTime;
+
+    private static final String VUFORIA_KEY =
+            "Abmu1jv/////AAABmYzrcgDEi014nv+wD6PkEPVnOlV2pI3S9sGUMMR/X7hF72x20rP1JcVtsU0nI6VK0yUlYbCSA2k+yMo4hQmPDBvrqeqAgXKa57ilPhW5e1cB3BEevP+9VoJ9QYFhKA3JJTiuFS50WQeuFy3dp0gOPoqHL3XClRFZWbhzihyNnLXgXlKiq+i5GbfONECucQU2DgiuuxYlCaeNdUHl1X5C2pO80zZ6y7PYAp3p0ciXJxqfBoVAklhd69avaAE5Z84ctKscvcbxCS16lq81X7XgIFjshLoD/vpWa300llDG83+Y777q7b5v7gsUCZ6FiuK152Rd272HLuBRhoTXAt0ug9Baq5cz3sn0sAIEzSHX1nah";
+    private final VuforiaLocalizer vuforia;
+    private final TFObjectDetector tfod;
 
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
@@ -198,9 +208,36 @@ public class Robot {
             expansionHub.setPattern(ledPatternOkay());
         }
 
+        // Webcam
+        vuforia = initVuforia();
+        tfod = initTfod();
+
         // INITIALIZE AFTER EVERYTHING ELSE to prevent use before set crashes
         this.fieldLocalizer.setRobot(this);
         this.fieldLocalizer.standardSetup();
+    }
+
+    private VuforiaLocalizer initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
+
+         return ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    private TFObjectDetector initTfod() {
+        int tfodMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 300;
+        TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+
+        tfod.loadModelFromAsset("PowerPlay.tflite", "1 Bolt", "2 Bulb", "3 Panel");
+
+        return tfod;
     }
 
     public void standardTelemetry() {
@@ -210,6 +247,7 @@ public class Robot {
         engine.telemetry.addLine("DATA");
         engine.telemetry.addData("      Robot Status", status);
         engine.telemetry.addData("      Hardware Fault", hardwareFault);
+        engine.telemetry.addData("      Hardware Fault Message", hardwareFaultMessage);
         engine.telemetry.addLine();
 
         // Motor Powers
@@ -392,8 +430,11 @@ public class Robot {
             wrist.setPower(0);
         }
 
-        if (getVoltage() < 9.75) {
+        double voltage = getVoltage();
+        if (voltage < 9.75) {
             reportStatus(Status.DANGER);
+            hardwareFaultMessage = "Battery voltage to low! (" + voltage + " volts)";
+
             hardwareFault = true;
         }
 
@@ -527,6 +568,14 @@ public class Robot {
     public double getRadius() { return radius; }
 
     public double getDiameter() { return diameter; }
+
+    public double getVoltage() {
+        return engine.hardwareMap.voltageSensor.iterator().next().getVoltage();
+    }
+
+    public TFObjectDetector getTfod() { return tfod; }
+
+    public VuforiaLocalizer getVuforia() { return vuforia; }
 
     public TimeCraftersConfiguration getConfiguration() { return configuration; }
 
@@ -665,10 +714,6 @@ public class Robot {
 //        arm.setVelocity(newTargetVelocity);
 
         arm.setPower(0.75);
-    }
-
-    public double getVoltage() {
-        return engine.hardwareMap.voltageSensor.iterator().next().getVoltage();
     }
 
     public double facing() {

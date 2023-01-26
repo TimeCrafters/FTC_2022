@@ -1,11 +1,14 @@
 package org.timecrafters.minibots.cyberarm.chiron.engines;
 
+import android.util.Log;
+
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
 public class AutonomousEngine extends CyberarmEngine {
+    private static final String TAG = "CHIRON|AutonomousEngine";
     protected Robot robot;
     protected FieldLocalizer fieldLocalizer;
     protected TimeCraftersConfiguration configuration;
@@ -49,6 +52,12 @@ public class AutonomousEngine extends CyberarmEngine {
         super.loop();
 
         robot.standardTelemetry();
+
+        if (robot.hardwareFault) {
+            Log.e(TAG, "Hardware fault detected! Aborting run. Message: " + robot.hardwareFaultMessage);
+
+            stop();
+        }
     }
 
     @Override

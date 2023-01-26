@@ -128,6 +128,12 @@ public class DrivetrainDriverControl extends CyberarmState {
         // DEBUG: Toggle hardware fault
         if (button.equals("guide")) {
             robot.hardwareFault = !robot.hardwareFault;
+
+            if (robot.hardwareFault) {
+                robot.hardwareFaultMessage = "Manually triggered.";
+            } else {
+                robot.hardwareFaultMessage = "";
+            }
         }
 
         if (button.equals("back")) {
