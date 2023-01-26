@@ -59,6 +59,11 @@ public class Robot {
 
     }
 
+    public enum WristPosition {
+        UP,
+        DOWN
+    }
+
     public enum Status {
         OKAY,
         MONITORING,
@@ -73,6 +78,9 @@ public class Robot {
 
     private final double wheelRadius, wheelGearRatio, armGearRatio;
     private final int wheelTicksPerRevolution, armTicksPerRevolution;
+
+    private WristPosition wristTargetPosition, wristCurrentPosition;
+    private double wristPositionChangeTime, wristPositionChangeRequestTime;
 
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
@@ -93,6 +101,10 @@ public class Robot {
 
         armGearRatio = tuningConfig("arm_gear_ratio").value();
         armTicksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
+
+        wristTargetPosition = WristPosition.UP;
+        wristCurrentPosition = WristPosition.UP;
+        wristPositionChangeTime = 2500;
 
         // FIXME: Rename motors in configuration
         // Define hardware
@@ -372,6 +384,14 @@ public class Robot {
             hub.clearBulkCache();
         }
 
+        if (!wristManuallyControlled && wristTargetPosition != wristCurrentPosition &&
+                System.currentTimeMillis() - wristPositionChangeRequestTime >= wristPositionChangeTime) {
+            wristPositionChangeRequestTime = System.currentTimeMillis();
+            wristCurrentPosition = wristTargetPosition;
+
+            wrist.setPower(0);
+        }
+
         if (getVoltage() < 9.75) {
             reportStatus(Status.DANGER);
             hardwareFault = true;
@@ -438,6 +458,68 @@ public class Robot {
                 }
                 break;
         }
+    }
+
+    public void armPosition(ArmPosition position) {
+        if (hardwareFault) {
+            return;
+        }
+
+        reportStatus(Robot.Status.WARNING);
+
+        switch (position) {
+            case COLLECT:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_collect").value()));
+                break;
+
+            case GROUND:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_ground").value()));
+                break;
+
+            case LOW:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_low").value()));
+                break;
+
+            case MEDIUM:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_medium").value()));
+                break;
+
+            case HIGH:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_high").value()));
+                break;
+
+            default:
+                throw new RuntimeException("Unexpected arm position!");
+        }
+    }
+
+    public void wristPosition(WristPosition position) {
+        wristPositionChangeRequestTime = System.currentTimeMillis();
+        wristManuallyControlled = false;
+
+        if (position == WristPosition.UP) {
+            wrist.setPower(tuningConfig("wrist_up_power").value());
+        } else {
+            wrist.setPower(tuningConfig("wrist_down_power").value());
+        }
+    }
+
+    public void gripperOpen() {
+        gripper.setPosition(tuningConfig("gripper_open_position").value());
+    }
+
+    public void gripperClosed() {
+        gripper.setPosition(tuningConfig("gripper_closed_position").value());
+    }
+
+    // Adapted from: https://github.com/gosu/gosu/blob/980d64de2ce52e4b16fdd5cb9c9e11c8bbb80671/src/Math.cpp#L38
+    public double angleDiff(double from, double to) {
+        double value = (to - from + 180) - 180;
+
+        int fmod = (int) Math.floor(value - 0.0 / 360.0 - 0.0);
+        double result = (value - 0.0) - fmod * (360.0 - 0.0);
+
+        return result < 0 ? result + 360.0 : result + 0.0;
     }
 
     public Status getStatus() { return status; }

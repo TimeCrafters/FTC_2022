@@ -108,7 +108,7 @@ public class Move extends CyberarmState {
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
 
-        double frontLeftPower = 0, frontRightPower = 0, backLeftPower = 0 , backRightPower = 0;
+        double frontLeftPower, frontRightPower, backLeftPower, backRightPower;
 
         double heading = robot.heading();
         double rotX = x * Math.cos(heading) - y * Math.sin(heading);

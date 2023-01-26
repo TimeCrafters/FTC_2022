@@ -3,35 +3,31 @@ package org.timecrafters.minibots.cyberarm.chiron.states.autonomous;
 import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 
-public class Arm extends CyberarmState {
+public class Wrist extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
-    private final double targetVelocity, timeInMS;
-    private final int tolerance, targetPosition;
-    private final boolean stateDisabled;
+    private final double timeInMS;
+    private final boolean stateDisabled, positionUp;
 
-    public Arm(Robot robot, String groupName, String actionName) {
+    public Wrist(Robot robot, String groupName, String actionName) {
         this.robot = robot;
         this.groupName = groupName;
         this.actionName = actionName;
 
-        targetVelocity = robot.angleToTicks(
-                robot.getConfiguration().variable(groupName, actionName, "targetVelocityInDegreesPerSecond").value());
-        tolerance = robot.angleToTicks(
-                robot.getConfiguration().variable(groupName, actionName, "toleranceInDegrees").value());
-        targetPosition = robot.angleToTicks(
-                robot.getConfiguration().variable(groupName, actionName, "targetAngle").value());
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
+        positionUp = robot.getConfiguration().variable(groupName, actionName, "positionUp").value();
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
     }
 
     @Override
     public void start() {
-        robot.arm.setTargetPosition(targetPosition);
-        robot.arm.setTargetPositionTolerance(tolerance);
-        robot.arm.setVelocity(targetVelocity);
+        if (positionUp) {
+            robot.wristPosition(Robot.WristPosition.UP);
+        } else {
+            robot.wristPosition(Robot.WristPosition.DOWN);
+        }
     }
 
     @Override
@@ -49,5 +45,10 @@ public class Arm extends CyberarmState {
 
             return;
         }
+    }
+
+    @Override
+    public void stop() {
+        robot.wrist.setPower(0);
     }
 }

@@ -58,11 +58,10 @@ public class ArmDriverControl extends CyberarmState {
         double stepInterval = robot.tuningConfig("arm_manual_step_interval").value();
         int stepSize = robot.tuningConfig("arm_manual_step_size").value();
 
-        if ((controller.left_trigger > 0 || controller.right_trigger > 0) && runTime() - lastWristManualControlTime >= stepInterval) {
-            lastWristManualControlTime = runTime();
+        if ((controller.left_trigger > 0 || controller.right_trigger > 0) && runTime() - lastArmManualControlTime >= stepInterval) {
+            lastArmManualControlTime = runTime();
 
             if (controller.left_trigger > 0) { // Arm DOWN
-                // robot.arm.setVelocity(5, AngleUnit.DEGREES);
                 robot.arm.setTargetPosition(robot.arm.getCurrentPosition() - stepSize);
 
             } else if (controller.right_trigger > 0) { // Arm UP
@@ -150,47 +149,6 @@ public class ArmDriverControl extends CyberarmState {
         }
     }
 
-    private void armPosition(Robot.ArmPosition position) {
-        if (robot.hardwareFault) {
-            return;
-        }
-
-        robot.reportStatus(Robot.Status.WARNING);
-
-        switch (position) {
-            case COLLECT:
-                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_collect").value()));
-                break;
-
-            case GROUND:
-                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_ground").value()));
-                break;
-
-            case LOW:
-                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_low").value()));
-                break;
-
-            case MEDIUM:
-                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_medium").value()));
-                break;
-
-            case HIGH:
-                robot.arm.setTargetPosition(robot.angleToTicks(robot.tuningConfig("arm_position_angle_high").value()));
-                break;
-
-            default:
-                throw new RuntimeException("Unexpected arm position!");
-        }
-    }
-
-    private void gripperOpen() {
-        robot.gripper.setPosition(robot.tuningConfig("gripper_open_position").value());
-    }
-
-    private void gripperClosed() {
-        robot.gripper.setPosition(robot.tuningConfig("gripper_closed_position").value());
-    }
-
     @Override
     public void buttonDown(Gamepad gamepad, String button) {
         // Swap controlling gamepad
@@ -206,31 +164,32 @@ public class ArmDriverControl extends CyberarmState {
         if (button.equals("left_bumper")) {
             gripperReleaseTriggeredTime = runTime();
         } else if (button.equals("right_bumper")) {
-            gripperClosed();
+            robot.gripperClosed();
         }
 
         // Wrist Control
-        if (button.equals("dpad_down")) {
-            robot.wristManuallyControlled = false;
-
-            robot.wrist.setPower(robot.tuningConfig("wrist_up_power").value());
+        if (button.equals("dpad_up")) {
+            robot.wristPosition(Robot.WristPosition.UP);
         }
 
-        if (button.equals("dpad_up")) {
-            robot.wristManuallyControlled = false;
-
-            robot.wrist.setPower(robot.tuningConfig("wrist_down_power").value());
+        if (button.equals("dpad_down")) {
+            robot.wristPosition(Robot.WristPosition.DOWN);
         }
 
         // Automatic Arm Control
-        if (button.equals("a")) {
-            armPosition(Robot.ArmPosition.COLLECT);
-        } else if (button.equals("x")) {
-            armPosition(Robot.ArmPosition.GROUND);
-        } else if (button.equals("b")) {
-            armPosition(Robot.ArmPosition.LOW);
-        } else if (button.equals("y")) {
-            armPosition(Robot.ArmPosition.MEDIUM);
+        switch (button) {
+            case "a":
+                robot.armPosition(Robot.ArmPosition.COLLECT);
+                break;
+            case "x":
+                robot.armPosition(Robot.ArmPosition.GROUND);
+                break;
+            case "b":
+                robot.armPosition(Robot.ArmPosition.LOW);
+                break;
+            case "y":
+                robot.armPosition(Robot.ArmPosition.MEDIUM);
+                break;
         }
     }
 
@@ -242,7 +201,7 @@ public class ArmDriverControl extends CyberarmState {
 
         // Gripper Control - Require confirmation before opening gripper
         if (button.equals("left_bumper") && runTime() - gripperReleaseTriggeredTime >= gripperOpenConfirmationDelay) {
-            gripperOpen();
+            robot.gripperOpen();
         }
     }
 }

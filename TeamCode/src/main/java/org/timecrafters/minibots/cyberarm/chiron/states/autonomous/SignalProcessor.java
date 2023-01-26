@@ -14,6 +14,11 @@ public class SignalProcessor extends CyberarmState {
     }
 
     @Override
+    public void start() {
+        engine.blackboardSet("parking_position", System.currentTimeMillis() % 3);
+    }
+
+    @Override
     public void exec() {
         // FIXME: NO OP
         setHasFinished(true);
