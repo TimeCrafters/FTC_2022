@@ -11,7 +11,7 @@ public class TeleOPArmDriver extends CyberarmState {
     private long lastStepTime = 0;
     private int CyclingArmUpAndDown = 0;
     private GamepadChecker gamepad2Checker;
-    private int Opportunity, Endeavour;
+    private int Opportunity, Endeavour, Peanut;
     private double drivePower;
     private double MinimalPower = 0.25, topServoOffset = -0.05, lowServoOffset = -0.05;
     private double servoCollectLow = 0.40; //Low servos, A button
@@ -187,6 +187,29 @@ public void exec() {
                     robot.HighRiserLeft.getPosition() <= servoCollectHigh) {
                 Endeavour = 0;
             }
+        }
+
+        if (engine.gamepad2.dpad_left && Peanut != 1) {
+            Peanut = 1;
+        }
+
+        if (engine.gamepad2.dpad_right && Peanut != 2) {
+            Peanut = 2;
+        }
+
+        if (engine.gamepad2.dpad_left && Peanut == 1 || engine.gamepad2.dpad_right && Peanut == 2) {
+            robot.collectorLeft.setPower(0);
+            robot.collectorRight.setPower(0);
+        }
+
+        if (Peanut == 1) {
+            robot.collectorRight.setPower(1);
+            robot.collectorLeft.setPower(-1);
+        }
+
+        if (Peanut == 2) {
+            robot.collectorLeft.setPower(1);
+            robot.collectorRight.setPower(-1);
         }
 
     }

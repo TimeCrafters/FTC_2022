@@ -104,7 +104,7 @@ public class TeleOPTankDriver extends CyberarmState {
             currentDriveCommand = engine.gamepad1.right_stick_x;
         } else if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
             currentDriveCommand = engine.gamepad1.right_stick_y;
-        } else if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
+        } else if ((Math.abs(engine.gamepad1.left_stick_y)) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1 && !FreeSpirit) {
             currentDriveCommand = 0;
         }
 
