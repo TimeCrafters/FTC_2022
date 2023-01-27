@@ -19,8 +19,6 @@ public class ArmDriverControl extends CyberarmState {
 
     private Gamepad controller;
 
-    private double lastArmManualControlTime = 0, lastWristManualControlTime = 0;
-
     private final double gripperOpenConfirmationDelay;
     private double gripperReleaseTriggeredTime = 0;
 
@@ -44,8 +42,6 @@ public class ArmDriverControl extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("Arm Interval", lastArmManualControlTime);
-        engine.telemetry.addData("Wrist Interval", lastWristManualControlTime);
     }
 
     private void armManualControl() {
@@ -53,23 +49,34 @@ public class ArmDriverControl extends CyberarmState {
             return;
         }
 
-        robot.reportStatus(Robot.Status.WARNING);
+        double armVelocity = robot.tuningConfig("arm_velocity_in_degrees_per_second").value();
+        double armManualPower = robot.tuningConfig("arm_manual_power").value();
+        double armAutomaticPower = robot.tuningConfig("arm_automatic_power").value();
 
-        double stepInterval = robot.tuningConfig("arm_manual_step_interval").value();
-        int stepSize = robot.tuningConfig("arm_manual_step_size").value();
+        if ((controller.left_trigger > 0 || controller.right_trigger > 0)) {
+            robot.armManuallyControlled = true;
 
-        if ((controller.left_trigger > 0 || controller.right_trigger > 0) && runTime() - lastArmManualControlTime >= stepInterval) {
-            lastArmManualControlTime = runTime();
+            robot.reportStatus(Robot.Status.WARNING);
+
+            robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             if (controller.left_trigger > 0) { // Arm DOWN
-                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() - stepSize);
+                robot.arm.setPower(-armManualPower * Math.sqrt(controller.left_trigger));
 
             } else if (controller.right_trigger > 0) { // Arm UP
-                robot.arm.setTargetPosition(robot.arm.getCurrentPosition() + stepSize);
+                robot.arm.setPower(armManualPower * Math.sqrt(controller.right_trigger));
             }
         }
 
-        // FIXME: Detect when the triggers have been released and park arm at the current position
+        if (robot.armManuallyControlled && controller.left_trigger == 0 && controller.right_trigger == 0) {
+            robot.armManuallyControlled = false;
+
+            robot.arm.setPower(armAutomaticPower);
+
+            robot.arm.setTargetPosition(robot.arm.getCurrentPosition());
+
+            robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
 
     private void wristManualControl() {
@@ -84,14 +91,13 @@ public class ArmDriverControl extends CyberarmState {
 
             if (controller.dpad_left) { // Wrist Left
                 robot.wrist.setPower(stepPower);
-
             }
             if (controller.dpad_right) { // Wrist Right
                 robot.wrist.setPower(-stepPower);
             }
         }
 
-        if (!controller.dpad_left && !controller.dpad_right) {
+        if (robot.wristManuallyControlled && !controller.dpad_left && !controller.dpad_right) {
             robot.wrist.setPower(0);
         }
     }
@@ -128,6 +134,10 @@ public class ArmDriverControl extends CyberarmState {
     }
 
     private void automaticArmVelocity() {
+        if (robot.armManuallyControlled) {
+            return;
+        }
+
         robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // robot.controlMotorPIDF(
@@ -161,10 +171,10 @@ public class ArmDriverControl extends CyberarmState {
         }
 
         // Gripper Control
-        if (button.equals("left_bumper")) {
-            gripperReleaseTriggeredTime = runTime();
-        } else if (button.equals("right_bumper")) {
+        if (button.equals("right_bumper")) {
             robot.gripperClosed();
+        } else if (button.equals("left_bumper")) {
+            robot.gripperOpen();
         }
 
         // Wrist Control
@@ -197,11 +207,6 @@ public class ArmDriverControl extends CyberarmState {
     public void buttonUp(Gamepad gamepad, String button) {
         if (gamepad != controller) {
             return;
-        }
-
-        // Gripper Control - Require confirmation before opening gripper
-        if (button.equals("left_bumper") && runTime() - gripperReleaseTriggeredTime >= gripperOpenConfirmationDelay) {
-            robot.gripperOpen();
         }
     }
 }

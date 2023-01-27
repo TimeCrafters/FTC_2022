@@ -14,6 +14,8 @@ public class SignalProcessor extends CyberarmState {
     private final int fallbackPosition;
     private final boolean stateDisabled;
 
+    private List<Recognition> updatedRecognitions;
+
     public SignalProcessor(Robot robot, String groupName, String actionName) {
         this.robot = robot;
         this.groupName = groupName;
@@ -50,10 +52,14 @@ public class SignalProcessor extends CyberarmState {
         if (robot.getTfod() != null) {
             // getUpdatedRecognitions() will return null if no new information is available since
             // the last time that call was made.
-            List<Recognition> updatedRecognitions = robot.getTfod().getUpdatedRecognitions();
+            List<Recognition> recognitions = robot.getTfod().getUpdatedRecognitions();
 
-            if (updatedRecognitions != null) {
-                for (Recognition recognition : updatedRecognitions) {
+            if (recognitions != null) {
+                updatedRecognitions = recognitions;
+            }
+
+            if (recognitions != null) {
+                for (Recognition recognition : recognitions) {
                     switch (recognition.getLabel()) {
                         case "1 Bolt":
                             engine.blackboardSet("parking_position", 1);
@@ -76,10 +82,6 @@ public class SignalProcessor extends CyberarmState {
     @Override
     public void telemetry() {
         if (robot.getTfod() != null) {
-            // getUpdatedRecognitions() will return null if no new information is available since
-            // the last time that call was made.
-            List<Recognition> updatedRecognitions = robot.getTfod().getUpdatedRecognitions();
-
             if (updatedRecognitions != null) {
                 engine.telemetry.addData("# Objects Detected", updatedRecognitions.size());
 

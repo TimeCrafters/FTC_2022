@@ -44,7 +44,7 @@ public class Robot {
     public LynxModule expansionHub;
 
     public final double imuAngleOffset;
-    public boolean wristManuallyControlled = false;
+    public boolean wristManuallyControlled = false, armManuallyControlled = false;
     public boolean automaticAntiTipActive = false;
     public boolean hardwareFault = false;
     public String hardwareFaultMessage = "";
@@ -87,8 +87,6 @@ public class Robot {
     private WristPosition wristTargetPosition, wristCurrentPosition;
     private double wristPositionChangeTime, wristPositionChangeRequestTime;
 
-    private static final String VUFORIA_KEY =
-            "Abmu1jv/////AAABmYzrcgDEi014nv+wD6PkEPVnOlV2pI3S9sGUMMR/X7hF72x20rP1JcVtsU0nI6VK0yUlYbCSA2k+yMo4hQmPDBvrqeqAgXKa57ilPhW5e1cB3BEevP+9VoJ9QYFhKA3JJTiuFS50WQeuFy3dp0gOPoqHL3XClRFZWbhzihyNnLXgXlKiq+i5GbfONECucQU2DgiuuxYlCaeNdUHl1X5C2pO80zZ6y7PYAp3p0ciXJxqfBoVAklhd69avaAE5Z84ctKscvcbxCS16lq81X7XgIFjshLoD/vpWa300llDG83+Y777q7b5v7gsUCZ6FiuK152Rd272HLuBRhoTXAt0ug9Baq5cz3sn0sAIEzSHX1nah";
     private final VuforiaLocalizer vuforia;
     private final TFObjectDetector tfod;
 
@@ -113,8 +111,9 @@ public class Robot {
         armTicksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
 
         wristTargetPosition = WristPosition.UP;
-        wristCurrentPosition = WristPosition.UP;
+        wristCurrentPosition = WristPosition.DOWN;
         wristPositionChangeTime = 2500;
+        wristPositionChangeRequestTime = System.currentTimeMillis();
 
         // FIXME: Rename motors in configuration
         // Define hardware
@@ -167,9 +166,7 @@ public class Robot {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //      MOTOR POWER
-//        arm.setVelocity(
-//                angleToTicks(tuningConfig("arm_velocity_in_degrees_per_second").value()));
-        arm.setPower(0.75);
+        arm.setPower(tuningConfig("arm_automatic_power").value());
 
         //   SERVOS (POSITIONAL)
         //      Gripper
@@ -220,7 +217,7 @@ public class Robot {
     private VuforiaLocalizer initVuforia() {
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
 
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
+        parameters.vuforiaLicenseKey = hardwareConfig("vuforia_license_key").value();
         parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
 
          return ClassFactory.getInstance().createVuforia(parameters);
@@ -341,6 +338,9 @@ public class Robot {
         engine.telemetry.addData("      Wrist Direction", wrist.getDirection());
         engine.telemetry.addData("      Wrist Power", wrist.getPower());
         engine.telemetry.addData("      Wrist Enabled", wrist.isPwmEnabled());
+        engine.telemetry.addData("      Wrist Current Position", wristCurrentPosition);
+        engine.telemetry.addData("      Wrist Target Position", wristTargetPosition);
+        engine.telemetry.addData("      Wrist Position Change Request Time", System.currentTimeMillis() - wristPositionChangeRequestTime);
 
         engine.telemetry.addLine();
 
@@ -424,7 +424,7 @@ public class Robot {
 
         if (!wristManuallyControlled && wristTargetPosition != wristCurrentPosition &&
                 System.currentTimeMillis() - wristPositionChangeRequestTime >= wristPositionChangeTime) {
-            wristPositionChangeRequestTime = System.currentTimeMillis();
+//            wristPositionChangeRequestTime = System.currentTimeMillis();
             wristCurrentPosition = wristTargetPosition;
 
             wrist.setPower(0);
@@ -537,6 +537,7 @@ public class Robot {
     public void wristPosition(WristPosition position) {
         wristPositionChangeRequestTime = System.currentTimeMillis();
         wristManuallyControlled = false;
+        wristTargetPosition = position;
 
         if (position == WristPosition.UP) {
             wrist.setPower(tuningConfig("wrist_up_power").value());
@@ -695,25 +696,25 @@ public class Robot {
 
     @SuppressLint("NewApi")
     public void controlArmMotor(double targetVelocity) {
-        double time = System.currentTimeMillis();
-        double newTargetVelocity = motorTargetVelocity.getOrDefault("Arm", targetVelocity);
-        double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
-        double deltaTime = (time - lastTiming) * 0.001;
-
-        double distanceToTarget = arm.getTargetPosition() - arm.getCurrentPosition();
-        double adjustedTargetVelocity = Math.abs(distanceToTarget) < targetVelocity ? Math.abs(distanceToTarget) : targetVelocity;
-
-        double error = adjustedTargetVelocity - arm.getVelocity();
-        double kp = 0.9;
-
-        newTargetVelocity += error * kp * deltaTime;
-
-        motorTargetVelocity.put("Arm", newTargetVelocity);
-        motorVelocityLastTiming.put("Arm", time);
+//        double time = System.currentTimeMillis();
+//        double newTargetVelocity = motorTargetVelocity.getOrDefault("Arm", targetVelocity);
+//        double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
+//        double deltaTime = (time - lastTiming) * 0.001;
+//
+//        double distanceToTarget = arm.getTargetPosition() - arm.getCurrentPosition();
+//        double adjustedTargetVelocity = Math.abs(distanceToTarget) < targetVelocity ? Math.abs(distanceToTarget) : targetVelocity;
+//
+//        double error = adjustedTargetVelocity - arm.getVelocity();
+//        double kp = 0.9;
+//
+//        newTargetVelocity += error * kp * deltaTime;
+//
+//        motorTargetVelocity.put("Arm", newTargetVelocity);
+//        motorVelocityLastTiming.put("Arm", time);
 
 //        arm.setVelocity(newTargetVelocity);
 
-        arm.setPower(0.75);
+        arm.setPower(tuningConfig("arm_automatic_power").value());
     }
 
     public double facing() {
