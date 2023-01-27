@@ -415,7 +415,7 @@ public abstract class CyberarmEngine extends OpMode {
    * @param objectClass Class to cast object to
    * @param groupName Group name
    */
-  protected void setupFromConfig(TimeCraftersConfiguration configuration, String packageName, Object object, Class<?> objectClass, String groupName) {
+  public void setupFromConfig(TimeCraftersConfiguration configuration, String packageName, Object object, Class<?> objectClass, String groupName) {
     CyberarmState lastState = null;
     String lastActionName = null;
     String[] lastActionNameSplit = new String[0];

@@ -8,7 +8,7 @@ import org.timecrafters.minibots.cyberarm.chiron.engines.AutonomousEngine;
 public class AutonomousBlueLeftSideEngine extends AutonomousEngine {
     @Override
     public void setup() {
-        actionsGroupName = "AutonomousBlueLeftSide";
+        actionsGroupName = "AutonomousLeftSide";
         tuningGroupName = "Autonomous";
         tuningActionName = "Tuning_Blue_LeftSide";
 

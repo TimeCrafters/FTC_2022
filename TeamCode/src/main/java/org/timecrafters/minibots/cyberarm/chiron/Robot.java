@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Blinker;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -16,9 +17,13 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
+import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Action;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
@@ -32,15 +37,17 @@ import java.util.concurrent.TimeUnit;
 public class Robot {
     private static final String TAG = "CHIRON | Robot";
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
-    public final ServoImplEx gripper, wrist;
+    public final ServoImplEx gripper;
+    public final CRServoImplEx wrist;
     public final IMU imu;
     public final ColorSensor indicatorA, indicatorB;
     public LynxModule expansionHub;
 
     public final double imuAngleOffset;
-    public boolean wristManuallyControlled = false;
+    public boolean wristManuallyControlled = false, armManuallyControlled = false;
     public boolean automaticAntiTipActive = false;
     public boolean hardwareFault = false;
+    public String hardwareFaultMessage = "";
 
     private Status status = Status.OKAY, lastStatus = Status.OKAY;
     private final CopyOnWriteArrayList<Status> reportedStatuses = new CopyOnWriteArrayList<>();
@@ -57,6 +64,11 @@ public class Robot {
 
     }
 
+    public enum WristPosition {
+        UP,
+        DOWN
+    }
+
     public enum Status {
         OKAY,
         MONITORING,
@@ -69,8 +81,14 @@ public class Robot {
     private final FieldLocalizer fieldLocalizer;
     private final double radius, diameter;
 
-    private final double wheelRadius, gearRatio;
-    private final int ticksPerRevolution;
+    private final double wheelRadius, wheelGearRatio, armGearRatio;
+    private final int wheelTicksPerRevolution, armTicksPerRevolution;
+
+    private WristPosition wristTargetPosition, wristCurrentPosition;
+    private double wristPositionChangeTime, wristPositionChangeRequestTime;
+
+    private final VuforiaLocalizer vuforia;
+    private final TFObjectDetector tfod;
 
     private boolean LEDStatusToggle = false;
     private double lastLEDStatusAnimationTime = 0;
@@ -86,9 +104,16 @@ public class Robot {
         imuAngleOffset = hardwareConfig("imu_angle_offset").value();
 
         wheelRadius = tuningConfig("wheel_radius").value();
-        gearRatio = tuningConfig("wheel_gear_ratio").value();
-        ticksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
+        wheelGearRatio = tuningConfig("wheel_gear_ratio").value();
+        wheelTicksPerRevolution = tuningConfig("wheel_ticks_per_revolution").value();
 
+        armGearRatio = tuningConfig("arm_gear_ratio").value();
+        armTicksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
+
+        wristTargetPosition = WristPosition.UP;
+        wristCurrentPosition = WristPosition.DOWN;
+        wristPositionChangeTime = 2500;
+        wristPositionChangeRequestTime = System.currentTimeMillis();
 
         // FIXME: Rename motors in configuration
         // Define hardware
@@ -102,7 +127,7 @@ public class Robot {
         arm = engine.hardwareMap.get(DcMotorEx.class, "lift_drive");          // MOTOR PORT: ?
 
         gripper = engine.hardwareMap.get(ServoImplEx.class, "gripper");       // SERVO PORT: ?
-        wrist = engine.hardwareMap.get(ServoImplEx.class, "wrist");           // SERVO PORT: ?
+        wrist = engine.hardwareMap.get(CRServoImplEx.class, "wrist");         // SERVO PORT: ?
 
         indicatorA = engine.hardwareMap.colorSensor.get("indicator_A"); // I2C
         indicatorB = engine.hardwareMap.colorSensor.get("indicator_B"); // I2C
@@ -141,17 +166,17 @@ public class Robot {
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         //      MOTOR POWER
-        arm.setVelocity(
-                angleToTicks(tuningConfig("arm_velocity_in_degrees_per_second").value()));
+        arm.setPower(tuningConfig("arm_automatic_power").value());
 
         //   SERVOS (POSITIONAL)
         //      Gripper
         gripper.setDirection(hardwareConfig("gripper_direction_forward").value() ? Servo.Direction.FORWARD : Servo.Direction.REVERSE);
         gripper.setPosition(tuningConfig("gripper_initial_position").value());
 
+        //   SERVOS (CONTINUOUS)
         //      Wrist
-        wrist.setDirection(hardwareConfig("wrist_direction_forward").value() ? Servo.Direction.FORWARD : Servo.Direction.REVERSE);
-        wrist.setPosition(tuningConfig("wrist_initial_position").value());
+        wrist.setDirection(hardwareConfig("wrist_direction_forward").value() ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        wrist.setPower(tuningConfig("wrist_up_power").value());
 
         //   SENSORS
         //      COLOR SENSORS
@@ -180,9 +205,36 @@ public class Robot {
             expansionHub.setPattern(ledPatternOkay());
         }
 
+        // Webcam
+        vuforia = initVuforia();
+        tfod = initTfod();
+
         // INITIALIZE AFTER EVERYTHING ELSE to prevent use before set crashes
         this.fieldLocalizer.setRobot(this);
         this.fieldLocalizer.standardSetup();
+    }
+
+    private VuforiaLocalizer initVuforia() {
+        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
+
+        parameters.vuforiaLicenseKey = hardwareConfig("vuforia_license_key").value();
+        parameters.cameraName = engine.hardwareMap.get(WebcamName.class, "Webcam 1");
+
+         return ClassFactory.getInstance().createVuforia(parameters);
+    }
+
+    private TFObjectDetector initTfod() {
+        int tfodMonitorViewId = engine.hardwareMap.appContext.getResources().getIdentifier(
+                "tfodMonitorViewId", "id", engine.hardwareMap.appContext.getPackageName());
+        TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
+        tfodParameters.minResultConfidence = 0.75f;
+        tfodParameters.isModelTensorFlow2 = true;
+        tfodParameters.inputSize = 300;
+        TFObjectDetector tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
+
+        tfod.loadModelFromAsset("PowerPlay.tflite", "1 Bolt", "2 Bulb", "3 Panel");
+
+        return tfod;
     }
 
     public void standardTelemetry() {
@@ -192,6 +244,7 @@ public class Robot {
         engine.telemetry.addLine("DATA");
         engine.telemetry.addData("      Robot Status", status);
         engine.telemetry.addData("      Hardware Fault", hardwareFault);
+        engine.telemetry.addData("      Hardware Fault Message", hardwareFaultMessage);
         engine.telemetry.addLine();
 
         // Motor Powers
@@ -232,7 +285,7 @@ public class Robot {
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("      Arm", "%d (%8.2f in)", arm.getTargetPosition(), ticksToUnit(DistanceUnit.INCH, arm.getTargetPosition()));
+        engine.telemetry.addData("      Arm", "%d (%8.2f degrees)", arm.getTargetPosition(), ticksToAngle(arm.getTargetPosition()));
 
         // Motor Velocity
         engine.telemetry.addLine("Motor Velocity");
@@ -283,8 +336,11 @@ public class Robot {
         engine.telemetry.addData("      Gripper Enabled", gripper.isPwmEnabled());
         engine.telemetry.addLine();
         engine.telemetry.addData("      Wrist Direction", wrist.getDirection());
-        engine.telemetry.addData("      Wrist Position", wrist.getPosition());
+        engine.telemetry.addData("      Wrist Power", wrist.getPower());
         engine.telemetry.addData("      Wrist Enabled", wrist.isPwmEnabled());
+        engine.telemetry.addData("      Wrist Current Position", wristCurrentPosition);
+        engine.telemetry.addData("      Wrist Target Position", wristTargetPosition);
+        engine.telemetry.addData("      Wrist Position Change Request Time", System.currentTimeMillis() - wristPositionChangeRequestTime);
 
         engine.telemetry.addLine();
 
@@ -293,6 +349,7 @@ public class Robot {
         engine.telemetry.addData("      Facing (Degrees)", facing());
         engine.telemetry.addData("      Heading (Radians)", heading());
         engine.telemetry.addData("      Turn Rate", turnRate());
+        engine.telemetry.addData("      Angle Offset (Degrees)", imuAngleOffset);
 
         engine.telemetry.addLine();
 
@@ -365,8 +422,19 @@ public class Robot {
             hub.clearBulkCache();
         }
 
-        if (getVoltage() < 9.75) {
+        if (!wristManuallyControlled && wristTargetPosition != wristCurrentPosition &&
+                System.currentTimeMillis() - wristPositionChangeRequestTime >= wristPositionChangeTime) {
+//            wristPositionChangeRequestTime = System.currentTimeMillis();
+            wristCurrentPosition = wristTargetPosition;
+
+            wrist.setPower(0);
+        }
+
+        double voltage = getVoltage();
+        if (voltage < 9.75) {
             reportStatus(Status.DANGER);
+            hardwareFaultMessage = "Battery voltage to low! (" + voltage + " volts)";
+
             hardwareFault = true;
         }
 
@@ -433,11 +501,82 @@ public class Robot {
         }
     }
 
+    public void armPosition(ArmPosition position) {
+        if (hardwareFault) {
+            return;
+        }
+
+        reportStatus(Robot.Status.WARNING);
+
+        switch (position) {
+            case COLLECT:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_collect").value()));
+                break;
+
+            case GROUND:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_ground").value()));
+                break;
+
+            case LOW:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_low").value()));
+                break;
+
+            case MEDIUM:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_medium").value()));
+                break;
+
+            case HIGH:
+                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_high").value()));
+                break;
+
+            default:
+                throw new RuntimeException("Unexpected arm position!");
+        }
+    }
+
+    public void wristPosition(WristPosition position) {
+        wristPositionChangeRequestTime = System.currentTimeMillis();
+        wristManuallyControlled = false;
+        wristTargetPosition = position;
+
+        if (position == WristPosition.UP) {
+            wrist.setPower(tuningConfig("wrist_up_power").value());
+        } else {
+            wrist.setPower(tuningConfig("wrist_down_power").value());
+        }
+    }
+
+    public void gripperOpen() {
+        gripper.setPosition(tuningConfig("gripper_open_position").value());
+    }
+
+    public void gripperClosed() {
+        gripper.setPosition(tuningConfig("gripper_closed_position").value());
+    }
+
+    // Adapted from: https://github.com/gosu/gosu/blob/980d64de2ce52e4b16fdd5cb9c9e11c8bbb80671/src/Math.cpp#L38
+    public double angleDiff(double from, double to) {
+        double value = (to - from + 180) - 180;
+
+        int fmod = (int) Math.floor(value - 0.0 / 360.0 - 0.0);
+        double result = (value - 0.0) - fmod * (360.0 - 0.0);
+
+        return result < 0 ? result + 360.0 : result + 0.0;
+    }
+
     public Status getStatus() { return status; }
 
     public double getRadius() { return radius; }
 
     public double getDiameter() { return diameter; }
+
+    public double getVoltage() {
+        return engine.hardwareMap.voltageSensor.iterator().next().getVoltage();
+    }
+
+    public TFObjectDetector getTfod() { return tfod; }
+
+    public VuforiaLocalizer getVuforia() { return vuforia; }
 
     public TimeCraftersConfiguration getConfiguration() { return configuration; }
 
@@ -445,7 +584,7 @@ public class Robot {
 
     // For: Drive Wheels
     public int unitToTicks(DistanceUnit unit, double distance) {
-        double fI = (gearRatio * ticksPerRevolution) / (wheelRadius * 2 * Math.PI * (gearRatio * ticksPerRevolution) / (gearRatio * ticksPerRevolution));
+        double fI = (wheelGearRatio * wheelTicksPerRevolution) / (wheelRadius * 2 * Math.PI * (wheelGearRatio * wheelTicksPerRevolution) / (wheelGearRatio * wheelTicksPerRevolution));
 
         double inches = unit.toInches(unit.fromUnit(unit, distance));
 
@@ -457,16 +596,14 @@ public class Robot {
     // For: Drive Wheels
     public double ticksToUnit(DistanceUnit unit, int ticks) {
         // Convert to inches, then to unit.
-        double inches = wheelRadius * 2 * Math.PI * ticks / (gearRatio * ticksPerRevolution);
+        double inches = wheelRadius * 2 * Math.PI * ticks / (wheelGearRatio * wheelTicksPerRevolution);
 
         return unit.fromUnit(DistanceUnit.INCH, inches);
     }
 
     // For: Arm
     public int angleToTicks(double angle) {
-        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
-
-        double d = ticksPerRevolution / 360.0;
+        double d = (armGearRatio * armTicksPerRevolution) / 360.0;
 
         // Casting to float so that the int version of Math.round is used.
         return Math.round((float)d * (float)angle);
@@ -474,9 +611,7 @@ public class Robot {
 
     // For: Arm
     public double ticksToAngle(int ticks) {
-        int ticksPerRevolution = tuningConfig("arm_ticks_per_revolution").value();
-
-        double oneDegree = 360.0 / ticksPerRevolution;
+        double oneDegree = 360.0 / (armGearRatio * armTicksPerRevolution);
 
         return oneDegree * ticks;
     }
@@ -561,34 +696,36 @@ public class Robot {
 
     @SuppressLint("NewApi")
     public void controlArmMotor(double targetVelocity) {
-        double time = System.currentTimeMillis();
-        double newTargetVelocity = motorTargetVelocity.getOrDefault("Arm", targetVelocity);
-        double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
-        double deltaTime = (time - lastTiming) * 0.001;
+//        double time = System.currentTimeMillis();
+//        double newTargetVelocity = motorTargetVelocity.getOrDefault("Arm", targetVelocity);
+//        double lastTiming = motorVelocityLastTiming.getOrDefault("Arm", time);
+//        double deltaTime = (time - lastTiming) * 0.001;
+//
+//        double distanceToTarget = arm.getTargetPosition() - arm.getCurrentPosition();
+//        double adjustedTargetVelocity = Math.abs(distanceToTarget) < targetVelocity ? Math.abs(distanceToTarget) : targetVelocity;
+//
+//        double error = adjustedTargetVelocity - arm.getVelocity();
+//        double kp = 0.9;
+//
+//        newTargetVelocity += error * kp * deltaTime;
+//
+//        motorTargetVelocity.put("Arm", newTargetVelocity);
+//        motorVelocityLastTiming.put("Arm", time);
 
-        double error = targetVelocity - arm.getVelocity();
-        double kp = 0.9;
+//        arm.setVelocity(newTargetVelocity);
 
-        newTargetVelocity += error * kp * deltaTime;
-
-        motorTargetVelocity.put("Arm", newTargetVelocity);
-        motorVelocityLastTiming.put("Arm", time);
-
-        arm.setVelocity(newTargetVelocity);
-    }
-
-    public double getVoltage() {
-        return engine.hardwareMap.voltageSensor.iterator().next().getVoltage();
+        arm.setPower(tuningConfig("arm_automatic_power").value());
     }
 
     public double facing() {
         double imuDegrees = -imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
-        return (imuDegrees + imuAngleOffset + 360.0) % 360.0;
+        return (((imuDegrees + 360.0) % 360.0) + imuAngleOffset) % 360.0;
     }
 
     public double heading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return AngleUnit.normalizeRadians(-facing() * Math.PI / 180.0);
+//        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     public double turnRate() {

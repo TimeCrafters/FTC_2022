@@ -1,5 +1,6 @@
 package org.timecrafters.minibots.cyberarm.chiron.states.teleop;
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -47,7 +48,21 @@ public class DrivetrainDriverControl extends CyberarmState {
         }
 
         double y = invertRobotForward ? controller.left_stick_y : -controller.left_stick_y;
-        double x = (invertRobotForward && !fieldCentricControl ? controller.left_stick_x : -controller.left_stick_x) * 1.1; // Counteract imperfect strafing
+        double x = (invertRobotForward && !fieldCentricControl ? controller.left_stick_x : -controller.left_stick_x);
+
+        // Improve control?
+        if (y < 0) {
+            y = -Math.sqrt(-y);
+        } else {
+            y = Math.sqrt(y);
+        }
+
+        if (x < 0) {
+            x = -Math.sqrt(-x) * 1.1; // Counteract imperfect strafing;
+        } else {
+            x = Math.sqrt(x) * 1.1; // Counteract imperfect strafing;
+        }
+
         double rx = -controller.right_stick_x;
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
 
@@ -126,6 +141,12 @@ public class DrivetrainDriverControl extends CyberarmState {
         // DEBUG: Toggle hardware fault
         if (button.equals("guide")) {
             robot.hardwareFault = !robot.hardwareFault;
+
+            if (robot.hardwareFault) {
+                robot.hardwareFaultMessage = "Manually triggered.";
+            } else {
+                robot.hardwareFaultMessage = "";
+            }
         }
 
         if (button.equals("back")) {

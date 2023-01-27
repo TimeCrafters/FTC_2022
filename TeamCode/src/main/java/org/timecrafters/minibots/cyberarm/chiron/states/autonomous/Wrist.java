@@ -3,33 +3,31 @@ package org.timecrafters.minibots.cyberarm.chiron.states.autonomous;
 import org.cyberarm.engine.V2.CyberarmState;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
 
-public class SelectParkingPosition extends CyberarmState {
+public class Wrist extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
     private final double timeInMS;
-    private final boolean stateDisabled;
+    private final boolean stateDisabled, positionUp;
 
-    public SelectParkingPosition(Robot robot, String groupName, String actionName) {
+    public Wrist(Robot robot, String groupName, String actionName) {
         this.robot = robot;
         this.groupName = groupName;
         this.actionName = actionName;
 
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
+        positionUp = robot.getConfiguration().variable(groupName, actionName, "positionUp").value();
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
     }
 
     @Override
     public void start() {
-        int pos = engine.blackboardGetInt("parking_position");
-
-        engine.setupFromConfig(
-                robot.getConfiguration(),
-                "org.timecrafters.minibots.cyberarm.chiron.states.autonomous",
-                robot,
-                Robot.class,
-                "" + groupName + "_Parking_" + pos);
+        if (positionUp) {
+            robot.wristPosition(Robot.WristPosition.UP);
+        } else {
+            robot.wristPosition(Robot.WristPosition.DOWN);
+        }
     }
 
     @Override
@@ -47,5 +45,10 @@ public class SelectParkingPosition extends CyberarmState {
 
             return;
         }
+    }
+
+    @Override
+    public void stop() {
+        robot.wrist.setPower(0);
     }
 }
