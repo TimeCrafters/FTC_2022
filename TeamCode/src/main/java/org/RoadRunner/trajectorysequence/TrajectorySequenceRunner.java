@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.trajectorysequence;
+package org.RoadRunner.trajectorysequence;
 
 import androidx.annotation.Nullable;
 
@@ -16,11 +16,11 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryMarker;
 import com.acmerobotics.roadrunner.util.NanoClock;
 
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.SequenceSegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TrajectorySegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.TurnSegment;
-import org.firstinspires.ftc.teamcode.trajectorysequence.sequencesegment.WaitSegment;
-import org.firstinspires.ftc.teamcode.util.DashboardUtil;
+import org.RoadRunner.trajectorysequence.sequencesegment.SequenceSegment;
+import org.RoadRunner.trajectorysequence.sequencesegment.TrajectorySegment;
+import org.RoadRunner.trajectorysequence.sequencesegment.TurnSegment;
+import org.RoadRunner.trajectorysequence.sequencesegment.WaitSegment;
+import org.RoadRunner.util.DashboardUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,12 +69,12 @@ public class TrajectorySequenceRunner {
         dashboard.setTelemetryTransmissionInterval(25);
     }
 
-    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
-        currentTrajectorySequence = trajectorySequence;
-        currentSegmentStartTime = clock.seconds();
-        currentSegmentIndex = 0;
-        lastSegmentIndex = -1;
-    }
+//    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
+//        currentTrajectorySequence = trajectorySequence;
+//        currentSegmentStartTime = clock.seconds();
+//        currentSegmentIndex = 0;
+//        lastSegmentIndex = -1;
+//    }
 
     public @Nullable
     DriveSignal update(Pose2d poseEstimate, Pose2d poseVelocity) {
@@ -269,5 +269,8 @@ public class TrajectorySequenceRunner {
 
     public boolean isBusy() {
         return currentTrajectorySequence != null;
+    }
+
+    public void followTrajectorySequenceAsync(TrajectorySequence trajectorySequence) {
     }
 }

@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.RoadRunner.drive;
 
 import androidx.annotation.NonNull;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.drive.DriveSignal;
 import com.acmerobotics.roadrunner.drive.TankDrive;
@@ -26,10 +25,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceRunner;
-import org.firstinspires.ftc.teamcode.util.LynxModuleUtil;
+import org.RoadRunner.trajectorysequence.TrajectorySequence;
+import org.RoadRunner.trajectorysequence.TrajectorySequenceBuilder;
+import org.RoadRunner.trajectorysequence.TrajectorySequenceRunner;
+import org.RoadRunner.util.LynxModuleUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,7 +48,6 @@ import static org.RoadRunner.drive.DriveConstants.kV;
 /*
  * Simple tank drive hardware implementation for REV hardware.
  */
-@Config
 public class SampleTankDrive extends TankDrive {
     public static PIDCoefficients AXIAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients CROSS_TRACK_PID = new PIDCoefficients(0, 0, 0);
