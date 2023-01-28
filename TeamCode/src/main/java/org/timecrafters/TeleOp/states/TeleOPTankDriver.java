@@ -47,13 +47,17 @@ public class TeleOPTankDriver extends CyberarmState {
             }
         }
 
-        if (FreeSpirit) {
+        if (FreeSpirit && System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR < 4096) {
             getCurrentDriveCommand();
             drivePower = -currentDriveCommand;
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (FreeSpirit && System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR >= 4096) {
+            FreeSpirit = false;
         }
 
         if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && !FreeSpirit) {
