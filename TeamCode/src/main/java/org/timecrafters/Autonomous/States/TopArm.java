@@ -27,7 +27,7 @@ public class TopArm extends CyberarmState {
 
     @Override
     public void start() {
-        up = robot.HighRiserLeft.getPosition() < UpperRiserLeftPos;
+        up = robot.HighRiseMotor.getCurrentPosition() < UpperRiserLeftPos;
     }
 
     @Override
@@ -38,8 +38,8 @@ public class TopArm extends CyberarmState {
         }
 
         if (directPosition) {
-            robot.HighRiserLeft.setPosition(UpperRiserLeftPos);
-            robot.HighRiserRight.setPosition(UpperRiserRightPos);
+//            robot.HighRiserLeft.setPosition(UpperRiserLeftPos);
+//            robot.HighRiserRight.setPosition(UpperRiserRightPos);
 
             if (runTime() >= time){
                 setHasFinished(true);
@@ -48,20 +48,20 @@ public class TopArm extends CyberarmState {
             if (System.currentTimeMillis() - lastStepTime >= time) {
                 lastStepTime = System.currentTimeMillis();
 
-                if (robot.HighRiserLeft.getPosition() < UpperRiserLeftPos && up) {
-
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
-
-                }
-                 else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
-
-                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
-                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);
-
-                } else {
-                    setHasFinished(true);
-                }
+//                if (robot.HighRiserLeft.getPosition() < UpperRiserLeftPos && up) {
+//
+//                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() + AddedDistance);
+//                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() + AddedDistance);
+//
+//                }
+//                 else if (robot.HighRiserLeft.getPosition() > UpperRiserLeftPos && !up) {
+//
+//                    robot.HighRiserLeft.setPosition(robot.HighRiserLeft.getPosition() - AddedDistance);
+//                    robot.HighRiserRight.setPosition(robot.HighRiserRight.getPosition() - AddedDistance);
+//
+//                } else {
+//                    setHasFinished(true);
+//                }
             }
         }
     }
@@ -72,8 +72,6 @@ public class TopArm extends CyberarmState {
         engine.telemetry.addData("UpperRiserLeftPos",UpperRiserLeftPos);
         engine.telemetry.addData("AddedDistance",AddedDistance);
         engine.telemetry.addData("time",time);
-        engine.telemetry.addData("servo position left", robot.HighRiserLeft.getPosition());
-        engine.telemetry.addData("servo position Right", robot.HighRiserRight.getPosition());
 
 
 

@@ -26,8 +26,6 @@ public class CollectorState extends CyberarmState {
 
     @Override
     public void telemetry() {
-        engine.telemetry.addData("High Riser Right Position", robot.HighRiserRight.getPosition());
-        engine.telemetry.addData("High Riser Left Position", robot.HighRiserLeft.getPosition());
         engine.telemetry.addData("Collector Distance", robot.collectorDistance.getDistance(DistanceUnit.MM));
     }
 

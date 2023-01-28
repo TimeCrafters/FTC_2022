@@ -44,7 +44,7 @@ public class CollectorDistanceState extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
-        engine.telemetry.addData("BackLeftDrive", robot.OdometerEncoder.getCurrentPosition());
+        engine.telemetry.addData("BackLeftDrive", robot.OdometerEncoderRight.getCurrentPosition());
         engine.telemetry.addLine();
 
         engine.telemetry.addData("traveledDistance", traveledDistance);
@@ -75,13 +75,17 @@ public class CollectorDistanceState extends CyberarmState {
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         robot.collectorLeft.setPower(1);
@@ -138,12 +142,12 @@ public class CollectorDistanceState extends CyberarmState {
         }
 
         if (robot.collectorDistance.getDistance(DistanceUnit.MM) > 70) {
-            double delta = traveledDistance - Math.abs(robot.OdometerEncoder.getCurrentPosition());
+            double delta = traveledDistance - Math.abs(robot.OdometerEncoderRight.getCurrentPosition());
 
-            if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) <= RampUpDistance) {
+            if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) <= RampUpDistance) {
                 // ramping up
-                drivePower = (Math.abs((float) robot.OdometerEncoder.getCurrentPosition()) / RampUpDistance) + 0.15;
-            } else if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) >= delta) {
+                drivePower = (Math.abs((float) robot.OdometerEncoderRight.getCurrentPosition()) / RampUpDistance) + 0.15;
+            } else if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) >= delta) {
                 // ramping down
                 drivePower = ((delta / RampDownDistance) + 0.15);
             } else {
@@ -160,7 +164,7 @@ public class CollectorDistanceState extends CyberarmState {
                 drivePower = drivePower * -1;
             }
 
-            if (Math.abs(robot.OdometerEncoder.getCurrentPosition()) < traveledDistance) {
+            if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) < traveledDistance) {
                 robot.backLeftDrive.setPower(drivePower);
                 robot.backRightDrive.setPower(drivePower);
                 robot.frontLeftDrive.setPower(drivePower);

@@ -88,10 +88,10 @@ public class TeleOPTankDriver extends CyberarmState {
     }
 
     public void getDeltaOdometerR() {
-        Spirit = robot.OdometerEncoder.getCurrentPosition();
+        Spirit = robot.OdometerEncoderRight.getCurrentPosition();
         if (System.currentTimeMillis() - lastStepTime >= 1000) {
             lastStepTime = System.currentTimeMillis();
-            DeltaOdometerR = robot.OdometerEncoder.getCurrentPosition() - Spirit;
+            DeltaOdometerR = robot.OdometerEncoderRight.getCurrentPosition() - Spirit;
         }
     }
 

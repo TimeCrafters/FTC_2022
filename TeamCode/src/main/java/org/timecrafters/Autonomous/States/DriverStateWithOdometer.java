@@ -36,14 +36,14 @@ public class DriverStateWithOdometer extends CyberarmState {
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
@@ -58,7 +58,7 @@ public class DriverStateWithOdometer extends CyberarmState {
             return;
         }
 
-        double RightCurrentPosition = Math.abs(robot.OdometerEncoder.getCurrentPosition());
+        double RightCurrentPosition = Math.abs(robot.OdometerEncoderRight.getCurrentPosition());
         double LeftCurrentPosition = Math.abs(robot.OdometerEncoderLeft.getCurrentPosition());
 
         if (RightCurrentPosition > LeftCurrentPosition) CurrentPosition = RightCurrentPosition;
@@ -171,7 +171,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getPower());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
-        engine.telemetry.addData("Odometer", robot.OdometerEncoder.getCurrentPosition());
+        engine.telemetry.addData("Odometer", robot.OdometerEncoderRight.getCurrentPosition());
         engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
         engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
         engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
