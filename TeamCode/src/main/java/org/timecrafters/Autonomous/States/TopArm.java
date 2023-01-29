@@ -27,7 +27,7 @@ public class TopArm extends CyberarmState {
 
     @Override
     public void start() {
-        up = robot.HighRiseMotor.getCurrentPosition() < UpperRiserLeftPos;
+        up = robot.ArmMotor.getCurrentPosition() < UpperRiserLeftPos;
     }
 
     @Override

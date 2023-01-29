@@ -61,6 +61,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         engine.telemetry.addData("Right Pole Distance", robot.rightPoleDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("Odometer Encoder, Right", robot.OdometerEncoderRight.getCurrentPosition());
         engine.telemetry.addData("Odometer Encoder, Left", robot.OdometerEncoderLeft.getCurrentPosition());
+        engine.telemetry.addData("Odometer Encoder, Horizontal", robot.OdometerEncoderHorizontal.getCurrentPosition());
     }
 
     @Override

@@ -77,7 +77,7 @@ public class CollectorDistanceState extends CyberarmState {
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.OdometerEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -85,7 +85,7 @@ public class CollectorDistanceState extends CyberarmState {
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         robot.collectorLeft.setPower(1);
