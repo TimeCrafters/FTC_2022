@@ -8,7 +8,7 @@ public class Arm extends CyberarmState {
     private final String groupName, actionName;
 
     private final double targetVelocity, timeInMS;
-    private final int tolerance, targetPosition;
+    private final int tolerance, halfTolerance, targetPosition;
     private final boolean stateDisabled;
 
     public Arm(Robot robot, String groupName, String actionName) {
@@ -25,6 +25,8 @@ public class Arm extends CyberarmState {
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
+
+        halfTolerance = Math.round(tolerance / 2.0f);
     }
 
     @Override
@@ -48,6 +50,11 @@ public class Arm extends CyberarmState {
             setHasFinished(true);
 
             return;
+        }
+
+        int position = robot.arm.getCurrentPosition();
+        if (robot.isBetween(position, position - halfTolerance, position + halfTolerance)) {
+            setHasFinished(true);
         }
     }
 }
