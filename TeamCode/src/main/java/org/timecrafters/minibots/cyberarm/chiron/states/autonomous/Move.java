@@ -1,5 +1,7 @@
 package org.timecrafters.minibots.cyberarm.chiron.states.autonomous;
 
+import com.qualcomm.robotcore.util.Range;
+
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.minibots.cyberarm.chiron.Robot;
@@ -72,8 +74,7 @@ public class Move extends CyberarmState {
     }
 
     private void moveDirectional(double travelledDistance) {
-        double velocity = targetVelocity;
-        double easeVelocity;
+        double velocity;
         double ratio = 1.0;
 
         if (Math.abs(travelledDistance) < easeInDistance) {
@@ -82,10 +83,9 @@ public class Move extends CyberarmState {
             ratio = (targetDistance - Math.abs(travelledDistance)) / easeOutDistance;
         }
 
-        easeVelocity = targetVelocity * ratio;
+        ratio = Range.clip(ratio, 0.0, 1.0);
 
-        if (easeVelocity < minimumVelocity) { easeVelocity = minimumVelocity; }
-        if (easeVelocity < targetVelocity) { velocity = easeVelocity; }
+        velocity = robot.lerp(minimumVelocity, targetVelocity, ratio);
 
         if (targetDistance > travelledDistance) {
             robot.frontRightDrive.setVelocity(-velocity);

@@ -563,6 +563,11 @@ public class Robot {
         return (fmod < 0 ? fmod + 360.0 : fmod +  0.0) - 180;
     }
 
+    public double lerp(double min, double max, double t)
+    {
+        return min + (max - min) * t;
+    }
+
     public Status getStatus() { return status; }
 
     public double getRadius() { return radius; }
