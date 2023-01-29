@@ -8,8 +8,10 @@ public class Rotate extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
-    private final double timeInMS, facing, targetFacing, targetVelocity, toleranceInDegrees;
+    private final double timeInMS, facing, targetFacing, targetVelocity, targetSlowVelocity, slowAngleCloseness, toleranceInDegrees;
     private final boolean stateDisabled, useShortestRotation, rotateRight;
+
+    private double velocity;
 
     public Rotate(Robot robot, String groupName, String actionName) {
         this.robot = robot;
@@ -24,10 +26,34 @@ public class Rotate extends CyberarmState {
         toleranceInDegrees = robot.getConfiguration().variable(groupName, actionName, "toleranceInDegrees").value();
         targetVelocity = robot.unitToTicks(DistanceUnit.INCH,
                 robot.getConfiguration().variable(groupName, actionName, "targetVelocityInInches").value());
+        targetSlowVelocity = robot.unitToTicks(DistanceUnit.INCH,
+                robot.getConfiguration().variable(groupName, actionName, "targetSlowVelocityInInches").value());
+        slowAngleCloseness = robot.getConfiguration().variable(groupName, actionName, "slowAngleCloseness").value();
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
 
         facing = (robot.facing() + targetFacing + 360.0) % 360.0;
+
+        velocity = targetVelocity;
+    }
+
+    @Override
+    public void start() {
+        engine.telemetry.speak("Rotate");
+    }
+
+    @Override
+    public void telemetry() {
+        engine.telemetry.addLine("Rotate");
+        engine.telemetry.addData("Angle Diff", robot.angleDiff(robot.facing(), facing));
+        engine.telemetry.addData("Target Facing/Angle", facing);
+        engine.telemetry.addData("Provided Target Facing/Angle", targetFacing);
+        engine.telemetry.addData("Use Shortest Rotation", useShortestRotation);
+        engine.telemetry.addData("Rotate Right", rotateRight);
+        engine.telemetry.addData("Tolerance In Degrees", toleranceInDegrees);
+        engine.telemetry.addData("Target Velocity", targetVelocity);
+        engine.telemetry.addData("Target Slow Velocity", targetSlowVelocity);
+        engine.telemetry.addData("Slow Angle Closeness", slowAngleCloseness);
     }
 
     @Override
@@ -49,7 +75,8 @@ public class Rotate extends CyberarmState {
         }
 
         double currentDegrees = robot.facing();
-        double diff = robot.angleDiff(facing, currentDegrees);
+        double diff = robot.angleDiff(currentDegrees, facing);
+        velocity = targetVelocity;
 
         if (Math.abs(diff) <= toleranceInDegrees) {
             stop();
@@ -57,6 +84,10 @@ public class Rotate extends CyberarmState {
             setHasFinished(true);
 
             return;
+        }
+
+        if (Math.abs(diff) <= slowAngleCloseness) {
+            velocity = targetSlowVelocity;
         }
 
         if (useShortestRotation) {
@@ -83,11 +114,11 @@ public class Rotate extends CyberarmState {
     }
 
     private void rotate(double multiplier) {
-        robot.frontRightDrive.setVelocity(targetVelocity * multiplier);
-        robot.backLeftDrive.setVelocity(targetVelocity * multiplier);
+        robot.frontRightDrive.setVelocity(-velocity * multiplier);
+        robot.backLeftDrive.setVelocity(velocity * multiplier);
 
-        robot.backRightDrive.setVelocity(targetVelocity * multiplier);
-        robot.frontLeftDrive.setVelocity(targetVelocity * multiplier);
+        robot.backRightDrive.setVelocity(velocity * multiplier);
+        robot.frontLeftDrive.setVelocity(-velocity * multiplier);
     }
 
     @Override

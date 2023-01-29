@@ -8,7 +8,7 @@ public class Move extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
-    private final double targetDistance, tolerance, facing, targetVelocity, timeInMS;
+    private final double targetDistance, tolerance, facing, targetVelocity, minimumVelocity, timeInMS, easeInDistance, easeOutDistance;
 
     private final double maxVelocity;
     private double speed;
@@ -25,8 +25,12 @@ public class Move extends CyberarmState {
         tolerance = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "toleranceInInches").value());
         facing = robot.getConfiguration().variable(groupName, actionName, "facing").value();
         targetVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "targetVelocityInInches").value());
+        minimumVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "minimumVelocityInInches").value());
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
+
+        easeInDistance = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "easeInDistanceInInches").value());
+        easeOutDistance = robot.unitToTicks(DistanceUnit.INCH, robot.getConfiguration().variable(groupName, actionName, "easeOutDistanceInInches").value());
 
         maxVelocity = robot.unitToTicks(DistanceUnit.INCH, robot.tuningConfig("drivetrain_max_velocity_in_inches").value());
         speed = 0.0;
@@ -68,8 +72,20 @@ public class Move extends CyberarmState {
     }
 
     private void moveDirectional(double travelledDistance) {
-        // TODO: Ease-in-out velocity
         double velocity = targetVelocity;
+        double easeVelocity;
+        double ratio = 1.0;
+
+        if (Math.abs(travelledDistance) < easeInDistance) {
+            ratio = travelledDistance / easeInDistance;
+        } else if (Math.abs(travelledDistance) > targetDistance - easeOutDistance) {
+            ratio = 1.0 - ((targetDistance - Math.abs(travelledDistance)) / easeOutDistance);
+        }
+
+        easeVelocity = targetVelocity * ratio;
+
+        if (easeVelocity < minimumVelocity) { easeVelocity = minimumVelocity; }
+        if (easeVelocity < targetVelocity) { velocity = easeVelocity; }
 
         if (targetDistance > travelledDistance) {
             robot.frontRightDrive.setVelocity(-velocity);

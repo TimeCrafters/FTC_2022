@@ -556,12 +556,11 @@ public class Robot {
 
     // Adapted from: https://github.com/gosu/gosu/blob/980d64de2ce52e4b16fdd5cb9c9e11c8bbb80671/src/Math.cpp#L38
     public double angleDiff(double from, double to) {
-        double value = (to - from + 180) - 180;
+        double value = (to - from + 180);
 
-        int fmod = (int) Math.floor(value - 0.0 / 360.0 - 0.0);
-        double result = (value - 0.0) - fmod * (360.0 - 0.0);
+        double fmod = (value - 0.0) % (360.0 - 0.0);
 
-        return result < 0 ? result + 360.0 : result + 0.0;
+        return (fmod < 0 ? fmod + 360.0 : fmod +  0.0) - 180;
     }
 
     public Status getStatus() { return status; }
