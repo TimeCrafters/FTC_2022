@@ -41,12 +41,12 @@ public class PhoenixBot1 {
 
     public TFObjectDetector tfod;
 
-    public Servo LowRiserLeft, LowRiserRight, CameraServo;
+    public Servo LowRiserLeft, LowRiserRight, /*HighRiserLeft, HighRiserRight, */CameraServo;
     private final CyberarmEngine engine;
 
-    public Rev2mDistanceSensor collectorDistance, /*downSensor,*/ leftPoleDistance, rightPoleDistance;
+    public Rev2mDistanceSensor collectorDistance, /*downSensor, */leftPoleDistance, rightPoleDistance;
 
-        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoderRight, OdometerEncoderLeft, OdometerEncoderHorizonatal, HighRiseMotor;
+        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoder, OdometerEncoderLeft, ArmMotor, armMotorEncoder;
 
         public CRServo collectorLeft, collectorRight;
 
@@ -145,64 +145,64 @@ public class PhoenixBot1 {
             // Arm
             LowRiserLeft = engine.hardwareMap.servo.get("LowRiserLeft");
             LowRiserRight = engine.hardwareMap.servo.get("LowRiserRight");
+//            HighRiserLeft = engine.hardwareMap.servo.get("HighRiserLeft");
+//            HighRiserRight = engine.hardwareMap.servo.get("HighRiserRight");
+            ArmMotor = engine.hardwareMap.dcMotor.get("ArmMotor");
+            armMotorEncoder = engine.hardwareMap.dcMotor.get("Arm Motor Encoder");
 
             //motors direction and encoders
 
             frontLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             frontRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             frontRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backLeftDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             backRightDrive.setDirection(DcMotorSimple.Direction.FORWARD);
             backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backRightDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             backRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             // Dead Wheel encoder for driving
 
-            OdometerEncoderRight = engine.hardwareMap.dcMotor.get("odometerEncoderR");
+            OdometerEncoder = engine.hardwareMap.dcMotor.get("odometerEncoderR");
 
-            OdometerEncoderRight.setDirection(DcMotorSimple.Direction.REVERSE);
-            OdometerEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            OdometerEncoder.setDirection(DcMotorSimple.Direction.REVERSE);
+            OdometerEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            OdometerEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             OdometerEncoderLeft = engine.hardwareMap.dcMotor.get("odometerEncoderL");
 
             OdometerEncoderLeft.setDirection(DcMotorSimple.Direction.REVERSE);
             OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            OdometerEncoderHorizonatal = engine.hardwareMap.dcMotor.get("odometerEncoderH");
-            OdometerEncoderHorizonatal.setDirection(DcMotorSimple.Direction.REVERSE);
-            OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            OdometerEncoderHorizonatal.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-            HighRiseMotor = engine.hardwareMap.dcMotor.get("High Riser Motor");
-            HighRiseMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-            HighRiseMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            HighRiseMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            HighRiseMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
-
+//            HighRiserLeft.setDirection(Servo.Direction.REVERSE);
+//            HighRiserRight.setDirection(Servo.Direction.FORWARD);
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
-
+            armMotorEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            armMotorEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            ArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             CameraServo.setDirection(Servo.Direction.FORWARD);
 
             LowRiserLeft.setPosition(0.35);
             LowRiserRight.setPosition(0.35);
+//            HighRiserLeft.setPosition(0.40);
+//            HighRiserRight.setPosition(0.40);
 
             CameraServo.setPosition(0.775);
 
