@@ -79,7 +79,7 @@ public class Move extends CyberarmState {
         if (Math.abs(travelledDistance) < easeInDistance) {
             ratio = travelledDistance / easeInDistance;
         } else if (Math.abs(travelledDistance) > targetDistance - easeOutDistance) {
-            ratio = 1.0 - ((targetDistance - Math.abs(travelledDistance)) / easeOutDistance);
+            ratio = (targetDistance - Math.abs(travelledDistance)) / easeOutDistance;
         }
 
         easeVelocity = targetVelocity * ratio;
