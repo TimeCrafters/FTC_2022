@@ -164,6 +164,12 @@ public class ArmDriverControl extends CyberarmState {
         // Swap controlling gamepad
         if (gamepad == engine.gamepad2 && button.equals("guide")) {
             controller = controller == engine.gamepad1 ? engine.gamepad2 : engine.gamepad1;
+
+            if (controller == engine.gamepad1) {
+                engine.telemetry.speak("Pilot Only");
+            } else {
+                engine.telemetry.speak("Co-Pilot Enabled");
+            }
         }
 
         if (gamepad != controller) {
