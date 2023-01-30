@@ -8,8 +8,9 @@ public class Arm extends CyberarmState {
     private final String groupName, actionName;
 
     private final double targetVelocity, timeInMS;
-    private final int tolerance, halfTolerance, targetPosition;
-    private final boolean stateDisabled;
+    private final int tolerance, halfTolerance, position, manualPosition;
+    private final boolean positionManually, stateDisabled;
+    private final String positionLookupLabel;
 
     public Arm(Robot robot, String groupName, String actionName) {
         this.robot = robot;
@@ -20,18 +21,27 @@ public class Arm extends CyberarmState {
                 robot.getConfiguration().variable(groupName, actionName, "targetVelocityInDegreesPerSecond").value());
         tolerance = robot.angleToTicks(
                 robot.getConfiguration().variable(groupName, actionName, "toleranceInDegrees").value());
-        targetPosition = robot.angleToTicks(
-                robot.getConfiguration().variable(groupName, actionName, "targetAngle").value());
         timeInMS = robot.getConfiguration().variable(groupName, actionName, "timeInMS").value();
+
+        positionLookupLabel = robot.getConfiguration().variable(groupName, actionName, "positionLookupLabel").value();
+        positionManually = robot.getConfiguration().variable(groupName, actionName, "positionManually").value();
+        manualPosition = robot.angleToTicks(
+                robot.getConfiguration().variable(groupName, actionName, "manualTargetAngle").value());
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
 
         halfTolerance = Math.round(tolerance / 2.0f);
+
+        if (positionManually) {
+            position = manualPosition;
+        } else {
+            position = robot.angleToTicks(robot.tuningConfig(positionLookupLabel).value());
+        }
     }
 
     @Override
     public void start() {
-        robot.arm.setTargetPosition(targetPosition);
+        robot.arm.setTargetPosition(position);
         robot.arm.setTargetPositionTolerance(tolerance);
         robot.arm.setVelocity(targetVelocity);
     }
@@ -52,8 +62,8 @@ public class Arm extends CyberarmState {
             return;
         }
 
-        int position = robot.arm.getCurrentPosition();
-        if (robot.isBetween(position, position - halfTolerance, position + halfTolerance)) {
+        int currentPosition = robot.arm.getCurrentPosition();
+        if (robot.isBetween(currentPosition, currentPosition - halfTolerance, currentPosition + halfTolerance)) {
             setHasFinished(true);
         }
     }
