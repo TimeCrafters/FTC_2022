@@ -15,8 +15,11 @@ public class Move extends CyberarmState {
     private final double maxVelocity;
     private double speed;
 
-    private int distanceAlreadyTravelled;
+    private int distanceAlreadyTravelled, travelledDistance;
     private final boolean stateDisabled;
+
+    private double velocity;
+    private double ratio = 1.0;
 
     public Move(Robot robot, String groupName, String actionName) {
         this.robot = robot;
@@ -41,7 +44,7 @@ public class Move extends CyberarmState {
     @Override
     public void start() {
         // TODO: Use a dead wheel for this
-        distanceAlreadyTravelled = robot.frontRightDrive.getCurrentPosition();
+        distanceAlreadyTravelled = -robot.frontRightDrive.getCurrentPosition();
     }
 
     @Override
@@ -60,7 +63,7 @@ public class Move extends CyberarmState {
             return;
         }
 
-        int travelledDistance = -robot.frontRightDrive.getCurrentPosition() - distanceAlreadyTravelled;
+        travelledDistance = -robot.frontRightDrive.getCurrentPosition() - distanceAlreadyTravelled;
 
         if (robot.isBetween(travelledDistance, targetDistance - tolerance, targetDistance + tolerance)) {
             stop();
@@ -73,12 +76,21 @@ public class Move extends CyberarmState {
         moveDirectional(travelledDistance);
     }
 
-    private void moveDirectional(double travelledDistance) {
-        double velocity;
-        double ratio = 1.0;
+    @Override
+    public void telemetry() {
+        engine.telemetry.addLine("Move");
+        engine.telemetry.addData("Minimum Velocity", minimumVelocity);
+        engine.telemetry.addData("Target Velocity", targetVelocity);
+        engine.telemetry.addData("Velocity", velocity);
+        engine.telemetry.addData("Target Distance", targetDistance);
+        engine.telemetry.addData("Travelled Distance", travelledDistance);
+        engine.telemetry.addData("Distance Already Travelled", distanceAlreadyTravelled);
+        engine.telemetry.addData("Travel Forward", targetDistance > travelledDistance);
+    }
 
+    private void moveDirectional(double travelledDistance) {
         if (Math.abs(travelledDistance) < easeInDistance) {
-            ratio = travelledDistance / easeInDistance;
+            ratio = Math.abs(travelledDistance) / easeInDistance;
         } else if (Math.abs(travelledDistance) > Math.abs(targetDistance) - easeOutDistance) {
             ratio = (Math.abs(targetDistance) - Math.abs(travelledDistance)) / easeOutDistance;
         }
