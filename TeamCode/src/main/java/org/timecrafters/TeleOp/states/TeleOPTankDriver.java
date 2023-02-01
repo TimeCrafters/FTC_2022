@@ -33,7 +33,6 @@ public class TeleOPTankDriver extends CyberarmState {
 
     @Override
     public void init() {
-        gamepad1Checker = new GamepadChecker(engine, engine.gamepad1);
         FreeSpirit = false;
     }
 

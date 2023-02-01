@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
+import org.timecrafters.minibots.cyberarm.chiron.states.autonomous.Arm;
 
 public class PhoenixBot1 {
 
@@ -46,7 +47,7 @@ public class PhoenixBot1 {
 
     public Rev2mDistanceSensor collectorDistance, /*downSensor, */leftPoleDistance, rightPoleDistance;
 
-        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoderRight, OdometerEncoderLeft, OdometerEncoderHorizontal, ArmMotor, armMotorEncoder;
+        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoderRight, OdometerEncoderLeft, OdometerEncoderHorizontal, ArmMotor;
 
         public CRServo collectorLeft, collectorRight;
 
@@ -148,7 +149,6 @@ public class PhoenixBot1 {
 //            HighRiserLeft = engine.hardwareMap.servo.get("HighRiserLeft");
 //            HighRiserRight = engine.hardwareMap.servo.get("HighRiserRight");
             ArmMotor = engine.hardwareMap.dcMotor.get("ArmMotor");
-            armMotorEncoder = engine.hardwareMap.dcMotor.get("Arm Motor Encoder");
 
             //motors direction and encoders
 
@@ -162,6 +162,7 @@ public class PhoenixBot1 {
             frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             frontRightDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+            backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -199,11 +200,11 @@ public class PhoenixBot1 {
 //            HighRiserRight.setDirection(Servo.Direction.FORWARD);
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
-            armMotorEncoder.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            armMotorEncoder.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            ArmMotor.setTargetPosition(0);
+            ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             CameraServo.setDirection(Servo.Direction.FORWARD);
 
@@ -214,6 +215,13 @@ public class PhoenixBot1 {
 
             CameraServo.setPosition(0.775);
 
+        }
+
+        public int AngleToTicks(double angle) {
+            double d = (60 * 28) / 360.0;
+
+            // Casting to float so that the int version of Math.round is used.
+            return Math.round((float)d * (float)angle);
         }
 
 
