@@ -23,10 +23,12 @@ public class TeleOPArmDriver extends CyberarmState {
 //    private double servoMedHigh = 0.9; //High servos, B button
     private double servoHighLow = 0.8; //Low servos, Y button
 //    private double servoHighHigh = 0.9; //High servos, Y button
+    private double ArmNeededPower;
     private int armMotorCollect = 0;
-    private int armMotorLow = 100;
-    private int armMotorMed = 1000;
-    private int armMotorHigh = 1600;
+    private int armMotorLow = 240;
+    private int armMotorMed = 380;
+    private int armMotorHigh = 463;
+    private int ArmMotorStepSize = 2;
 
     public TeleOPArmDriver(PhoenixBot1 robot) {
         this.robot = robot;
@@ -36,24 +38,35 @@ public class TeleOPArmDriver extends CyberarmState {
     public void telemetry() {
         engine.telemetry.addLine("Arm Driver:");
         engine.telemetry.addData("Arm Motor Power", robot.ArmMotor.getPower());
+        engine.telemetry.addData("Arm Motor Encoder Position", robot.ArmMotor.getCurrentPosition());
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
+        engine.telemetry.addData("Arm Motor TargetPosition", robot.ArmMotor.getTargetPosition());
+        engine.telemetry.addData("Target (Endeavour)", Endeavour);
     }
 
     @Override
     public void init() {
-        robot.ArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.LowRiserLeft.setDirection(Servo.Direction.FORWARD);
         robot.LowRiserRight.setDirection(Servo.Direction.REVERSE);
         robot.LowRiserLeft.setPosition(0.45);
         robot.LowRiserRight.setPosition(0.45);
-        robot.ArmMotor.setPower(0);
+        robot.ArmMotor.setTargetPosition(0);
+        robot.ArmMotor.setPower(0.25);
         Opportunity = 0;
         Endeavour = 0;
     }
 
+
+
 @Override
-public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO MM HEIGHTS!!
+public void exec() {
+
+    if (Math.abs(robot.ArmMotor.getCurrentPosition() - robot.ArmMotor.getTargetPosition()) > 46) {
+        ArmNeededPower = Math.abs((robot.ArmMotor.getTargetPosition() - robot.ArmMotor.getCurrentPosition()) / 920) + 0.25;
+        armPower = ArmNeededPower;
+        robot.ArmMotor.setPower(armPower);
+    }
 
         if (engine.gamepad2.y) {
             Endeavour = 4;
@@ -68,20 +81,15 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
             Endeavour = 1;
         }
 
-        if (Endeavour == 4) {
-            if (robot.ArmMotor.getCurrentPosition() < armMotorHigh - 5)/* <-- high level too low*/ {
-                if (System.currentTimeMillis() - lastStepTime >= 100) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(90));
-                }
+        if (Endeavour == 4 && System.currentTimeMillis() - lastStepTime >= 100) {
+            lastStepTime = System.currentTimeMillis();
+            robot.ArmMotor.setTargetPosition(armMotorHigh);
+            if (robot.ArmMotor.getCurrentPosition() < armMotorHigh)/* <-- high level too low*/ {
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
             }
-            if (robot.LowRiserLeft.getPosition() < servoHighLow - 5)/* <-- low level too low*/ {
-                if (System.currentTimeMillis() - lastStepTime >= 100) {
-                    lastStepTime = System.currentTimeMillis();
-                    robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
-                    robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
-                }
+            if (robot.LowRiserLeft.getPosition() < servoHighLow && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
+                robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
+                robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
             }
             if (robot.ArmMotor.getCurrentPosition() >= armMotorHigh &&
                     robot.LowRiserLeft.getPosition() >= servoHighLow) {
@@ -90,6 +98,7 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
         }
 
         if (Endeavour == 3) {
+            robot.ArmMotor.setTargetPosition(armMotorMed);
             if (robot.LowRiserLeft.getPosition() > servoMedLow + 5)/* <-- low level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
@@ -97,7 +106,7 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() < servoMedLow - 5)/* <-- low level too low*/ {
+            if (robot.LowRiserLeft.getPosition() < servoMedLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
@@ -105,29 +114,28 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
                 }
             }
             if (robot.LowRiserLeft.getPosition() <= servoMedLow + 5 &&
-                    robot.ArmMotor.getCurrentPosition() > armMotorMed + 5)/* <-- high level too high*/ {
+                    robot.ArmMotor.getCurrentPosition() > armMotorMed)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(-0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(90));
+                    robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
             }
             if (robot.LowRiserLeft.getPosition() < servoMedLow + 5 &&
-                    robot.ArmMotor.getCurrentPosition() < armMotorMed - 5)/* <-- high level too low*/ {
+                    robot.ArmMotor.getCurrentPosition() < armMotorMed)/* <-- high level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(90));
+                    robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
                 }
             }
             if (robot.LowRiserLeft.getPosition() > servoMedLow - 5 &&
                     robot.LowRiserLeft.getPosition() <= servoMedLow &&
-                    robot.ArmMotor.getCurrentPosition() > armMotorMed - 5) {
+                    robot.ArmMotor.getCurrentPosition() >= armMotorMed) {
                 Endeavour = 0;
             }
         }
 
         if (Endeavour == 2) {
+            robot.ArmMotor.setTargetPosition(armMotorLow);
             if (robot.LowRiserLeft.getPosition() > servoLowLow + 5)/* <-- low level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
@@ -135,7 +143,7 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() < servoLowLow - 5)/* <-- low level too low*/ {
+            if (robot.LowRiserLeft.getPosition() < servoLowLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
@@ -147,41 +155,36 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
                     robot.ArmMotor.getCurrentPosition() > armMotorLow)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(-0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(67));
-
+                    robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
             }
             if (robot.LowRiserLeft.getPosition() <= servoLowLow + 5 &&
-                    robot.ArmMotor.getCurrentPosition() < armMotorLow - 5)/* <-- high level too low*/ {
+                    robot.ArmMotor.getCurrentPosition() < armMotorLow)/* <-- high level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(67));
-
+                    robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
                 }
             }
             if (robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
                     robot.LowRiserLeft.getPosition() <= servoLowLow + 5 &&
-                    robot.ArmMotor.getCurrentPosition() > armMotorLow - 5) {
+                    robot.ArmMotor.getCurrentPosition() >= armMotorLow) {
                 Endeavour = 0;
             }
         }
 
         if (Endeavour == 1) {
+            robot.ArmMotor.setTargetPosition(armMotorCollect);
             if (robot.LowRiserLeft.getPosition() >= servoCollectLow + 5)/* <-- low level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
-            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow &&
+            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow + 5 &&
                     robot.ArmMotor.getCurrentPosition() > armMotorCollect)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
-                    robot.ArmMotor.setPower(-0.5);
-                    robot.ArmMotor.setTargetPosition(robot.AngleToTicks(45));
-
+                    robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
             } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow + 5 &&
                     robot.ArmMotor.getCurrentPosition() <= armMotorCollect) {
@@ -213,14 +216,11 @@ public void exec() { //CHANGE ALL THE ENDEAVOUR TARGETS FROM SERVO POSITIONS TO 
         }
 
         if (engine.gamepad2.right_trigger > 0.1) {
-            armPower = engine.gamepad2.right_trigger;
-            robot.ArmMotor.setPower(armPower);
+
         } else if (engine.gamepad2.left_trigger > 0.1) {
-            armPower = -(engine.gamepad2.left_trigger);
-            robot.ArmMotor.setPower(armPower);
+
         } else if (engine.gamepad2.right_trigger == 0 && engine.gamepad2.left_trigger == 0 && Endeavour == 0) {
-            armPower = 0;
-            robot.ArmMotor.setPower(armPower);
+
         }
 
     }

@@ -200,11 +200,11 @@ public class PhoenixBot1 {
 //            HighRiserRight.setDirection(Servo.Direction.FORWARD);
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
-            ArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            ArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            ArmMotor.setTargetPosition(0);
+            ArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             CameraServo.setDirection(Servo.Direction.FORWARD);
 

@@ -16,7 +16,6 @@ public class TeleOPTankDriver extends CyberarmState {
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
     private int DeltaOdometerR, Endeavour, Spirit;
-    private boolean FreeSpirit;
     private GamepadChecker gamepad1Checker;
 
     public TeleOPTankDriver(PhoenixBot1 robot) {
@@ -33,37 +32,24 @@ public class TeleOPTankDriver extends CyberarmState {
 
     @Override
     public void init() {
-        FreeSpirit = false;
     }
 
     @Override
     public void exec() {
 
-        if (drivePower > 0.2) {
-            if (System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR < 4096) {
-                lastStepTime = System.currentTimeMillis();
-                FreeSpirit = true;
-            }
-        }
-
-        if (FreeSpirit && System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR < 4096) {
-            getCurrentDriveCommand();
-            drivePower = -currentDriveCommand;
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
+            drivePower = engine.gamepad1.left_stick_y;
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(drivePower);
         }
 
-        if (FreeSpirit && System.currentTimeMillis() - lastStepTime >= 2000 && DeltaOdometerR >= 4096) {
-            FreeSpirit = false;
-        }
-
-        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && !FreeSpirit) {
-            drivePower = engine.gamepad1.left_stick_y;
+        if (Math.abs(engine.gamepad1.left_stick_x) > 0.1) {
+            drivePower = engine.gamepad1.left_stick_x;
             robot.backLeftDrive.setPower(drivePower);
-            robot.backRightDrive.setPower(drivePower);
-            robot.frontLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(-drivePower);
+            robot.frontLeftDrive.setPower(-drivePower);
             robot.frontRightDrive.setPower(drivePower);
         }
 
@@ -74,6 +60,7 @@ public class TeleOPTankDriver extends CyberarmState {
             robot.frontLeftDrive.setPower(drivePower);
             robot.frontRightDrive.setPower(-drivePower);
         }
+
 
 
     }
@@ -107,7 +94,7 @@ public class TeleOPTankDriver extends CyberarmState {
             currentDriveCommand = engine.gamepad1.right_stick_x;
         } else if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
             currentDriveCommand = engine.gamepad1.right_stick_y;
-        } else if ((Math.abs(engine.gamepad1.left_stick_y)) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1 && !FreeSpirit) {
+        } else if ((Math.abs(engine.gamepad1.left_stick_y)) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
             currentDriveCommand = 0;
         }
 
