@@ -15,7 +15,7 @@ import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
-@Autonomous (name = "Right Side")
+@Autonomous (name = "Right ")
 @Disabled
 
 public class RightSideAutonomousEngine extends CyberarmEngine {

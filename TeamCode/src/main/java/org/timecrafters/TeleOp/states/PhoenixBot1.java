@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
+import org.timecrafters.minibots.cyberarm.chiron.Robot;
 import org.timecrafters.minibots.cyberarm.chiron.states.autonomous.Arm;
 
 public class PhoenixBot1 {
@@ -23,6 +24,9 @@ public class PhoenixBot1 {
     private static final float mmPerInch        = 25.4f;
     public static final double WHEEL_CIRCUMFERENCE = 7.42108499;
     public static final int COUNTS_PER_REVOLUTION = 8192;
+    public static double leftCompensatorGlobal;
+    public static double RightCompensatorGlobal;
+    public double VEER_COMPENSATION_DBL; // some place around 1, .99 is 1% power reduction
 
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
     private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
@@ -69,9 +73,17 @@ public class PhoenixBot1 {
         public PhoenixBot1(CyberarmEngine engine) {
             this.engine = engine;
 
+            configuration = new TimeCraftersConfiguration();
+
+            initConstants();
+
             initVuforia();
             initTfod();
             setupRobot();
+        }
+
+        public void initConstants(){
+            VEER_COMPENSATION_DBL = configuration.variable("Robot", "Tuning", "VEER_COMPENSATION_DBL").value();
         }
 
     private void initVuforia(){

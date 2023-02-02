@@ -23,7 +23,15 @@ public class RotationState extends CyberarmState {
     private double RotationDirectionMinimum;
     private String debugStatus = "?";
     private double drivePowerVariable;
+    private double leftCompensator;
+    private double RightCompensator;
 
+    @Override
+    public void start() {
+
+        leftCompensator = robot.OdometerEncoderLeft.getCurrentPosition();
+        RightCompensator = robot.OdometerEncoderRight.getCurrentPosition();
+    }
 
     @Override
     public void exec() {
@@ -67,6 +75,8 @@ public class RotationState extends CyberarmState {
             robot.backRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.frontRightDrive.setPower(0);
+            PhoenixBot1.leftCompensatorGlobal = (leftCompensator + robot.OdometerEncoderLeft.getCurrentPosition()) - leftCompensator;
+            PhoenixBot1.RightCompensatorGlobal = (RightCompensator + robot.OdometerEncoderRight.getCurrentPosition()) - RightCompensator;
             setHasFinished(true);
         }
 
