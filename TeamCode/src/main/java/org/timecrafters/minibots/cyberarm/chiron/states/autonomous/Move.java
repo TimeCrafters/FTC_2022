@@ -10,16 +10,18 @@ public class Move extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
 
-    private final double targetDistance, tolerance, facing, targetVelocity, minimumVelocity, timeInMS, easeInDistance, easeOutDistance;
+    private final double tolerance, facing, targetVelocity, minimumVelocity, timeInMS, easeInDistance, easeOutDistance;
+    private final int targetDistance;
 
     private final double maxVelocity;
     private double speed;
 
-    private int distanceAlreadyTravelled, travelledDistance;
+    private int leftDistanceAlreadyTravelled, rightDistanceAlreadyTravelled, leftTravelledDistance, rightTravelledDistance;
     private final boolean stateDisabled;
 
     private double velocity;
-    private double ratio = 1.0;
+    private double ratio;
+    private boolean stopped = false, correcting = false, correctingLeft = false;
 
     public Move(Robot robot, String groupName, String actionName) {
         this.robot = robot;
@@ -44,7 +46,8 @@ public class Move extends CyberarmState {
     @Override
     public void start() {
         // TODO: Use a dead wheel for this
-        distanceAlreadyTravelled = -robot.frontRightDrive.getCurrentPosition();
+        leftDistanceAlreadyTravelled = -robot.frontRightDrive.getCurrentPosition();
+        rightDistanceAlreadyTravelled = -robot.backLeftDrive.getCurrentPosition();
     }
 
     @Override
@@ -63,36 +66,42 @@ public class Move extends CyberarmState {
             return;
         }
 
-        travelledDistance = -robot.frontRightDrive.getCurrentPosition() - distanceAlreadyTravelled;
+        leftTravelledDistance = -robot.frontRightDrive.getCurrentPosition() - leftDistanceAlreadyTravelled;
+        rightTravelledDistance = -robot.backLeftDrive.getCurrentPosition() - rightDistanceAlreadyTravelled;
 
-        if (robot.isBetween(travelledDistance, targetDistance - tolerance, targetDistance + tolerance)) {
-            stop();
-
-            setHasFinished(true);
-
-            return;
+        if (robot.isBetween(leftTravelledDistance, targetDistance - tolerance, targetDistance + tolerance) ||
+                robot.isBetween(rightTravelledDistance, targetDistance - tolerance, targetDistance + tolerance)) {
+            correctOrientation();
+        } else {
+            moveDirectional();
         }
-
-        moveDirectional(travelledDistance);
     }
 
     @Override
     public void telemetry() {
         engine.telemetry.addLine("Move");
+        engine.telemetry.addData("Ratio", ratio);
         engine.telemetry.addData("Minimum Velocity", minimumVelocity);
         engine.telemetry.addData("Target Velocity", targetVelocity);
         engine.telemetry.addData("Velocity", velocity);
         engine.telemetry.addData("Target Distance", targetDistance);
-        engine.telemetry.addData("Travelled Distance", travelledDistance);
-        engine.telemetry.addData("Distance Already Travelled", distanceAlreadyTravelled);
-        engine.telemetry.addData("Travel Forward", targetDistance > travelledDistance);
+        engine.telemetry.addData("Travelled Distance", leftTravelledDistance);
+        engine.telemetry.addData("Distance Already Travelled", leftDistanceAlreadyTravelled);
+        engine.telemetry.addData("Travel Forward", targetDistance > leftTravelledDistance);
+        engine.telemetry.addData("Left Drive Error", engine.blackboardGetInt("left_drive_error"));
+        engine.telemetry.addData("Right Drive Error", engine.blackboardGetInt("right_drive_error"));
     }
 
-    private void moveDirectional(double travelledDistance) {
+    private void moveDirectional() {
+        double travelledDistance = leftTravelledDistance;
+        ratio = 1.0;
+
         if (Math.abs(travelledDistance) < easeInDistance) {
             ratio = Math.abs(travelledDistance) / easeInDistance;
         } else if (Math.abs(travelledDistance) > Math.abs(targetDistance) - easeOutDistance) {
             ratio = (Math.abs(targetDistance) - Math.abs(travelledDistance)) / easeOutDistance;
+        } else {
+            ratio = 1.0;
         }
 
         ratio = Range.clip(ratio, 0.0, 1.0);
@@ -154,6 +163,42 @@ public class Move extends CyberarmState {
         robot.backRightDrive.setVelocity(backRightPower * targetVelocity);
     }
 
+    private void correctOrientation() {
+        if (!stopped && Math.abs(robot.backLeftDrive.getVelocity()) > 0 && Math.abs(robot.frontRightDrive.getVelocity()) > 0) {
+            stop();
+        } else {
+            stopped = true;
+
+            if (!correcting) {
+                correcting = true;
+
+                if (leftTravelledDistance > rightTravelledDistance) {
+                    correctingLeft = true;
+                } else if (leftTravelledDistance < rightTravelledDistance) {
+                    correctingLeft = false;
+                }
+            }
+
+            if (correctingLeft) {
+                robot.frontRightDrive.setVelocity(robot.unitToTicks(DistanceUnit.INCH, 1));
+
+                if (leftTravelledDistance <= rightTravelledDistance) {
+                    stop();
+
+                    setHasFinished(true);
+                }
+            } else {
+                robot.backLeftDrive.setVelocity(robot.unitToTicks(DistanceUnit.INCH, 1));
+
+                if (leftTravelledDistance >= rightTravelledDistance) {
+                    stop();
+
+                    setHasFinished(true);
+                }
+            }
+        }
+    }
+
     @Override
     public void stop() {
         robot.backLeftDrive.setVelocity(0); robot.frontLeftDrive.setPower(0);
@@ -161,5 +206,8 @@ public class Move extends CyberarmState {
 
         robot.frontLeftDrive.setVelocity(0); robot.backLeftDrive.setPower(0);
         robot.backRightDrive.setVelocity(0); robot.backRightDrive.setPower(0);
+
+        engine.blackboardSet("left_drive_error", (int)(targetDistance - leftTravelledDistance));
+        engine.blackboardSet("right_drive_error", (int)(targetDistance - rightTravelledDistance));
     }
 }
