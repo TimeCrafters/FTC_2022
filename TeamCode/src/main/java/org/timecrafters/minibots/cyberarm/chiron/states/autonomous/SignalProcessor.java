@@ -14,7 +14,7 @@ public class SignalProcessor extends CyberarmState {
     private final int fallbackPosition;
     private final boolean stateDisabled;
 
-    private List<Recognition> updatedRecognitions;
+    private List<Recognition> updatedRecognitions = null;
 
     public SignalProcessor(Robot robot, String groupName, String actionName) {
         this.robot = robot;
@@ -54,7 +54,15 @@ public class SignalProcessor extends CyberarmState {
             // the last time that call was made.
             List<Recognition> recognitions = robot.getTfod().getUpdatedRecognitions();
 
+            boolean secondPass = false;
             if (recognitions != null) {
+                /* Since recognitions will be null unless there has been a change and updatedRecognitions
+                   will be null unless we have had a first pass of recognitions we can safely assume that
+                   we are on our second pass. */
+                if (updatedRecognitions != null) {
+                    secondPass = true;
+                }
+
                 updatedRecognitions = recognitions;
             }
 
@@ -75,6 +83,12 @@ public class SignalProcessor extends CyberarmState {
                             break;
                     }
                 }
+            }
+
+            /* Attempt to speed up this state by assuming that the second pass of recognitions is
+               good enough and finish the state */
+            if (secondPass) {
+                setHasFinished(true);
             }
         }
     }
