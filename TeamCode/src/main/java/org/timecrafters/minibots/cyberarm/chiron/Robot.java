@@ -209,6 +209,10 @@ public class Robot {
         vuforia = initVuforia();
         tfod = initTfod();
 
+        // Drive Encoder Error Setup
+        engine.blackboardSet("left_drive_error", 0);
+        engine.blackboardSet("right_drive_error", 0);
+
         // INITIALIZE AFTER EVERYTHING ELSE to prevent use before set crashes
         this.fieldLocalizer.setRobot(this);
         this.fieldLocalizer.standardSetup();
