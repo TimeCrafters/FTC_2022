@@ -12,7 +12,6 @@ public class TeleOPTankDriver extends CyberarmState {
     private long lastStepTime = 0;
     private double drivePower = 0.3;
     private double RobotRotation;
-    private double currentDriveCommand;
     private double RotationTarget, DeltaRotation;
     private double MinimalPower = 0.2;
     private int DeltaOdometerR, Endeavour, Spirit;
@@ -37,7 +36,16 @@ public class TeleOPTankDriver extends CyberarmState {
     @Override
     public void exec() {
 
-        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
+        double y = -engine.gamepad1.left_stick_y; // Remember, this is reversed! because of the negative
+        double x = engine.gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+        double rx = engine.gamepad1.right_stick_x;
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+        double frontLeftPower = (y + x + rx) / denominator;
+        double backLeftPower = (y - x + rx) / denominator;
+        double frontRightPower = (y - x - rx) / denominator;
+        double backRightPower = (y + x - rx) / denominator;
+
+        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) < 0.1) {
             drivePower = engine.gamepad1.left_stick_y;
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(drivePower);
@@ -45,7 +53,7 @@ public class TeleOPTankDriver extends CyberarmState {
             robot.frontRightDrive.setPower(drivePower);
         }
 
-        if (Math.abs(engine.gamepad1.left_stick_x) > 0.1) {
+        if (Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.left_stick_y) < 0.1) {
             drivePower = engine.gamepad1.left_stick_x;
             robot.backLeftDrive.setPower(drivePower);
             robot.backRightDrive.setPower(-drivePower);
@@ -53,12 +61,27 @@ public class TeleOPTankDriver extends CyberarmState {
             robot.frontRightDrive.setPower(drivePower);
         }
 
+        if (Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
+            robot.frontLeftDrive.setPower(frontLeftPower * drivePower);
+            robot.backLeftDrive.setPower(backLeftPower * drivePower);
+            robot.frontRightDrive.setPower(frontRightPower * drivePower);
+            robot.backRightDrive.setPower(backRightPower * drivePower);
+        }
+
         if (Math.abs(engine.gamepad1.right_stick_x) > 0.1) {
             drivePower = engine.gamepad1.right_stick_x;
+            robot.backLeftDrive.setPower(-drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(-drivePower);
+            robot.frontRightDrive.setPower(drivePower);
+        }
+
+        if (engine.gamepad1.left_stick_y == 0 && engine.gamepad1.left_stick_x == 0 && engine.gamepad1.right_stick_x == 0) {
+            drivePower = 0;
             robot.backLeftDrive.setPower(drivePower);
-            robot.backRightDrive.setPower(-drivePower);
+            robot.backRightDrive.setPower(drivePower);
             robot.frontLeftDrive.setPower(drivePower);
-            robot.frontRightDrive.setPower(-drivePower);
+            robot.frontRightDrive.setPower(drivePower);
         }
 
 
@@ -83,21 +106,6 @@ public class TeleOPTankDriver extends CyberarmState {
             lastStepTime = System.currentTimeMillis();
             DeltaOdometerR = robot.OdometerEncoderRight.getCurrentPosition() - Spirit;
         }
-    }
-
-    public void getCurrentDriveCommand() {
-        if (Math.abs(engine.gamepad1.left_stick_y) > 0.1) {
-            currentDriveCommand = engine.gamepad1.left_stick_y;
-        } else if (Math.abs(engine.gamepad1.left_stick_x) > 0.1) {
-            currentDriveCommand = engine.gamepad1.left_stick_x;
-        } else if (Math.abs(engine.gamepad1.right_stick_x) > 0.1) {
-            currentDriveCommand = engine.gamepad1.right_stick_x;
-        } else if (Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
-            currentDriveCommand = engine.gamepad1.right_stick_y;
-        } else if ((Math.abs(engine.gamepad1.left_stick_y)) > 0.1 && Math.abs(engine.gamepad1.left_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_x) > 0.1 && Math.abs(engine.gamepad1.right_stick_y) > 0.1) {
-            currentDriveCommand = 0;
-        }
-
     }
 
     @Override

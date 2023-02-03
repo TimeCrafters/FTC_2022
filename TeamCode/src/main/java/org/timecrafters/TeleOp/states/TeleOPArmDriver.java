@@ -113,14 +113,14 @@ public void exec() {
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() <= servoMedLow + 5 &&
+            if (robot.LowRiserLeft.getPosition() <= servoMedLow &&
                     robot.ArmMotor.getCurrentPosition() > armMotorMed)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() < servoMedLow + 5 &&
+            if (robot.LowRiserLeft.getPosition() < servoMedLow &&
                     robot.ArmMotor.getCurrentPosition() < armMotorMed)/* <-- high level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
@@ -150,7 +150,7 @@ public void exec() {
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() <= servoLowLow + 5 &&
+            if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
                     robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
                     robot.ArmMotor.getCurrentPosition() > armMotorLow)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
@@ -158,7 +158,7 @@ public void exec() {
                     robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
             }
-            if (robot.LowRiserLeft.getPosition() <= servoLowLow + 5 &&
+            if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
                     robot.ArmMotor.getCurrentPosition() < armMotorLow)/* <-- high level too low*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
@@ -166,7 +166,7 @@ public void exec() {
                 }
             }
             if (robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
-                    robot.LowRiserLeft.getPosition() <= servoLowLow + 5 &&
+                    robot.LowRiserLeft.getPosition() <= servoLowLow &&
                     robot.ArmMotor.getCurrentPosition() >= armMotorLow) {
                 Endeavour = 0;
             }
@@ -174,19 +174,19 @@ public void exec() {
 
         if (Endeavour == 1) {
             robot.ArmMotor.setTargetPosition(armMotorCollect);
-            if (robot.LowRiserLeft.getPosition() >= servoCollectLow + 5)/* <-- low level too high*/ {
+            if (robot.LowRiserLeft.getPosition() >= servoCollectLow)/* <-- low level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() - 0.05);
                     robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
                 }
-            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow + 5 &&
+            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow &&
                     robot.ArmMotor.getCurrentPosition() > armMotorCollect)/* <-- high level too high*/ {
                 if (System.currentTimeMillis() - lastStepTime >= 100) {
                     lastStepTime = System.currentTimeMillis();
                     robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
                 }
-            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow + 5 &&
+            } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow &&
                     robot.ArmMotor.getCurrentPosition() <= armMotorCollect) {
                 Endeavour = 0;
             }
@@ -203,6 +203,7 @@ public void exec() {
         if (engine.gamepad2.dpad_left && Peanut == 1 || engine.gamepad2.dpad_right && Peanut == 2) {
             robot.collectorLeft.setPower(0);
             robot.collectorRight.setPower(0);
+            Peanut = 0;
         }
 
         if (Peanut == 1) {
