@@ -27,6 +27,11 @@ public class PhoenixBot1 {
     public static double leftCompensatorGlobal;
     public static double RightCompensatorGlobal;
     public double VEER_COMPENSATION_DBL; // some place around 1, .99 is 1% power reduction
+    public double DRIVETRAIN_MINIMUM_POWER;
+    public double ROTATION_MINIMUM_POWER;
+    public double STRAFE_MINIMUM_POWER;
+    public double DRIVE_TOLERANCE;
+    public double ROTATION_TOLERANCE;
 
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
     private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
@@ -84,6 +89,11 @@ public class PhoenixBot1 {
 
         public void initConstants(){
             VEER_COMPENSATION_DBL = configuration.variable("Robot", "Tuning", "VEER_COMPENSATION_DBL").value();
+            DRIVETRAIN_MINIMUM_POWER = configuration.variable("Robot", "Tuning", "DRIVETRAIN_MINIMUM_POWER").value();
+            ROTATION_MINIMUM_POWER = configuration.variable("Robot", "Tuning", "ROTATION_MINIMUM_POWER").value();
+            STRAFE_MINIMUM_POWER = configuration.variable("Robot", "Tuning", "STRAFE_MINIMUM_POWER").value();
+            DRIVE_TOLERANCE = configuration.variable("Robot", "Tuning", "DRIVE_TOLERANCE").value();
+            ROTATION_TOLERANCE = configuration.variable("Robot", "Tuning", "ROTATION_TOLERANCE").value();
         }
 
     private void initVuforia(){

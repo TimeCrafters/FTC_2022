@@ -15,10 +15,8 @@ public class DriverStateWithOdometer extends CyberarmState {
     private double maximumTolerance;
     private float direction;
     private boolean targetAchieved = false;
-    private double CurrentPosition;
     public final double WHEEL_CIRCUMFERENCE = 7.42108499;
     public final int COUNTS_PER_REVOLUTION = 8192;
-    public double MINIMUM_POWER = 0.25;
     public final double distanceMultiplier;
     public double startOfRampUpRight;
     public double startOfRampDownRight;
@@ -28,6 +26,9 @@ public class DriverStateWithOdometer extends CyberarmState {
     public double endOfRampDownRight;
     public double endOfRampUpLeft;
     public double endOfRampDownLeft;
+    public int driveStage;
+    public float currentAngle;
+    public double currentHorizontalEncoder;
 
     public DriverStateWithOdometer(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
@@ -54,6 +55,8 @@ public class DriverStateWithOdometer extends CyberarmState {
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         traveledDistance = (int) ((traveledDistance * (COUNTS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE)) * distanceMultiplier);
         RampUpDistance = (int) ((RampUpDistance * (COUNTS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE)) * distanceMultiplier);
@@ -61,7 +64,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         maximumTolerance = (int) ((maximumTolerance * (COUNTS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE)) * distanceMultiplier);
 
 
-        if (drivePower > 0) {
+        if (targetDrivePower > 0) {
             startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition();
             endOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition() + RampUpDistance;
             startOfRampDownRight = robot.OdometerEncoderRight.getCurrentPosition() + traveledDistance - RampDownDistance;
@@ -71,6 +74,7 @@ public class DriverStateWithOdometer extends CyberarmState {
             endOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition() + RampUpDistance;
             startOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() + traveledDistance - RampDownDistance;
             endOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() + traveledDistance;
+
         } else {
 
             startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition();
@@ -84,6 +88,8 @@ public class DriverStateWithOdometer extends CyberarmState {
             endOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() - traveledDistance;
 
         }
+
+        driveStage = 0;
 
     }
 
@@ -99,119 +105,207 @@ public class DriverStateWithOdometer extends CyberarmState {
         double RightCurrentPosition = robot.OdometerEncoderRight.getCurrentPosition();
         double LeftCurrentPosition = robot.OdometerEncoderLeft.getCurrentPosition();
 
-        // ramping up
-        if (RightCurrentPosition >= startOfRampUpRight && RightCurrentPosition <= endOfRampUpRight &&
-                LeftCurrentPosition >= startOfRampUpLeft && LeftCurrentPosition <= endOfRampUpLeft) {
+        // Driving Forward
+        if (targetDrivePower > 0 && driveStage == 0) {
 
-            if (targetDrivePower > 0) {
-                drivePower = (targetDrivePower - MINIMUM_POWER) * ((RightCurrentPosition - startOfRampUpRight) / RampUpDistance) + MINIMUM_POWER;
-            } else {
-                drivePower = (targetDrivePower + MINIMUM_POWER) * ((startOfRampUpRight - RightCurrentPosition) / RampUpDistance) - MINIMUM_POWER;
+            // ramping up
+            if ((RightCurrentPosition >= startOfRampUpRight && RightCurrentPosition <= endOfRampUpRight) ||
+                    (LeftCurrentPosition >= startOfRampUpLeft && LeftCurrentPosition <= endOfRampUpLeft)) {
+
+                drivePower = (targetDrivePower - robot.DRIVETRAIN_MINIMUM_POWER) *
+                        (Math.abs(RightCurrentPosition - startOfRampUpRight) / RampUpDistance) + robot.DRIVETRAIN_MINIMUM_POWER;
+
             }
-        }
 
-        // Driving Normal
-        else if (RightCurrentPosition >= endOfRampUpRight && RightCurrentPosition <= startOfRampDownRight &&
-                LeftCurrentPosition >= endOfRampUpLeft && LeftCurrentPosition <= startOfRampDownLeft) {
+            // Driving Normal
+            else if ((RightCurrentPosition >= endOfRampUpRight && RightCurrentPosition <= startOfRampDownRight) ||
+                    (LeftCurrentPosition >= endOfRampUpLeft && LeftCurrentPosition <= startOfRampDownLeft)) {
 
-            drivePower = targetDrivePower;
-
-        }
-
-        // Ramping down
-        else if (RightCurrentPosition >= startOfRampDownRight && RightCurrentPosition <= endOfRampDownRight &&
-                LeftCurrentPosition >= startOfRampDownLeft && LeftCurrentPosition <= endOfRampDownLeft) {
-            if (targetDrivePower > 0) {
-                drivePower = (targetDrivePower + MINIMUM_POWER) * ((startOfRampDownRight - RightCurrentPosition) / RampDownDistance) - MINIMUM_POWER;
-            } else {
-                drivePower = (targetDrivePower - MINIMUM_POWER) * ((RightCurrentPosition - startOfRampDownRight) / RampDownDistance) + MINIMUM_POWER;
-            }
-        }
-            if (Math.abs(drivePower) > Math.abs(targetDrivePower)) {
-                // This is limiting drive power to the targeted drive power
                 drivePower = targetDrivePower;
+
             }
 
-            if (targetDrivePower < 0 && drivePower > 0) {
-                drivePower = drivePower * -1;
+            // Ramping down going forward
+            else if ((RightCurrentPosition >= startOfRampDownRight && RightCurrentPosition <= endOfRampDownRight) ||
+                    (LeftCurrentPosition >= startOfRampDownLeft && LeftCurrentPosition <= endOfRampDownLeft)) {
+                drivePower = (targetDrivePower - robot.DRIVETRAIN_MINIMUM_POWER) *
+                        (Math.abs( RightCurrentPosition - endOfRampDownRight) / RampDownDistance) + robot.DRIVETRAIN_MINIMUM_POWER;
+
+            } else if (driveStage == 0){
+                driveStage = 1;
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
+            }
+        }
+
+        // Driving Backwards .................................................................................................................................Backwards
+        if (targetDrivePower < 0 && driveStage == 0) {
+
+            // ramping up
+            if ((RightCurrentPosition <= startOfRampUpRight && RightCurrentPosition >= endOfRampUpRight) ||
+                    (LeftCurrentPosition <= startOfRampUpLeft && LeftCurrentPosition >= endOfRampUpLeft)) {
+
+                drivePower = (targetDrivePower + robot.DRIVETRAIN_MINIMUM_POWER) *
+                        (Math.abs(startOfRampUpRight - RightCurrentPosition) / RampUpDistance) - robot.DRIVETRAIN_MINIMUM_POWER;
+
             }
 
-            if (LeftCurrentPosition - traveledDistance < maximumTolerance || Math.abs(RightCurrentPosition - traveledDistance) < maximumTolerance) {
-                if (targetAchieved) {
-                    drivePower = drivePower * 0.15;
+            // Driving Normal
+            else if ((RightCurrentPosition <= endOfRampUpRight && RightCurrentPosition >= startOfRampDownRight) ||
+                    (LeftCurrentPosition <= endOfRampUpLeft && LeftCurrentPosition >= startOfRampDownLeft)) {
 
-                    if (Math.abs(drivePower) < 0.15) {
-                        if (drivePower < 0) {
-                            drivePower = -0.15;
-                        } else {
-                            drivePower = 0.15;
-                        }
-                    }
+                drivePower = targetDrivePower;
+
+            }
+
+            // Ramping down going backward
+            else if ((RightCurrentPosition <= startOfRampDownRight && RightCurrentPosition >= endOfRampDownRight) ||
+                    (LeftCurrentPosition <= startOfRampDownLeft && LeftCurrentPosition >= endOfRampDownLeft)) {
+
+                drivePower = (targetDrivePower + robot.DRIVETRAIN_MINIMUM_POWER) *
+                        (Math.abs( RightCurrentPosition - endOfRampDownRight) / RampDownDistance) - robot.DRIVETRAIN_MINIMUM_POWER;
+            } else if (driveStage == 0){
+                driveStage = 1;
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
+
+            }
+
+            // end of ramp down
+        }
+
+        // Forwards distance adjust...............................................................................................................................STAGE 1
+        if (driveStage == 1 && targetDrivePower > 0) {
+
+            if (LeftCurrentPosition < (endOfRampDownLeft - maximumTolerance) &&
+            RightCurrentPosition < (endOfRampDownRight - maximumTolerance)) {
+
+                drivePower = robot.DRIVETRAIN_MINIMUM_POWER;
+
+            } else if (LeftCurrentPosition > (endOfRampDownLeft + maximumTolerance) &&
+                    RightCurrentPosition > (endOfRampDownRight + maximumTolerance)) {
+
+                drivePower = -robot.DRIVETRAIN_MINIMUM_POWER;
+
+                } else {
+                    driveStage = 2;
+                    robot.frontRightDrive.setPower(0);
+                    robot.frontLeftDrive.setPower(0);
+                    robot.backRightDrive.setPower(0);
+                    robot.backLeftDrive.setPower(0);
                 }
-                robot.backLeftDrive.setPower(drivePower * robot.VEER_COMPENSATION_DBL);
-                robot.backRightDrive.setPower(drivePower);
-                robot.frontLeftDrive.setPower(drivePower * robot.VEER_COMPENSATION_DBL);
-                robot.frontRightDrive.setPower(drivePower);
+            }
 
-            } else if (Math.abs(LeftCurrentPosition) > traveledDistance + maximumTolerance || Math.abs(RightCurrentPosition) > traveledDistance + maximumTolerance) {
-                targetAchieved = true;
+        // backwards distance adjust
+        if (driveStage == 1 && targetDrivePower < 0) {
 
-                drivePower = targetDrivePower * -0.15;
+            if (LeftCurrentPosition > (endOfRampDownLeft + maximumTolerance) &&
+                    RightCurrentPosition > (endOfRampDownRight + maximumTolerance)) {
 
-                if (Math.abs(drivePower) < 0.15) {
-                    if (drivePower < 0) {
-                        drivePower = -0.15;
-                    } else {
-                        drivePower = 0.15;
-                    }
-                }
+                drivePower = -robot.DRIVETRAIN_MINIMUM_POWER;
 
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(drivePower);
+            } else if (LeftCurrentPosition < (endOfRampDownLeft - maximumTolerance) &&
+                    RightCurrentPosition < (endOfRampDownRight - maximumTolerance)) {
 
+                drivePower = robot.DRIVETRAIN_MINIMUM_POWER;
+
+            } else {
+                driveStage = 2;
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
+            }
+        }
+
+        if (driveStage == 0 || driveStage == 1) {
+            robot.frontRightDrive.setPower(drivePower);
+            robot.frontLeftDrive.setPower(drivePower);
+            robot.backRightDrive.setPower(drivePower);
+            robot.backLeftDrive.setPower(drivePower);
+        }
+        // Heading adjustment
+        if (driveStage == 2 || driveStage == 4) {
+
+            currentAngle = robot.imu.getAngularOrientation().firstAngle;
+
+            if (currentAngle - direction > robot.ROTATION_TOLERANCE) {
+
+                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
+                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER );
+                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
+                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER  );
+
+            }
+            else if (currentAngle - direction < -robot.ROTATION_TOLERANCE) {
+
+                robot.frontRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
+                robot.frontLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+                robot.backRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
+                robot.backLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+
+            } else {
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
+
+                driveStage ++;
+            }
+        }
+
+        // .................................................................................................................................................Strafe Adjustment
+        if ( driveStage == 3 ){
+
+            currentHorizontalEncoder = robot.OdometerEncoderHorizontal.getCurrentPosition();
+            if (currentHorizontalEncoder > 200){
+
+                robot.frontRightDrive.setPower(-robot.STRAFE_MINIMUM_POWER );
+                robot.frontLeftDrive.setPower(robot.STRAFE_MINIMUM_POWER );
+                robot.backRightDrive.setPower(robot.STRAFE_MINIMUM_POWER );
+                robot.backLeftDrive.setPower(-robot.STRAFE_MINIMUM_POWER );
+
+            }
+            else if (currentHorizontalEncoder < -200){
+
+                robot.frontRightDrive.setPower(robot.STRAFE_MINIMUM_POWER );
+                robot.frontLeftDrive.setPower(-robot.STRAFE_MINIMUM_POWER );
+                robot.backRightDrive.setPower(-robot.STRAFE_MINIMUM_POWER );
+                robot.backLeftDrive.setPower(robot.STRAFE_MINIMUM_POWER );
 
             } else {
 
-                if (Math.abs(LeftCurrentPosition) > Math.abs(RightCurrentPosition)) {
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
 
-                    if (Math.abs(Math.abs(LeftCurrentPosition) - Math.abs(RightCurrentPosition)) < 20) {
-                        drivePower = 0;
-                    } else {
-                        drivePower = 0.15;
-                        robot.backLeftDrive.setPower(-drivePower);
-                        robot.backRightDrive.setPower(drivePower);
-                        robot.frontLeftDrive.setPower(-drivePower);
-                        robot.frontRightDrive.setPower(drivePower);
-                    }
-                }
+                driveStage = 4;
 
-                if (Math.abs(LeftCurrentPosition) < Math.abs(RightCurrentPosition)) {
-
-                    if (Math.abs(LeftCurrentPosition) == Math.abs(RightCurrentPosition)) {
-                        drivePower = 0;
-                    } else {
-                        drivePower = 0.15;
-                        robot.backLeftDrive.setPower(drivePower);
-                        robot.backRightDrive.setPower(-drivePower);
-                        robot.frontLeftDrive.setPower(drivePower);
-                        robot.frontRightDrive.setPower(-drivePower);
-                    }
-                } else {
-                    robot.backLeftDrive.setPower(0);
-                    robot.backRightDrive.setPower(0);
-                    robot.frontLeftDrive.setPower(0);
-                    robot.frontRightDrive.setPower(0);
-                    setHasFinished(true);
-                }
             }
+        }
 
-//
+        if (driveStage == 5) {
+//            setHasFinished(true);
+        }
         }
 
         @Override
         public void telemetry () {
+            engine.telemetry.addData("Stage", driveStage);
+            engine.telemetry.addData("maximumTolerance", maximumTolerance);
+            engine.telemetry.addData("startOfRampUpRight", startOfRampUpRight);
+            engine.telemetry.addData("endOfRampUpRight", endOfRampUpRight);
+            engine.telemetry.addData("startOfRampDownRight", startOfRampDownRight);
+            engine.telemetry.addData("endOfRampDownRight", endOfRampDownRight);
+            engine.telemetry.addData("startOfRampUpLeft", startOfRampUpLeft);
+            engine.telemetry.addData("endOfRampUpLeft", endOfRampUpLeft);
+            engine.telemetry.addData("startOfRampDownLeft", startOfRampDownLeft);
+            engine.telemetry.addData("endOfRampDownLeft", endOfRampDownLeft);
             engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getCurrentPosition());
             engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
             engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
@@ -220,7 +314,9 @@ public class DriverStateWithOdometer extends CyberarmState {
             engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getPower());
             engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
             engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
-            engine.telemetry.addData("Odometer", robot.OdometerEncoderRight.getCurrentPosition());
+            engine.telemetry.addData("OdometerR", robot.OdometerEncoderRight.getCurrentPosition());
+            engine.telemetry.addData("OdometerL", robot.OdometerEncoderLeft.getCurrentPosition());
+            engine.telemetry.addData("OdometerH", robot.OdometerEncoderHorizontal.getCurrentPosition());
             engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
             engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
             engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
