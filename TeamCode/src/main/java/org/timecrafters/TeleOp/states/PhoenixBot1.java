@@ -6,6 +6,7 @@ import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -58,7 +59,9 @@ public class PhoenixBot1 {
 
     public Rev2mDistanceSensor collectorDistance, /*downSensor, */leftPoleDistance, rightPoleDistance;
 
-        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoderRight, OdometerEncoderLeft, OdometerEncoderHorizontal, ArmMotor;
+        public DcMotor frontLeftDrive, frontRightDrive, backLeftDrive, backRightDrive, OdometerEncoderRight, OdometerEncoderLeft, OdometerEncoderHorizontal;
+
+        public DcMotorEx ArmMotor;
 
         public CRServo collectorLeft, collectorRight;
 
@@ -175,7 +178,7 @@ public class PhoenixBot1 {
             LowRiserRight = engine.hardwareMap.servo.get("LowRiserRight");
 //            HighRiserLeft = engine.hardwareMap.servo.get("HighRiserLeft");
 //            HighRiserRight = engine.hardwareMap.servo.get("HighRiserRight");
-            ArmMotor = engine.hardwareMap.dcMotor.get("ArmMotor");
+            ArmMotor = engine.hardwareMap.get(DcMotorEx.class, "ArmMotor");
 
             //motors direction and encoders
 
@@ -227,7 +230,7 @@ public class PhoenixBot1 {
 //            HighRiserRight.setDirection(Servo.Direction.FORWARD);
             LowRiserLeft.setDirection(Servo.Direction.FORWARD);
             LowRiserRight.setDirection(Servo.Direction.REVERSE);
-            ArmMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            ArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
