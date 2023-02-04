@@ -43,7 +43,7 @@ public class Robot {
     public final ColorSensor indicatorA, indicatorB;
     public LynxModule expansionHub;
 
-    public final double imuAngleOffset;
+    public final double imuAngleOffset, initialFacing;
     public boolean wristManuallyControlled = false, armManuallyControlled = false;
     public boolean automaticAntiTipActive = false;
     public boolean hardwareFault = false;
@@ -190,6 +190,9 @@ public class Robot {
                     RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
 
         imu.initialize(parameters);
+
+        // Preserve our "initial" facing, since we transform it from zero.
+        initialFacing = facing();
 
         // BulkRead from Hubs
         for (LynxModule hub : engine.hardwareMap.getAll(LynxModule.class)) {
@@ -723,6 +726,10 @@ public class Robot {
 //        arm.setVelocity(newTargetVelocity);
 
         arm.setPower(tuningConfig("arm_automatic_power").value());
+    }
+
+    public double initialFacing() {
+        return initialFacing;
     }
 
     public double facing() {
