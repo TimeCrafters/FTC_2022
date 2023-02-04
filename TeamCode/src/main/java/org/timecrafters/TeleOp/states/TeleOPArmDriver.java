@@ -1,6 +1,8 @@
 package org.timecrafters.TeleOp.states;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
@@ -29,6 +31,7 @@ public class TeleOPArmDriver extends CyberarmState {
     private int armMotorMed = 380;
     private int armMotorHigh = 463;
     private int ArmMotorStepSize = 2;
+    private int TargetPosition = 0;
 
     public TeleOPArmDriver(PhoenixBot1 robot) {
         this.robot = robot;
@@ -53,7 +56,8 @@ public class TeleOPArmDriver extends CyberarmState {
         robot.LowRiserRight.setPosition(0.45);
         robot.ArmMotor.setTargetPosition(0);
         robot.ArmMotor.setPower(0.5);
-        Opportunity = 0;
+        robot.ArmMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         JunctionHeight = 0;
     }
 
@@ -62,8 +66,8 @@ public class TeleOPArmDriver extends CyberarmState {
 @Override
 public void exec() {
 
-    Spirit = System.currentTimeMillis();
-    double ratio = Math.abs(robot.ArmMotor.getCurrentPosition() - robot.ArmMotor.getTargetPosition()) / 400.0 + 0.1;
+    double ratio = Math.abs(robot.ArmMotor.getCurrentPosition() - TargetPosition) / 400.0 + 0.1;
+
 
 //        ArmNeededPower =  Math.abs((robot.ArmMotor.getTargetPosition() - robot.ArmMotor.getCurrentPosition()) / 920) + 0.25;
         armPower = ratio;
@@ -71,24 +75,28 @@ public void exec() {
 
     if (engine.gamepad2.y) {
         JunctionHeight = 4;
+        TargetPosition = armMotorHigh;
     }
     if (engine.gamepad2.b) {
         JunctionHeight = 3;
+        TargetPosition = armMotorMed;
     }
     if (engine.gamepad2.x) {
         JunctionHeight = 2;
+        TargetPosition = armMotorLow;
     }
     if (engine.gamepad2.a) {
         JunctionHeight = 1;
+        TargetPosition = armMotorCollect;
     }
 
     if (JunctionHeight == 4 && System.currentTimeMillis() - lastStepTime >= 100) {
         lastStepTime = System.currentTimeMillis();
         robot.ArmMotor.setTargetPosition(armMotorHigh);
         if (robot.ArmMotor.getCurrentPosition() < armMotorHigh)/* <-- high level too low*/ {
-            robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
+            robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() + ArmMotorStepSize);
         }
-        if (robot.LowRiserLeft.getPosition() < servoHighLow && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
+        else if (robot.LowRiserLeft.getPosition() < servoHighLow && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
             robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
             robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
         }
@@ -107,28 +115,28 @@ public void exec() {
                 robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
             }
         }
-        if (robot.LowRiserLeft.getPosition() < servoMedLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
+        else if (robot.LowRiserLeft.getPosition() < servoMedLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
                 robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                 robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
             }
         }
-        if (robot.LowRiserLeft.getPosition() <= servoMedLow &&
+        else if (robot.LowRiserLeft.getPosition() <= servoMedLow &&
                 robot.ArmMotor.getCurrentPosition() > armMotorMed)/* <-- high level too high*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() - ArmMotorStepSize);
             }
         }
-        if (robot.LowRiserLeft.getPosition() < servoMedLow &&
+        else if (robot.LowRiserLeft.getPosition() < servoMedLow &&
                 robot.ArmMotor.getCurrentPosition() < armMotorMed)/* <-- high level too low*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() + ArmMotorStepSize);
             }
         }
-        if (robot.LowRiserLeft.getPosition() > servoMedLow - 5 &&
+        else if (robot.LowRiserLeft.getPosition() > servoMedLow - 5 &&
                 robot.LowRiserLeft.getPosition() <= servoMedLow &&
                 robot.ArmMotor.getCurrentPosition() >= armMotorMed) {
             JunctionHeight = 0;
@@ -144,29 +152,29 @@ public void exec() {
                 robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() - 0.05);
             }
         }
-        if (robot.LowRiserLeft.getPosition() < servoLowLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
+        else if (robot.LowRiserLeft.getPosition() < servoLowLow - 5 && robot.ArmMotor.getCurrentPosition() >= armMotorLow)/* <-- low level too low*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
                 robot.LowRiserLeft.setPosition(robot.LowRiserLeft.getPosition() + 0.05);
                 robot.LowRiserRight.setPosition(robot.LowRiserRight.getPosition() + 0.05);
             }
         }
-        if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
+        else if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
                 robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
                 robot.ArmMotor.getCurrentPosition() > armMotorLow)/* <-- high level too high*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() - ArmMotorStepSize);
             }
         }
-        if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
+        else if (robot.LowRiserLeft.getPosition() <= servoLowLow &&
                 robot.ArmMotor.getCurrentPosition() < armMotorLow)/* <-- high level too low*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() + ArmMotorStepSize);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() + ArmMotorStepSize);
             }
         }
-        if (robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
+        else if (robot.LowRiserLeft.getPosition() > servoLowLow - 5 &&
                 robot.LowRiserLeft.getPosition() <= servoLowLow &&
                 robot.ArmMotor.getCurrentPosition() >= armMotorLow) {
             JunctionHeight = 0;
@@ -185,7 +193,7 @@ public void exec() {
                 robot.ArmMotor.getCurrentPosition() > armMotorCollect)/* <-- high level too high*/ {
             if (System.currentTimeMillis() - lastStepTime >= 100) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getTargetPosition() - ArmMotorStepSize);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() - ArmMotorStepSize);
             }
         } else if (robot.LowRiserLeft.getPosition() <= servoCollectLow &&
                 robot.ArmMotor.getCurrentPosition() <= armMotorCollect) {
@@ -193,45 +201,65 @@ public void exec() {
         }
     }
 
-    if (engine.gamepad2.dpad_left && Ingenuity != 1) {
-        Ingenuity = 1;
-    }
-
-    if (engine.gamepad2.dpad_right && Ingenuity != 2) {
-        Ingenuity = 2;
-    }
-
-    if (engine.gamepad2.dpad_left && Ingenuity == 1 || engine.gamepad2.dpad_right && Ingenuity == 2) {
-        robot.collectorLeft.setPower(0);
-        robot.collectorRight.setPower(0);
-        Ingenuity = 0;
-    }
-
-    if (Ingenuity == 1) {
-        robot.collectorRight.setPower(1);
-        robot.collectorLeft.setPower(-1);
-    }
-
-    if (Ingenuity == 2) {
-        robot.collectorLeft.setPower(1);
-        robot.collectorRight.setPower(-1);
-    }
+//    if (engine.gamepad2.dpad_left && Ingenuity != 1) {
+//        Ingenuity = 1;
+//    }
+//
+//    if (engine.gamepad2.dpad_right && Ingenuity != 2) {
+//        Ingenuity = 2;
+//    }
+//
+//    if (Ingenuity == 1) {
+//        robot.collectorRight.setPower(-1);
+//        robot.collectorLeft.setPower(-1);
+//    }
+//
+//    if (Ingenuity == 2) {
+//        robot.collectorLeft.setPower(1);
+//        robot.collectorRight.setPower(1);
+//    }
 
     if (engine.gamepad2.right_trigger > 0.1) {
         JunctionHeight = 0;
-        if (System.currentTimeMillis() - lastStepTime >= 100) {
+        if (System.currentTimeMillis() - lastStepTime >= 100 && robot.ArmMotor.getCurrentPosition() < armMotorHigh + 5) {
             lastStepTime = System.currentTimeMillis();
-            robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() + 50);
+            robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() + 1);
             robot.ArmMotor.setPower(armPower);
         } else if (engine.gamepad2.left_trigger > 0.1) {
             JunctionHeight = 0;
-            if (System.currentTimeMillis() - lastStepTime >= 100) {
+            if (System.currentTimeMillis() - lastStepTime >= 100 && robot.ArmMotor.getCurrentPosition() > armMotorCollect - 5) {
                 lastStepTime = System.currentTimeMillis();
-                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() - 50);
+                robot.ArmMotor.setTargetPosition(robot.ArmMotor.getCurrentPosition() - 1);
                 robot.ArmMotor.setPower(armPower);
             }
         }
 
     }
 }
+
+    @Override
+    public void buttonDown(Gamepad gamepad, String button) {
+        if (engine.gamepad2 == gamepad) {
+            if (button.equals("dpad_left")) {
+                robot.collectorRight.setPower(-1);
+                robot.collectorLeft.setPower(-1);
+            } else if (button.equals("dpad_right")) {
+                robot.collectorLeft.setPower(1);
+                robot.collectorRight.setPower(1);
+            }
+        }
+
+    }
+    public void buttonUp(Gamepad gamepad, String button) {
+        if (engine.gamepad2 == gamepad) {
+            if (button.equals("dpad_left")) {
+                robot.collectorRight.setPower(0);
+                robot.collectorLeft.setPower(0);
+            } else if (button.equals("dpad_right")) {
+                robot.collectorLeft.setPower(0);
+                robot.collectorRight.setPower(0);
+            }
+        }
+
+    }
 }

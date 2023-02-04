@@ -18,7 +18,6 @@ public class PhoenixTeleOP extends CyberarmEngine {
     public void setup() {
 
         robot = new PhoenixBot1(this);
-//        addState(new PhoenixTeleOPState(robot));
         addState(new TeleOPArmDriver(robot));
         addParallelStateToLastState(new TeleOPTankDriver(robot));
     }
