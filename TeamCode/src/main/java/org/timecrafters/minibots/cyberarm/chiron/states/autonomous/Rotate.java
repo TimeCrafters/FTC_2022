@@ -32,7 +32,7 @@ public class Rotate extends CyberarmState {
 
         stateDisabled = !robot.getConfiguration().action(groupName, actionName).enabled;
 
-        facing = (robot.facing() + targetFacing + 360.0) % 360.0;
+        facing = (robot.initialFacing() + targetFacing + 360.0) % 360.0;
 
         velocity = targetVelocity;
     }
