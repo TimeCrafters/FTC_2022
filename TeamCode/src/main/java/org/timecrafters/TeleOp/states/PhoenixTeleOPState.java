@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class PhoenixTeleOPState extends CyberarmState {
@@ -52,7 +53,7 @@ public class PhoenixTeleOPState extends CyberarmState {
     public void telemetry() {
         engine.telemetry.addData("Low Riser Right Position", robot.LowRiserRight.getPosition());
         engine.telemetry.addData("Low Riser Left Position", robot.LowRiserLeft.getPosition());
-        engine.telemetry.addData("IMU", robot.imu.getAngularOrientation().firstAngle);
+        engine.telemetry.addData("IMU", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         engine.telemetry.addData("Drive Power", drivePower);
         engine.telemetry.addData("Delta Rotation", DeltaRotation);
         engine.telemetry.addData("Cone Distance", robot.collectorDistance.getDistance(DistanceUnit.MM));
@@ -131,7 +132,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.dpad_right) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = 90;
             CalculateDeltaRotation();
             if (RobotRotation > -90 && RobotRotation < 89) {//CCW
@@ -158,7 +159,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.dpad_left) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = -90;
             CalculateDeltaRotation();
             if (RobotRotation > -89 && RobotRotation <= 90) {//CW
@@ -185,7 +186,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.y) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = 180;
             CalculateDeltaRotation();
             if (RobotRotation < 0 && RobotRotation > -179) {
@@ -210,7 +211,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.a && !engine.gamepad1.start) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = 0;
             CalculateDeltaRotation();
             if (RobotRotation < -1) {
@@ -237,7 +238,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.x) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = -45;
             CalculateDeltaRotation();
             if (RobotRotation < -46 || RobotRotation > 135) {//CCW
@@ -264,7 +265,7 @@ public class PhoenixTeleOPState extends CyberarmState {
         }
 
         if (engine.gamepad1.b) {
-            RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+            RobotRotation = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
             RotationTarget = 45;
             CalculateDeltaRotation();
             if (RobotRotation > -135 && RobotRotation < 44) {//CCW
@@ -470,24 +471,10 @@ public class PhoenixTeleOPState extends CyberarmState {
     @Override
     public void buttonUp(Gamepad gamepad, String button) {
         if (engine.gamepad1 == gamepad && button.equals("start")) {
-            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-            parameters.mode = BNO055IMU.SensorMode.IMU;
-            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.loggingEnabled = false;
-
-            robot.imu.initialize(parameters);
+            robot.imu.resetYaw();
         }
     }
-//    public double downSensor() {
-//        double Distance, Distance_1, Distance_2, Distance_3, Distance_4, Distance_5;
-//        Distance_1 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_2 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_3 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_4 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance_5 = robot.downSensor.getDistance(DistanceUnit.MM);
-//        Distance = (Distance_1 + Distance_2 + Distance_3 + Distance_4 + Distance_5)/5;
-//        return Distance;
+
 
     }

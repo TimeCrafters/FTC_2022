@@ -3,9 +3,11 @@ package org.timecrafters.TeleOp.states;
 import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
@@ -55,7 +57,7 @@ public class PhoenixBot1 {
 
         public CRServo collectorLeft, collectorRight;
 
-         public BNO055IMU imu;
+         public IMU imu;
 
          public TimeCraftersConfiguration configuration;
 
@@ -121,17 +123,20 @@ public class PhoenixBot1 {
             leftPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Left Pole Distance");
             rightPoleDistance = engine.hardwareMap.get(Rev2mDistanceSensor.class, "Right Pole Distance");
 
-            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+            IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
+            ));
 
-            parameters.mode = BNO055IMU.SensorMode.IMU;
-            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-            parameters.loggingEnabled = false;
+//            parameters.mode = BNO055IMU.SensorMode.IMU;
+//            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+//            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+//            parameters.loggingEnabled = false;
 
-            this.imu = engine.hardwareMap.get(BNO055IMU.class, "imu");
+            this.imu = engine.hardwareMap.get(IMU.class, "imu");
             imu.initialize(parameters);
 
-            imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
+//            imu.startAccelerationIntegration(new Position(), new Velocity(), 10);
 
             configuration = new TimeCraftersConfiguration("Phoenix");
 //            AdafruitEncoder = engine.hardwareMap.AdafruitI2cColorSensor.get("adafruit");

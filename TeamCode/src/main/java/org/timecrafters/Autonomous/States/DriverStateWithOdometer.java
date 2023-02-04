@@ -5,6 +5,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 public class DriverStateWithOdometer extends CyberarmState {
@@ -189,9 +190,9 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
         engine.telemetry.addData("Odometer", robot.OdometerEncoderRight.getCurrentPosition());
-        engine.telemetry.addData("imu 1 angle", robot.imu.getAngularOrientation().firstAngle);
-        engine.telemetry.addData("imu 2 angle", robot.imu.getAngularOrientation().secondAngle);
-        engine.telemetry.addData("imu 3 angle", robot.imu.getAngularOrientation().thirdAngle);
+        engine.telemetry.addData("imu yaw", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        engine.telemetry.addData("imu pitch", robot.imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
+        engine.telemetry.addData("imu roll", robot.imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
 
         engine.telemetry.addData("Target Achieved", targetAchieved);
 
@@ -204,9 +205,9 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
 
-        Log.i("TELEMETRY", "imu 1 angle:: " + robot.imu.getAngularOrientation().firstAngle);
-        Log.i("TELEMETRY", "imu 2 angle:: " + robot.imu.getAngularOrientation().secondAngle);
-        Log.i("TELEMETRY", "imu 3 angle:: " + robot.imu.getAngularOrientation().thirdAngle);
+        Log.i("TELEMETRY", "imu yaw:: " + robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+        Log.i("TELEMETRY", "imu pitch:: " + robot.imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
+        Log.i("TELEMETRY", "imu roll:: " + robot.imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
 
     }
 }

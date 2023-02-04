@@ -1,6 +1,7 @@
 package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 public class RotationState extends CyberarmState {
@@ -40,7 +41,7 @@ public class RotationState extends CyberarmState {
             return;
             } // end of if
 
-        RobotRotation = robot.imu.getAngularOrientation().firstAngle;
+        RobotRotation = (float) robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
         if (Math.abs(Math.abs(targetRotation) - Math.abs(RobotRotation)) < 20){
             drivePowerVariable = 0.4 * drivePower;

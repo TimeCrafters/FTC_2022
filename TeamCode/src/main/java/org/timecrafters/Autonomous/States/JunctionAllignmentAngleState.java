@@ -3,6 +3,7 @@ package org.timecrafters.Autonomous.States;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.timecrafters.TeleOp.states.PhoenixBot1;
 
@@ -88,7 +89,7 @@ public class JunctionAllignmentAngleState extends CyberarmState {
     @Override
     public void exec() {
 
-        currentAngle = robot.imu.getAngularOrientation().firstAngle;
+        currentAngle = (float) robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
 
         if (stateDisabled){
