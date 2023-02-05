@@ -1,13 +1,11 @@
-package org.timecrafters.TeleOp.states;
+package org.timecrafters.Autonomous.TeleOp.states;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.cyberarm.engine.V2.GamepadChecker;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class TeleOPArmDriver extends CyberarmState {
     private final PhoenixBot1 robot;

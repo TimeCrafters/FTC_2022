@@ -2,7 +2,7 @@ package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.timecrafters.TeleOp.states.PhoenixBot1;
+import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
 
 public class RotationState extends CyberarmState {
     private final boolean stateDisabled;
@@ -11,7 +11,7 @@ public class RotationState extends CyberarmState {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "DrivePower").value();
         this.targetRotation = robot.configuration.variable(groupName, actionName, "targetRotation").value();
-        drivePowerVariable = drivePower;
+        this.ClockWiseRotation = robot.configuration.variable(groupName, actionName, "ClockWiseRotation").value();
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
 
 
@@ -19,69 +19,99 @@ public class RotationState extends CyberarmState {
 
     private double drivePower;
     private float targetRotation;
-    float RobotRotation;
-    private double RotationTarget;
-    private double RotationDirectionMinimum;
+    float CurrentRotation;
     private String debugStatus = "?";
     private double drivePowerVariable;
     private double leftCompensator;
     private double RightCompensator;
+    private boolean ClockWiseRotation;
+    private int RotationStage;
+    private double rotationDirection;
+    private long lastStepTime = 0;
 
     @Override
     public void start() {
 
         leftCompensator = robot.OdometerEncoderLeft.getCurrentPosition();
         RightCompensator = robot.OdometerEncoderRight.getCurrentPosition();
+
+        RotationStage = 0;
     }
 
     @Override
     public void exec() {
-        if (stateDisabled){
+        if (stateDisabled) {
             setHasFinished(true);
             return;
-            } // end of if
+        } //
 
-        RobotRotation = (float) robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
-        if (Math.abs(Math.abs(targetRotation) - Math.abs(RobotRotation)) < 20){
-            drivePowerVariable = 0.4 * drivePower;
-            if (Math.abs(drivePowerVariable) < 0.4) {
-                if (drivePowerVariable < 0){
-                    drivePowerVariable = -0.4;
-                } else {
-                    drivePowerVariable = 0.4;
-                }
+        CurrentRotation = (float) robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
+
+        if (RotationStage == 0) {
+
+            drivePowerVariable = ((Math.abs(CurrentRotation - targetRotation) / 90) * (drivePower - robot.ROTATION_MINIMUM_POWER)) + robot.ROTATION_MINIMUM_POWER;
+
+            if (ClockWiseRotation) { rotationDirection = 1;} else { rotationDirection = -1;}
+
+
+                robot.backLeftDrive.setPower( drivePowerVariable * rotationDirection );
+                robot.backRightDrive.setPower( -drivePowerVariable * rotationDirection );
+                robot.frontLeftDrive.setPower( drivePowerVariable * rotationDirection );
+                robot.frontRightDrive.setPower( -drivePowerVariable * rotationDirection );
+
+            if (Math.abs(Math.abs(CurrentRotation) - Math.abs(targetRotation)) <= robot.ROTATION_TOLERANCE &&
+                    (RotationStage == 0) &&
+                    (CurrentRotation - targetRotation <= robot.ROTATION_TOLERANCE)) {
+                RotationStage = 1;
+                lastStepTime = System.currentTimeMillis();
             }
-            debugStatus = "Rotate Slow";
-        } // end of if
-        else {
-            drivePowerVariable = drivePower * 0.75;
-            debugStatus = "Rotate Fast";
+            }
+
+        if (RotationStage == 1){
+            robot.backLeftDrive.setPower( 0 );
+            robot.backRightDrive.setPower( 0 );
+            robot.frontLeftDrive.setPower( 0 );
+            robot.frontRightDrive.setPower( 0 );
+            if (System.currentTimeMillis() - lastStepTime >= robot.PAUSE_ON_ROTATION ){
+                RotationStage = 2;
+            }
         }
 
-        if (RobotRotation >= targetRotation + 1){
-            drivePowerVariable = Math.abs(drivePowerVariable);
-        } else {
-            drivePowerVariable = -1 * Math.abs(drivePowerVariable);
+        if (RotationStage == 2) {
+
+            if (CurrentRotation - targetRotation > robot.ROTATION_TOLERANCE) {
+                // CW
+
+                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
+                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER );
+                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
+                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER  );
+
+            }
+            else if (CurrentRotation - targetRotation < -robot.ROTATION_TOLERANCE) {
+                // CCW
+
+                robot.frontRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
+                robot.frontLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+                robot.backRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
+                robot.backLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+
+            } else {
+                robot.frontRightDrive.setPower(0);
+                robot.frontLeftDrive.setPower(0);
+                robot.backRightDrive.setPower(0);
+                robot.backLeftDrive.setPower(0);
+
+                RotationStage ++;
+//                setHasFinished(true);
+            }
         }
 
-        if (RobotRotation <= targetRotation -1 || RobotRotation >= targetRotation + 1) {
-            robot.backLeftDrive.setPower(drivePowerVariable);
-            robot.backRightDrive.setPower(-drivePowerVariable);
-            robot.frontLeftDrive.setPower(drivePowerVariable);
-            robot.frontRightDrive.setPower(-drivePowerVariable);
-        } else
-        {
-            robot.backLeftDrive.setPower(0);
-            robot.backRightDrive.setPower(0);
-            robot.frontLeftDrive.setPower(0);
-            robot.frontRightDrive.setPower(0);
-            PhoenixBot1.leftCompensatorGlobal = (leftCompensator + robot.OdometerEncoderLeft.getCurrentPosition()) - leftCompensator;
-            PhoenixBot1.RightCompensatorGlobal = (RightCompensator + robot.OdometerEncoderRight.getCurrentPosition()) - RightCompensator;
-            setHasFinished(true);
+
         }
 
-    }
+
 
     @Override
     public void telemetry() {
@@ -89,13 +119,14 @@ public class RotationState extends CyberarmState {
 
         engine.telemetry.addLine();
 
-        engine.telemetry.addData("Robot IMU Rotation", RobotRotation);
+        engine.telemetry.addData("Robot IMU Rotation", CurrentRotation);
         engine.telemetry.addData("Robot Target Rotation", targetRotation);
         engine.telemetry.addData("Drive Power", drivePowerVariable);
         engine.telemetry.addData("front right power", robot.frontRightDrive.getPower());
         engine.telemetry.addData("front left power", robot.frontLeftDrive.getPower());
         engine.telemetry.addData("back left power", robot.backLeftDrive.getPower());
         engine.telemetry.addData("back right power", robot.backRightDrive.getPower());
+        engine.telemetry.addData("RotationStage", RotationStage);
 
     }
 }

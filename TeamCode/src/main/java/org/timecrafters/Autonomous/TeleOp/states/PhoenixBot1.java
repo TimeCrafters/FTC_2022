@@ -1,4 +1,4 @@
-package org.timecrafters.TeleOp.states;
+package org.timecrafters.Autonomous.TeleOp.states;
 
 import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -25,7 +25,7 @@ import org.timecrafters.minibots.cyberarm.chiron.states.autonomous.Arm;
 public class PhoenixBot1 {
 
     private static final float mmPerInch        = 25.4f;
-    public static final double WHEEL_CIRCUMFERENCE = 7.42108499;
+    public static double WHEEL_CIRCUMFERENCE;
     public static final int COUNTS_PER_REVOLUTION = 8192;
     public static double leftCompensatorGlobal;
     public static double RightCompensatorGlobal;
@@ -35,6 +35,8 @@ public class PhoenixBot1 {
     public double STRAFE_MINIMUM_POWER;
     public double DRIVE_TOLERANCE;
     public double ROTATION_TOLERANCE;
+    public long PAUSE_ON_ROTATION;
+    public double DISTANCE_MULTIPLIER;
 
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
     private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
@@ -99,6 +101,9 @@ public class PhoenixBot1 {
             STRAFE_MINIMUM_POWER = configuration.variable("Robot", "Tuning", "STRAFE_MINIMUM_POWER").value();
             DRIVE_TOLERANCE = configuration.variable("Robot", "Tuning", "DRIVE_TOLERANCE").value();
             ROTATION_TOLERANCE = configuration.variable("Robot", "Tuning", "ROTATION_TOLERANCE").value();
+            PAUSE_ON_ROTATION = configuration.variable("Robot", "Tuning", "PAUSE_ON_ROTATION").value();
+            WHEEL_CIRCUMFERENCE = configuration.variable("Robot", "Tuning", "WHEEL_CIRCUMFERENCE").value();
+            DISTANCE_MULTIPLIER = configuration.variable("Robot", "Tuning", "DISTANCE_MULTIPLIER").value();
         }
 
     private void initVuforia(){
@@ -243,6 +248,8 @@ public class PhoenixBot1 {
 //            HighRiserRight.setPosition(0.40);
 
             CameraServo.setPosition(0.775);
+
+
 
         }
 

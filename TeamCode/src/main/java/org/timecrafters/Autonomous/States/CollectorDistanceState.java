@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.cyberarm.engine.V2.CyberarmState;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.timecrafters.TeleOp.states.PhoenixBot1;
+import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
 
 public class CollectorDistanceState extends CyberarmState {
 

@@ -1,9 +1,7 @@
-package org.timecrafters.TeleOp.states;
+package org.timecrafters.Autonomous.TeleOp.states;
 
 import android.annotation.SuppressLint;
-import android.widget.Switch;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.Servo;
