@@ -411,7 +411,7 @@ public abstract class CyberarmEngine extends OpMode {
    * state must have a construction that takes 3 arguments: object, groupName, and actionName
    * @param configuration TimeCraftersConfiguration
    * @param packageName Package name where states are defined
-   * @param object Object to pass to as first argument to states constructor
+   * @param object Object to pass as first argument to states constructor
    * @param objectClass Class to cast object to
    * @param groupName Group name
    */
@@ -456,7 +456,10 @@ public abstract class CyberarmEngine extends OpMode {
       } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException e) {
         e.printStackTrace();
 
-        throw(new RuntimeException(e));
+        RuntimeException exception = new RuntimeException(e.getMessage(), e.getCause());
+        exception.setStackTrace(e.getStackTrace());
+
+        throw(exception);
       }
     }
   }
