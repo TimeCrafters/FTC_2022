@@ -104,7 +104,7 @@ public class RotationState extends CyberarmState {
                 robot.backLeftDrive.setPower(0);
 
                 RotationStage ++;
-//                setHasFinished(true);
+                setHasFinished(true);
             }
         }
 

@@ -17,7 +17,7 @@ import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
 import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
 
-@Autonomous (name = "left 2 cone auto")
+//@Autonomous (name = "left 2 cone auto")
 
 public class LeftTwoConeAutonomousEngine extends CyberarmEngine {
     PhoenixBot1 robot;

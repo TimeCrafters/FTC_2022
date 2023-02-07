@@ -287,7 +287,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         }
 
         if (driveStage == 5) {
-//            setHasFinished(true);
+            setHasFinished(true);
         }
     }
 

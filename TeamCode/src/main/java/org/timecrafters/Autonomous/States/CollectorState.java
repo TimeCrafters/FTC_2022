@@ -52,8 +52,8 @@ public class CollectorState extends CyberarmState {
             }
 
         } else {
-//            robot.collectorLeft.setPower(0);
-//            robot.collectorRight.setPower(0);
+            robot.collectorLeft.setPower(0);
+            robot.collectorRight.setPower(0);
             setHasFinished(true);
         }
 
