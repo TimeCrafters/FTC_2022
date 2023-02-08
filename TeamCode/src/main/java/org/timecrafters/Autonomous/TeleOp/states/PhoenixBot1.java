@@ -37,6 +37,7 @@ public class PhoenixBot1 {
     public double ROTATION_TOLERANCE;
     public long PAUSE_ON_ROTATION;
     public double DISTANCE_MULTIPLIER;
+    public double CAMERA_INITiAL_POS;
 
 //    private static final String TFOD_MODEL_ASSET = "22-23_PowerPlay_Colors.tflite";
     private static final String TFOD_MODEL_ASSET = "AprilTagsV1.tflite";
@@ -104,6 +105,7 @@ public class PhoenixBot1 {
             PAUSE_ON_ROTATION = configuration.variable("Robot", "Tuning", "PAUSE_ON_ROTATION").value();
             WHEEL_CIRCUMFERENCE = configuration.variable("Robot", "Tuning", "WHEEL_CIRCUMFERENCE").value();
             DISTANCE_MULTIPLIER = configuration.variable("Robot", "Tuning", "DISTANCE_MULTIPLIER").value();
+            CAMERA_INITiAL_POS = configuration.variable("Robot", "Tuning", "CAMERA_INITiAL_POS").value();
         }
 
     private void initVuforia(){
@@ -247,7 +249,7 @@ public class PhoenixBot1 {
 //            HighRiserLeft.setPosition(0.40);
 //            HighRiserRight.setPosition(0.40);
 
-            CameraServo.setPosition(0.775);
+            CameraServo.setPosition(CAMERA_INITiAL_POS);
 
 
 

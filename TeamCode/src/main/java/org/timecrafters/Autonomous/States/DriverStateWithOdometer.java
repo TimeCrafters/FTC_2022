@@ -15,7 +15,7 @@ public class DriverStateWithOdometer extends CyberarmState {
     private float direction;
     private boolean targetAchieved = false;
     public final double WHEEL_CIRCUMFERENCE = 7.42108499;
-    public final int COUNTS_PER_REVOLUTION = 8192;
+    public final double COUNTS_PER_REVOLUTION = 8192;
     public double startOfRampUpRight;
     public double startOfRampDownRight;
     public double startOfRampUpLeft;
@@ -40,8 +40,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
     }
 
-    private double drivePower, targetDrivePower;
-    private int traveledDistance;
+    private double drivePower, targetDrivePower, traveledDistance;
 
     @Override
     public void start() {
@@ -62,24 +61,24 @@ public class DriverStateWithOdometer extends CyberarmState {
 
 
         if (targetDrivePower > 0) {
-            startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition();
+            startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition() - 100;
             endOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition() + RampUpDistance;
             startOfRampDownRight = robot.OdometerEncoderRight.getCurrentPosition() + traveledDistance - RampDownDistance;
             endOfRampDownRight = robot.OdometerEncoderRight.getCurrentPosition() + traveledDistance;
 
-            startOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition();
+            startOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition() - 100;
             endOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition() + RampUpDistance;
             startOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() + traveledDistance - RampDownDistance;
             endOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() + traveledDistance;
 
         } else {
 
-            startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition();
+            startOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition() + 100;
             endOfRampUpRight = robot.OdometerEncoderRight.getCurrentPosition() - RampUpDistance;
             startOfRampDownRight = robot.OdometerEncoderRight.getCurrentPosition() - traveledDistance + RampDownDistance;
             endOfRampDownRight = robot.OdometerEncoderRight.getCurrentPosition() - traveledDistance;
 
-            startOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition();
+            startOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition() + 100;
             endOfRampUpLeft = robot.OdometerEncoderLeft.getCurrentPosition() - RampUpDistance;
             startOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() - traveledDistance + RampDownDistance;
             endOfRampDownLeft = robot.OdometerEncoderLeft.getCurrentPosition() - traveledDistance;
@@ -255,7 +254,7 @@ public class DriverStateWithOdometer extends CyberarmState {
             }
         }
 
-        // .................................................................................................................................................Strafe Adjustment
+        // ...........................................................................................................................................Strafe Adjustment
         if ( driveStage == 3 ){
 
             currentHorizontalEncoder = robot.OdometerEncoderHorizontal.getCurrentPosition();
@@ -294,7 +293,10 @@ public class DriverStateWithOdometer extends CyberarmState {
     @Override
     public void telemetry () {
         engine.telemetry.addData("Stage", driveStage);
-        engine.telemetry.addData("maximumTolerance", maximumTolerance);
+
+        engine.telemetry.addData("OdometerR", robot.OdometerEncoderRight.getCurrentPosition());
+        engine.telemetry.addData("OdometerL", robot.OdometerEncoderLeft.getCurrentPosition());
+        engine.telemetry.addData("OdometerH", robot.OdometerEncoderHorizontal.getCurrentPosition());
         engine.telemetry.addData("startOfRampUpRight", startOfRampUpRight);
         engine.telemetry.addData("endOfRampUpRight", endOfRampUpRight);
         engine.telemetry.addData("startOfRampDownRight", startOfRampDownRight);
@@ -311,9 +313,7 @@ public class DriverStateWithOdometer extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getPower());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getPower());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getPower());
-        engine.telemetry.addData("OdometerR", robot.OdometerEncoderRight.getCurrentPosition());
-        engine.telemetry.addData("OdometerL", robot.OdometerEncoderLeft.getCurrentPosition());
-        engine.telemetry.addData("OdometerH", robot.OdometerEncoderHorizontal.getCurrentPosition());
+        engine.telemetry.addData("maximumTolerance", maximumTolerance);
         engine.telemetry.addData("imu 1 angle", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         engine.telemetry.addData("Target Achieved", targetAchieved);
 

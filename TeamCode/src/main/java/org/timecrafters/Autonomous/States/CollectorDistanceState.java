@@ -12,7 +12,6 @@ public class CollectorDistanceState extends CyberarmState {
     private int traveledDistance;
     private int RampUpDistance;
     private int RampDownDistance;
-    private double drivePower;
     private double targetDrivePower;
     private double lastMeasuredTime;
     private double currentDistance;
@@ -24,6 +23,7 @@ public class CollectorDistanceState extends CyberarmState {
     private float collectTime;
     private double inRangeTime;
     private boolean stateDisabled;
+    private double distanceLimit;
 
 
     public CollectorDistanceState(PhoenixBot1 robot, String groupName, String actionName) {
@@ -33,6 +33,7 @@ public class CollectorDistanceState extends CyberarmState {
         this.RampUpDistance = robot.configuration.variable(groupName, actionName, "RampUpDistance").value();
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
         this.collectTime = robot.configuration.variable(groupName, actionName, "collectTime").value();
+        this.distanceLimit = robot.configuration.variable(groupName, actionName, "distanceLimit").value();
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
 
 
@@ -44,21 +45,15 @@ public class CollectorDistanceState extends CyberarmState {
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
         engine.telemetry.addData("BackLeftDrive", robot.backLeftDrive.getCurrentPosition());
-        engine.telemetry.addData("BackLeftDrive", robot.OdometerEncoderRight.getCurrentPosition());
-        engine.telemetry.addLine();
 
         engine.telemetry.addData("traveledDistance", traveledDistance);
         engine.telemetry.addData("RampUpDistance", RampUpDistance);
         engine.telemetry.addData("RampDownDistance", RampDownDistance);
 
-        engine.telemetry.addLine();
-
-        engine.telemetry.addData("drivePower", drivePower);
         engine.telemetry.addData("targetDrivePower", targetDrivePower);
 
         engine.telemetry.addLine();
-        engine.telemetry.addData("Distance Sensor", robot.collectorDistance.getDistance(DistanceUnit.MM));
-        engine.telemetry.addData("Current Distance", currentDistance);
+        engine.telemetry.addData("Current Sensor", robot.collectorDistance.getDistance(DistanceUnit.MM));
         engine.telemetry.addData("last Distance", LastDistanceRead);
         engine.telemetry.addLine();
 
@@ -75,17 +70,11 @@ public class CollectorDistanceState extends CyberarmState {
         robot.frontLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         robot.frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.OdometerEncoderHorizontal.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
 
         robot.collectorLeft.setPower(1);
@@ -102,7 +91,7 @@ public class CollectorDistanceState extends CyberarmState {
 
     @Override
     public void exec() {
-        if (stateDisabled){
+        if (stateDisabled) {
             robot.frontRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.backRightDrive.setPower(0);
@@ -141,60 +130,41 @@ public class CollectorDistanceState extends CyberarmState {
             }
         }
 
-        if (robot.collectorDistance.getDistance(DistanceUnit.MM) > 70) {
+        if (robot.collectorDistance.getDistance(DistanceUnit.MM) > distanceLimit) {
+
             double delta = traveledDistance - Math.abs(robot.OdometerEncoderRight.getCurrentPosition());
 
-            if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) <= RampUpDistance) {
-                // ramping up
-                drivePower = (Math.abs((float) robot.OdometerEncoderRight.getCurrentPosition()) / RampUpDistance) + 0.15;
-            } else if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) >= delta) {
-                // ramping down
-                drivePower = ((delta / RampDownDistance) + 0.15);
-            } else {
-                // middle ground
-                drivePower = targetDrivePower;
-            }
+            robot.backLeftDrive.setPower(targetDrivePower);
+            robot.backRightDrive.setPower(targetDrivePower);
+            robot.frontLeftDrive.setPower(targetDrivePower);
+            robot.frontRightDrive.setPower(targetDrivePower);
 
-            if (Math.abs(drivePower) > Math.abs(targetDrivePower)) {
-                // This is limiting drive power to the targeted drive power
-                drivePower = targetDrivePower;
-            }
-
-            if (targetDrivePower < 0 && drivePower != targetDrivePower) {
-                drivePower = drivePower * -1;
-            }
-
-            if (Math.abs(robot.OdometerEncoderRight.getCurrentPosition()) < traveledDistance) {
-                robot.backLeftDrive.setPower(drivePower);
-                robot.backRightDrive.setPower(drivePower);
-                robot.frontLeftDrive.setPower(drivePower);
-                robot.frontRightDrive.setPower(drivePower);
-            }
-    } else {
-        robot.frontRightDrive.setPower(0);
-        robot.frontLeftDrive.setPower(0);
-        robot.backRightDrive.setPower(0);
-        robot.backLeftDrive.setPower(0);
-
-        if (!inRange){
-            inRange = true;
-            inRangeTime = runTime();
         } else {
 
-            if (runTime() - inRangeTime >= collectTime){
-                robot.collectorRight.setPower(0);
-                robot.collectorLeft.setPower(0);
-                robot.frontRightDrive.setPower(0);
-                robot.frontLeftDrive.setPower(0);
-                robot.backRightDrive.setPower(0);
-                robot.backLeftDrive.setPower(0);
-                setHasFinished(true);
+            robot.frontRightDrive.setPower(0);
+            robot.frontLeftDrive.setPower(0);
+            robot.backRightDrive.setPower(0);
+            robot.backLeftDrive.setPower(0);
+
+            if (!inRange){
+                inRange = true;
+                inRangeTime = runTime();
+            } else {
+
+                if (runTime() - inRangeTime >= collectTime){
+                    robot.collectorRight.setPower(0);
+                    robot.collectorLeft.setPower(0);
+                    robot.frontRightDrive.setPower(0);
+                    robot.frontLeftDrive.setPower(0);
+                    robot.backRightDrive.setPower(0);
+                    robot.backLeftDrive.setPower(0);
+                    setHasFinished(true);
+                }
             }
-        }
+
+                }
 
             }
 
         }
-
-    }
 
