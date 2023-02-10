@@ -10,6 +10,7 @@ import org.timecrafters.minibots.cyberarm.chiron.Robot;
 public class DrivetrainDriverControl extends CyberarmState {
     private final Robot robot;
     private final String groupName, actionName;
+    private final double robotCentricRotation;
 
     private Gamepad controller;
 
@@ -23,6 +24,8 @@ public class DrivetrainDriverControl extends CyberarmState {
         this.actionName = actionName;
 
         this.controller = engine.gamepad1;
+
+        this.robotCentricRotation = robot.tuningConfig("robot_centric_rotation").value();
     }
 
     @Override
@@ -49,6 +52,13 @@ public class DrivetrainDriverControl extends CyberarmState {
 
         double y = invertRobotForward ? controller.left_stick_y : -controller.left_stick_y;
         double x = (invertRobotForward && !fieldCentricControl ? controller.left_stick_x : -controller.left_stick_x);
+
+        if (!fieldCentricControl) {
+            Vector2d v = new Vector2d(x, y).rotated(robotCentricRotation);
+
+            x = v.getX();
+            y = v.getY();
+        }
 
         // Improve control?
         if (y < 0) {
@@ -159,6 +169,10 @@ public class DrivetrainDriverControl extends CyberarmState {
 
         if (button.equals("right_stick_button")) {
             robotSlowMode = !robotSlowMode;
+        }
+
+        if (button.equals("left_stick_button") && robot.hardwareFault) {
+            robot.imu.resetYaw();
         }
     }
 
