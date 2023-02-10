@@ -231,18 +231,18 @@ public class DriverStateWithOdometer extends CyberarmState {
 
             if (currentAngle - direction > robot.ROTATION_TOLERANCE) {
 
-                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
-                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER );
-                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
-                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER  );
+                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER - 0.05 );
+                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER + 0.05);
+                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER - 0.05  );
+                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER + 0.05 );
 
             }
             else if (currentAngle - direction < -robot.ROTATION_TOLERANCE) {
 
-                robot.frontRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
-                robot.frontLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
-                robot.backRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
-                robot.backLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+                robot.frontRightDrive.setPower(robot.ROTATION_MINIMUM_POWER + 0.05 );
+                robot.frontLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER - 0.05 );
+                robot.backRightDrive.setPower(robot.ROTATION_MINIMUM_POWER + 0.05 );
+                robot.backLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER - 0.05);
 
             } else {
                 robot.frontRightDrive.setPower(0);

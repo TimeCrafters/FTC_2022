@@ -10,7 +10,7 @@ import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.TopArmv2;
 import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
 
-@Autonomous(name = "Right Side")
+@Autonomous(name = "Right Side", group = "A Phoenix", preselectTeleOp = "APhoenixTeleOP")
 public class RightStateAutoEngine extends CyberarmEngine {
     PhoenixBot1 robot;
 
