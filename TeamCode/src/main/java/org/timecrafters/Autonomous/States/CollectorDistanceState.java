@@ -24,6 +24,10 @@ public class CollectorDistanceState extends CyberarmState {
     private double inRangeTime;
     private boolean stateDisabled;
     private double distanceLimit;
+    private long maximumLookTime;
+    private long startOfSequencerTime;
+    public final double WHEEL_CIRCUMFERENCE = 7.42108499;
+    public final double COUNTS_PER_REVOLUTION = 8192;
 
 
     public CollectorDistanceState(PhoenixBot1 robot, String groupName, String actionName) {
@@ -34,6 +38,7 @@ public class CollectorDistanceState extends CyberarmState {
         this.RampDownDistance = robot.configuration.variable(groupName, actionName, "RampDownDistance").value();
         this.collectTime = robot.configuration.variable(groupName, actionName, "collectTime").value();
         this.distanceLimit = robot.configuration.variable(groupName, actionName, "distanceLimit").value();
+        this.maximumLookTime = robot.configuration.variable(groupName, actionName, "maximumLookTime").value();
         this.stateDisabled = !robot.configuration.action(groupName, actionName).enabled;
 
 
@@ -41,6 +46,8 @@ public class CollectorDistanceState extends CyberarmState {
 
     @Override
     public void telemetry() {
+        engine.telemetry.addData("Time left", System.currentTimeMillis() - startOfSequencerTime);
+
         engine.telemetry.addData("frontRightDrive", robot.frontRightDrive.getCurrentPosition());
         engine.telemetry.addData("frontLeftDrive", robot.frontLeftDrive.getCurrentPosition());
         engine.telemetry.addData("BackRightDrive", robot.backRightDrive.getCurrentPosition());
@@ -81,8 +88,10 @@ public class CollectorDistanceState extends CyberarmState {
         robot.collectorRight.setPower(1);
 
         lastMeasuredTime = System.currentTimeMillis();
+        startOfSequencerTime = System.currentTimeMillis();
         LastDistanceRead = robot.collectorDistance.getDistance(DistanceUnit.MM);
 
+        traveledDistance = (int) ((traveledDistance * (COUNTS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE)) * robot.DISTANCE_MULTIPLIER);
 
 
     }
@@ -91,13 +100,14 @@ public class CollectorDistanceState extends CyberarmState {
 
     @Override
     public void exec() {
-        if (stateDisabled) {
+        if (stateDisabled || System.currentTimeMillis() - startOfSequencerTime > maximumLookTime) {
+            robot.collectorLeft.setPower(0);
+            robot.collectorRight.setPower(0);
             robot.frontRightDrive.setPower(0);
             robot.frontLeftDrive.setPower(0);
             robot.backRightDrive.setPower(0);
             robot.backLeftDrive.setPower(0);
             setHasFinished(true);
-            return;
         }
 
         if (System.currentTimeMillis() - lastMeasuredTime > 150) {
@@ -125,8 +135,6 @@ public class CollectorDistanceState extends CyberarmState {
                 robot.backLeftDrive.setPower(0);
 
                 setHasFinished(true);
-
-                return;
             }
         }
 

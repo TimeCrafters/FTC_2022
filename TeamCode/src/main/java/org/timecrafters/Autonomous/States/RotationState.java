@@ -7,6 +7,7 @@ import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
 public class RotationState extends CyberarmState {
     private final boolean stateDisabled;
     PhoenixBot1 robot;
+
     public RotationState(PhoenixBot1 robot, String groupName, String actionName) {
         this.robot = robot;
         this.drivePower = robot.configuration.variable(groupName, actionName, "DrivePower").value();
@@ -52,13 +53,17 @@ public class RotationState extends CyberarmState {
 
             drivePowerVariable = ((Math.abs(CurrentRotation - targetRotation) / 90) * (drivePower - robot.ROTATION_MINIMUM_POWER)) + robot.ROTATION_MINIMUM_POWER;
 
-            if (ClockWiseRotation) { rotationDirection = 1;} else { rotationDirection = -1;}
+            if (ClockWiseRotation) {
+                rotationDirection = 1;
+            } else {
+                rotationDirection = -1;
+            }
 
 
-                robot.backLeftDrive.setPower( drivePowerVariable * rotationDirection );
-                robot.backRightDrive.setPower( -drivePowerVariable * rotationDirection );
-                robot.frontLeftDrive.setPower( drivePowerVariable * rotationDirection );
-                robot.frontRightDrive.setPower( -drivePowerVariable * rotationDirection );
+            robot.backLeftDrive.setPower(drivePowerVariable * rotationDirection);
+            robot.backRightDrive.setPower(-drivePowerVariable * rotationDirection);
+            robot.frontLeftDrive.setPower(drivePowerVariable * rotationDirection);
+            robot.frontRightDrive.setPower(-drivePowerVariable * rotationDirection);
 
             if (Math.abs(Math.abs(CurrentRotation) - Math.abs(targetRotation)) <= robot.ROTATION_TOLERANCE &&
                     (RotationStage == 0) &&
@@ -66,14 +71,14 @@ public class RotationState extends CyberarmState {
                 RotationStage = 1;
                 lastStepTime = System.currentTimeMillis();
             }
-            }
+        }
 
-        if (RotationStage == 1){
-            robot.backLeftDrive.setPower( 0 );
-            robot.backRightDrive.setPower( 0 );
-            robot.frontLeftDrive.setPower( 0 );
-            robot.frontRightDrive.setPower( 0 );
-            if (System.currentTimeMillis() - lastStepTime >= robot.PAUSE_ON_ROTATION ){
+        if (RotationStage == 1) {
+            robot.backLeftDrive.setPower(0);
+            robot.backRightDrive.setPower(0);
+            robot.frontLeftDrive.setPower(0);
+            robot.frontRightDrive.setPower(0);
+            if (System.currentTimeMillis() - lastStepTime >= robot.PAUSE_ON_ROTATION) {
                 RotationStage = 2;
             }
         }
@@ -83,13 +88,14 @@ public class RotationState extends CyberarmState {
             if (CurrentRotation - targetRotation > robot.ROTATION_TOLERANCE) {
                 // CW
 
-                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
-                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER );
-                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER  );
-                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER  );
+                robot.frontRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+                robot.frontLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER);
+                robot.backRightDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
+                robot.backLeftDrive.setPower(robot.ROTATION_MINIMUM_POWER);
 
-            }
-            else if (CurrentRotation - targetRotation < -robot.ROTATION_TOLERANCE) {
+                lastStepTime = System.currentTimeMillis();
+
+            } else if (CurrentRotation - targetRotation < -robot.ROTATION_TOLERANCE) {
                 // CCW
 
                 robot.frontRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
@@ -97,18 +103,24 @@ public class RotationState extends CyberarmState {
                 robot.backRightDrive.setPower(robot.ROTATION_MINIMUM_POWER);
                 robot.backLeftDrive.setPower(-robot.ROTATION_MINIMUM_POWER);
 
+                lastStepTime = System.currentTimeMillis();
+
             } else {
                 robot.frontRightDrive.setPower(0);
                 robot.frontLeftDrive.setPower(0);
                 robot.backRightDrive.setPower(0);
                 robot.backLeftDrive.setPower(0);
 
-                RotationStage ++;
-                setHasFinished(true);
+                if (System.currentTimeMillis() - lastStepTime >= robot.PAUSE_ON_ROTATION) {
+                    RotationStage = 3;
+                }
             }
         }
 
-
+        if (RotationStage == 3) {
+            RotationStage ++;
+            setHasFinished(true);
+            }
         }
 
 

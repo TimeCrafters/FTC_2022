@@ -240,7 +240,7 @@ public class PhoenixBot1 {
             ArmMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             ArmMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             ArmMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+            ArmMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             CameraServo.setDirection(Servo.Direction.FORWARD);
 

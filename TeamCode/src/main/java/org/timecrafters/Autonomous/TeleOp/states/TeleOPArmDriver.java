@@ -21,7 +21,7 @@ public class TeleOPArmDriver extends CyberarmState {
     //    private double servoLowHigh = 0.75; //High servos, X button
     private double servoMed = 0.45; //Low servos, B button
     //    private double servoMedHigh = 0.9; //High servos, B button
-    private double servoHigh = 0.7; //Low servos, Y button
+    private double servoHigh = 0.8; //Low servos, Y button
     //    private double servoHighHigh = 0.9; //High servos, Y button
     private double ArmNeededPower;
     private int armMotorCollect = -100;
