@@ -3,7 +3,7 @@ package org.timecrafters.Autonomous.Engines;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
-import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
+import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 @Autonomous(name = "Left Side", group = "A Phoenix", preselectTeleOp = "APhoenixTeleOP")
 public class LeftStateAutoEngine extends CyberarmEngine {

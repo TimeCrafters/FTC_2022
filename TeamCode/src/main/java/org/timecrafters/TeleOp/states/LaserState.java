@@ -1,4 +1,4 @@
-package org.timecrafters.Autonomous.TeleOp.states;
+package org.timecrafters.TeleOp.states;
 
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;

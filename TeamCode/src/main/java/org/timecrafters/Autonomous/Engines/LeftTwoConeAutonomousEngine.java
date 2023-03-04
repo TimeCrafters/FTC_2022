@@ -1,7 +1,5 @@
 package org.timecrafters.Autonomous.Engines;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.timecrafters.Autonomous.States.BottomArm;
 import org.timecrafters.Autonomous.States.CollectorDistanceState;
@@ -15,7 +13,7 @@ import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
-import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
+import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 //@Autonomous (name = "left 2 cone auto")
 

@@ -1,7 +1,7 @@
 package org.timecrafters.Autonomous.States;
 
 import org.cyberarm.engine.V2.CyberarmState;
-import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
+import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 public class PathDecision extends CyberarmState {
     PhoenixBot1 robot;

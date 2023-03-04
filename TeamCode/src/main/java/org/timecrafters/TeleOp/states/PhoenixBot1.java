@@ -1,4 +1,4 @@
-package org.timecrafters.Autonomous.TeleOp.states;
+package org.timecrafters.TeleOp.states;
 
 import com.qualcomm.hardware.adafruit.AdafruitI2cColorSensor;
 import com.qualcomm.hardware.bosch.BNO055IMU;

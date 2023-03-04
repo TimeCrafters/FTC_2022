@@ -14,7 +14,7 @@ import org.timecrafters.Autonomous.States.PathDecision;
 import org.timecrafters.Autonomous.States.RotationState;
 import org.timecrafters.Autonomous.States.ServoCameraRotate;
 import org.timecrafters.Autonomous.States.TopArm;
-import org.timecrafters.Autonomous.TeleOp.states.PhoenixBot1;
+import org.timecrafters.TeleOp.states.PhoenixBot1;
 
 //@Autonomous (name = "Left Side")
 @Disabled
