@@ -3,18 +3,15 @@ package org.timecrafters.minibots.cyberarm.phoenix;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
-import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Blinker;
-import com.qualcomm.robotcore.hardware.CRServoImplEx;
-import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.cyberarm.engine.V2.CyberarmEngine;
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
@@ -27,7 +24,6 @@ import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.timecrafters.TimeCraftersConfigurationTool.library.TimeCraftersConfiguration;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Action;
 import org.timecrafters.TimeCraftersConfigurationTool.library.backend.config.Variable;
-import org.timecrafters.minibots.cyberarm.chiron.tasks.FieldLocalizer;
 
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +33,9 @@ import java.util.concurrent.TimeUnit;
 public class Robot {
     private static final String TAG = "Phoenix | Robot";
     public final DcMotorEx backLeftDrive, frontRightDrive, frontLeftDrive, backRightDrive, arm;
+    public final PositionalServoController leftRiserServoController, rightRiserServoController;
+    public final Servo cameraServo;
+    public final CRServo collectorLeftServo, collectorRightServo;
 //    public final ServoImplEx gripper;
     public final IMU imu;
     public LynxModule expansionHub;
@@ -52,6 +51,7 @@ public class Robot {
     private final ConcurrentHashMap<String, Double> motorVelocityError = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Double> motorVelocityLastTiming = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Double> motorTargetVelocity = new ConcurrentHashMap<>();
+    private ArmPosition armTargetPosition;
 
     public enum ArmPosition {
         COLLECT,
@@ -147,6 +147,33 @@ public class Robot {
         //      MOTOR POWER
         arm.setPower(tuningConfig("arm_automatic_power").value());
 
+        //   SERVOS
+        //      NOTES: 428.57142858° per second = no load speed of 60° per 0.14s at 6V, see: https://docs.revrobotics.com/duo-build/actuators/servos/smart-robot-servo#mechanical-specifications
+        leftRiserServoController = new PositionalServoController(
+                engine.hardwareMap.servo.get("LowRiserLeft"),
+                5.0,
+                428.57142858,
+                270.0
+        ); // SERVER PORT: ? - ? HUB
+
+        rightRiserServoController = new PositionalServoController(
+                engine.hardwareMap.servo.get("LowRiserRight"),
+                5.0,
+                428.57142858,
+                270.0
+        ); // SERVER PORT: ? - ? HUB
+
+        cameraServo = engine.hardwareMap.servo.get("Camera Servo"); // SERVER PORT: ? - ? HUB
+
+        collectorLeftServo = engine.hardwareMap.crservo.get("Collector Left");   // SERVER PORT: ? - ? HUB
+        collectorRightServo = engine.hardwareMap.crservo.get("Collector Right"); // SERVER PORT: ? - ? HUB
+
+        //      SERVO DIRECTIONS
+        cameraServo.setDirection(Servo.Direction.REVERSE);
+        collectorLeftServo.setDirection(DcMotorSimple.Direction.REVERSE);
+        collectorRightServo.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        //  SENSORS
         //      IMU
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
@@ -394,6 +421,8 @@ public class Robot {
                 if (lastStatus == Status.DANGER) { expansionHub.setPattern(ledPatternDanger()); }
             }
         }
+
+        manageArmAndRiserServos();
     }
 
     public void stop() {
@@ -407,32 +436,67 @@ public class Robot {
             return;
         }
 
+        armTargetPosition = position;
+
         reportStatus(Status.WARNING);
+    }
 
-        switch (position) {
+    private void manageArmAndRiserServos() {
+        boolean lowerServos = true;
+
+        switch (armTargetPosition) {
             case COLLECT:
-                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_collect").value()));
+                if (areRiserServosInLoweredPosition()) {
+                    arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_collect").value()));
+                }
                 break;
 
-            case GROUND:
-                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_ground").value()));
-                break;
+//            case GROUND:
+//                if (areRiserServosInLoweredPosition()) {
+//                    arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_ground").value()));
+//                }
+//                break;
 
+            case GROUND: // DISABLE GROUND JUNCTION SUPPORT FOR NOW
             case LOW:
-                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_low").value()));
+                if (areRiserServosInLoweredPosition()) {
+                    arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_low").value()));
+                }
                 break;
 
             case MEDIUM:
-                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_medium").value()));
+                if (areRiserServosInLoweredPosition()) {
+                    arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_medium").value()));
+                }
                 break;
 
             case HIGH:
-                arm.setTargetPosition(angleToTicks(tuningConfig("arm_position_angle_high").value()));
+                double angleHigh = tuningConfig("arm_position_angle_high").value();
+                arm.setTargetPosition(angleToTicks(angleHigh));
+
+                if (arm.getCurrentPosition() >= angleToTicks(angleHigh - 10.0)) {
+                    lowerServos = false;
+                }
                 break;
 
             default:
                 throw new RuntimeException("Unexpected arm position!");
         }
+
+        if (lowerServos) {
+            leftRiserServoController.setTargetPosition(0.45);
+            rightRiserServoController.setTargetPosition(0.45);
+        } else {
+            leftRiserServoController.setTargetPosition(0.8);
+            rightRiserServoController.setTargetPosition(0.8);
+        }
+
+        leftRiserServoController.update();
+        rightRiserServoController.update();
+    }
+
+    private boolean areRiserServosInLoweredPosition() {
+        return leftRiserServoController.getEstimatedPosition() < 0.5 && rightRiserServoController.getEstimatedPosition() < 0.5;
     }
 
     // Adapted from: https://github.com/gosu/gosu/blob/980d64de2ce52e4b16fdd5cb9c9e11c8bbb80671/src/Math.cpp#L38
