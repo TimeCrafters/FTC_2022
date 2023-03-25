@@ -134,6 +134,7 @@ public class Robot {
 
         arm.setTargetPosition(0);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER); arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armTargetPosition = ArmPosition.COLLECT;
 
         //      ZERO POWER BEHAVIOR
         frontLeftDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -148,16 +149,21 @@ public class Robot {
         arm.setPower(tuningConfig("arm_automatic_power").value());
 
         //   SERVOS
+        Servo leftRiser = engine.hardwareMap.servo.get("LowRiserLeft");
+        leftRiser.setDirection(Servo.Direction.FORWARD);
+        Servo rightRiser = engine.hardwareMap.servo.get("LowRiserRight");
+        rightRiser.setDirection(Servo.Direction.REVERSE);
+
         //      NOTES: 428.57142858° per second = no load speed of 60° per 0.14s at 6V, see: https://docs.revrobotics.com/duo-build/actuators/servos/smart-robot-servo#mechanical-specifications
         leftRiserServoController = new PositionalServoController(
-                engine.hardwareMap.servo.get("LowRiserLeft"),
+                leftRiser,
                 5.0,
                 428.57142858,
                 270.0
         ); // SERVER PORT: ? - ? HUB
 
         rightRiserServoController = new PositionalServoController(
-                engine.hardwareMap.servo.get("LowRiserRight"),
+                rightRiser,
                 5.0,
                 428.57142858,
                 270.0
@@ -176,9 +182,11 @@ public class Robot {
         //  SENSORS
         //      IMU
         IMU.Parameters parameters = new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
+            new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+            )
+        );
 
         imu.initialize(parameters);
 
@@ -286,6 +294,8 @@ public class Robot {
 
         engine.telemetry.addData("      Arm", "%d (%8.2f degrees)", arm.getTargetPosition(), ticksToAngle(arm.getTargetPosition()));
 
+        engine.telemetry.addLine();
+
         // Motor Velocity
         engine.telemetry.addLine("Motor Velocity");
         engine.telemetry.addData("      Front Left Drive", "%8.2f (%8.2f in)", frontLeftDrive.getVelocity(), ticksToUnit(DistanceUnit.INCH, (int) frontLeftDrive.getVelocity()));
@@ -330,26 +340,26 @@ public class Robot {
 
         // Servo Positions
         engine.telemetry.addLine("Servo Positions");
-        engine.telemetry.addData("Left Riser (Est)", leftRiserServoController.getEstimatedPosition());
-        engine.telemetry.addData("Right Riser (Est)", rightRiserServoController.getEstimatedPosition());
-        engine.telemetry.addData("Camera (Blind)", cameraServo.getPosition());
+        engine.telemetry.addData("      Left Riser (Est)/(Target)/(Blind)", "%.4f [error: %.4f] / %.4f / %.4f", leftRiserServoController.getEstimatedPosition(), leftRiserServoController.getError(), leftRiserServoController.getTargetPosition(), leftRiserServoController.getServo().getPosition());
+        engine.telemetry.addData("      Right Riser (Est)/(Target)/(Blind)", "%.4f [error: %.4f] / %.4f / %.4f", rightRiserServoController.getEstimatedPosition(), rightRiserServoController.getError(), rightRiserServoController.getTargetPosition(), rightRiserServoController.getServo().getPosition());
+        engine.telemetry.addData("      Camera (Blind)", cameraServo.getPosition());
 
         engine.telemetry.addLine();
 
         // Continuous Servo Powers
         engine.telemetry.addLine("Servo Powers");
-        engine.telemetry.addData("Collector Left", collectorLeftServo.getPower());
-        engine.telemetry.addData("Collector Right", collectorRightServo.getPower());
+        engine.telemetry.addData("      Collector Left", collectorLeftServo.getPower());
+        engine.telemetry.addData("      Collector Right", collectorRightServo.getPower());
 
         engine.telemetry.addLine();
 
         // Servo Directions
         engine.telemetry.addLine("Servo Directions");
-        engine.telemetry.addData("Left Riser", leftRiserServoController.getServo().getDirection());
-        engine.telemetry.addData("Right Riser", rightRiserServoController.getServo().getDirection());
-        engine.telemetry.addData("Camera", cameraServo.getDirection());
-        engine.telemetry.addData("Collector Left", collectorLeftServo.getDirection());
-        engine.telemetry.addData("Collector Right", collectorRightServo.getDirection());
+        engine.telemetry.addData("      Left Riser", leftRiserServoController.getServo().getDirection());
+        engine.telemetry.addData("      Right Riser", rightRiserServoController.getServo().getDirection());
+        engine.telemetry.addData("      Camera", cameraServo.getDirection());
+        engine.telemetry.addData("      Collector Left", collectorLeftServo.getDirection());
+        engine.telemetry.addData("      Collector Right", collectorRightServo.getDirection());
 
         engine.telemetry.addLine();
 

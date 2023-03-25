@@ -65,7 +65,7 @@ public class DriveController extends CyberarmState {
             return;
         }
 
-        double x = -controller.left_stick_x;
+        double x = controller.left_stick_x;
         double y = -controller.left_stick_y;
 
         // Improve control?
