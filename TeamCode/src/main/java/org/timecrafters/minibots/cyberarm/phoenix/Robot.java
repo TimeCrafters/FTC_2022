@@ -328,6 +328,31 @@ public class Robot {
 
         engine.telemetry.addLine();
 
+        // Servo Positions
+        engine.telemetry.addLine("Servo Positions");
+        engine.telemetry.addData("Left Riser (Est)", leftRiserServoController.getEstimatedPosition());
+        engine.telemetry.addData("Right Riser (Est)", rightRiserServoController.getEstimatedPosition());
+        engine.telemetry.addData("Camera (Blind)", cameraServo.getPosition());
+
+        engine.telemetry.addLine();
+
+        // Continuous Servo Powers
+        engine.telemetry.addLine("Servo Powers");
+        engine.telemetry.addData("Collector Left", collectorLeftServo.getPower());
+        engine.telemetry.addData("Collector Right", collectorRightServo.getPower());
+
+        engine.telemetry.addLine();
+
+        // Servo Directions
+        engine.telemetry.addLine("Servo Directions");
+        engine.telemetry.addData("Left Riser", leftRiserServoController.getServo().getDirection());
+        engine.telemetry.addData("Right Riser", rightRiserServoController.getServo().getDirection());
+        engine.telemetry.addData("Camera", cameraServo.getDirection());
+        engine.telemetry.addData("Collector Left", collectorLeftServo.getDirection());
+        engine.telemetry.addData("Collector Right", collectorRightServo.getDirection());
+
+        engine.telemetry.addLine();
+
         // Sensors / IMU
         engine.telemetry.addLine("IMU");
         engine.telemetry.addData("      Facing (Degrees)", facing());
