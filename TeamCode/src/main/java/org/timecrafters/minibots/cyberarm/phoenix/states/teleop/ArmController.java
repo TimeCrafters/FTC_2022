@@ -95,12 +95,12 @@ public class ArmController extends CyberarmState {
 
             // Collector control
             case "dpad_up":
-                robot.collectorLeftServo.setPower(1);
-                robot.collectorRightServo.setPower(1);
-                break;
-            case "dpad_down":
                 robot.collectorLeftServo.setPower(-1);
                 robot.collectorRightServo.setPower(-1);
+                break;
+            case "dpad_down":
+                robot.collectorLeftServo.setPower(1);
+                robot.collectorRightServo.setPower(1);
         }
     }
 

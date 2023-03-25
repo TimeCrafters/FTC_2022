@@ -53,6 +53,7 @@ public class PositionalServoController {
             workingPosition += estimatedTravel;
             travelling = true;
         } else {
+            workingPosition = targetPosition;
             travelling = false;
         }
 
@@ -68,9 +69,15 @@ public class PositionalServoController {
         return estimatedPosition;
     }
 
+    public double getWorkingPosition() { return workingPosition; }
+
+    public double getTargetPosition() { return targetPosition; }
+
     public double getEstimatedAngle() {
         return estimatedPosition * servoRangeInDegrees;
     }
+
+    public double getError() { return targetPosition - estimatedPosition; }
 
     private double lerp(double min, double max, double t)
     {
